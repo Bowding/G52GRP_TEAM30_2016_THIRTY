@@ -1,0 +1,21 @@
+/*div.logo{
+	position: relative;
+}
+
+div.logo img{
+	margin: 0;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-right: -50%;
+	transform: translate(-50%, -50%)
+}
+*/
+#logo{
+	margin: 0;
+	position: absolute;
+	top: 30%;
+	left: 50%;
+	margin-right: -50%;
+	transform: translate(-50%, -50%)
+}
