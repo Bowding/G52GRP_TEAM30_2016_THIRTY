@@ -39,39 +39,60 @@ def getProfile():
 	name = soup.find_all("div", {"id": "gsc_prf_in"})[0]
 	institution = soup.find_all("div", {"class": "gsc_prf_il"})[0]
 	studyField = soup.find_all("div", {"class": "gsc_prf_il"})[1]
-	#hIndex = soup.find_all("td", {"class": "gsc_rsb_std"})
-	#article = soup.find_all("tr", {"class": "gsc_a_tr"})
 
 	print("Author Name: " + name.text)
 	print("Institution: " + institution.text)
 	print("studyField: " + studyField.text)
-	#print("h-index (all time): " + hIndex[2].text)
-	#print("h-index (Since 2011): " + hIndex[3].text + "\n")
+
 	getAvatar();
 	getCitationIndices();
-#	x = 1
-
-#	for item in article:
-#		print("Paper %d: "%(x) + item.find_all("a", {"class": "gsc_a_at"})[0].text.encode('ascii', 'ignore').decode('ascii'))
-#		print("Year: " + item.find_all("td", {"class": "gsc_a_y"})[0].text.encode('ascii', 'ignore').decode('ascii'))
-#		if item.find_all("td", {"class": "gsc_a_c"})[0].text != " ":
-#			print("Cited by: " + item.find_all("td", {"class": "gsc_a_c"})[0].text.encode('ascii', 'ignore').decode('ascii'))
-#		else:
-#			print("Cited by: 0\n")
-#		print("Co-Authors: " + item.find_all("div", {"class" : "gs_gray"})[0].text.encode('ascii', 'ignore').decode('ascii') + "\n")
-#		x += 1	
-#		
-#	for link in soup.find_all("a", {"class": "gsc_rsb_aa"}):
-#		link = "https://scholar.google.co.uk" + link.get('href')
-#		print(link)
-#		#basicInformation(link) 
 
 #co-authors
 def getCoAuthors():
+
 	coAuthors = soup.find_all("a", {"class": "gsc_rsb_aa"})
 	print("Co-Authors:")
 	for item in coAuthors:
 		print(item.text.encode('ascii', 'ignore').decode('ascii') + "\n")
+
+#get top-5 cited article
+def getTop5CitedArticle():
+
+	nextArtBlock = soup.find("tr", {"class": "gsc_a_tr"})
+	nextCitedNum = nextArtBlock.find("a", {"class": "gsc_a_ac"})
+	nextArt = nextArtBlock.find("a", {"class": "gsc_a_at"})
+
+	print("\nTop-5 cited articles:")
+
+	for i in range(5):
+
+		if nextCitedNum == "&nbsp":
+			break
+		else:
+			print("NO.%d "% (i + 1) + nextArt.text + " (Cited by: " + nextCitedNum.text + ")")
+			preCitedNum = nextCitedNum
+			nextArtBlock = nextArtBlock.find_next_sibling("tr", {"class": "gsc_a_tr"})
+			if nextArtBlock == None:
+				break	#same citation number next page??????
+			nextCitedNum = nextArtBlock.find("a", {"class": "gsc_a_ac"})
+			nextArt = nextArtBlock.find("a", {"class": "gsc_a_at"})
+			i += 1
+
+		if i == 5:	#if is last iteration, check next
+			j = i
+			while(nextCitedNum.text == preCitedNum.text):	#if next have same citation number, print and check next
+				
+				print("NO.%d "% (j+1) + nextArt.text + " (Cited by: " + nextCitedNum.text + ")")
+				preCitedNum = nextCitedNum
+				nextArtBlock = nextArtBlock.find_next_sibling("tr", {"class": "gsc_a_tr"})
+				if nextArtBlock == None:
+					break	#same citation number next page???????
+				nextCitedNum = nextArtBlock.find("a", {"class": "gsc_a_ac"})
+				nextArt = nextArtBlock.find("a", {"class": "gsc_a_at"})
+
+				j += 1
+
+
 
 #authors cited him
 #def citationAuthors():
@@ -88,3 +109,4 @@ if __name__ == "__main__":
 
 	getProfile()
 	getCoAuthors()
+	getTop5CitedArticle()
