@@ -1,15 +1,37 @@
 import requests
 from bs4 import BeautifulSoup
+import os
+from urllib.request import urlopen
+import time
 
 global url
 global r
 global soup 
 
 #getAvatar
-def getAvatar:
-name = soup.find_all("div", {"id": "gsc_prf_in"})[0]
+def getAvatar():
+
+	avatarSrcset = soup.find_all("img", {"id": "gsc_prf_pup"})[0].get('srcset').split(',', 1)
+	avatarURL_S = avatarSrcset[0]
+	avatarURL_M = avatarSrcset[1]
+	print("avatarURL_S: " + avatarURL_S)
+	print("avatarURL_M: " + avatarURL_M)
+
 #getCitationIndecies
-#def getCitationIndecies:
+def getCitationIndices():
+
+	citationsIndices = soup.find_all("td", {"class": "gsc_rsb_std"})
+	citations_all = citationsIndices[0]
+	citations_since = citationsIndices[1]
+	hIndex_all = citationsIndices[2]
+	hIndex_since = citationsIndices[3]
+	i10Index_all = citationsIndices[4]
+	i10Index_since = citationsIndices[5]
+
+	print("Citation indices\tAll\tSince2011")
+	print("Citations\t\t" + citations_all.text + "\t" + citations_since.text)
+	print("h-index\t\t\t" + hIndex_all.text + "\t" + hIndex_since.text)
+	print("i10Index\t\t" + i10Index_all.text + "\t" + i10Index_since.text)
 
 #profile	
 def getProfile():
@@ -25,7 +47,8 @@ def getProfile():
 	print("studyField: " + studyField.text)
 	#print("h-index (all time): " + hIndex[2].text)
 	#print("h-index (Since 2011): " + hIndex[3].text + "\n")
-
+	getAvatar();
+	getCitationIndices();
 #	x = 1
 
 #	for item in article:
@@ -46,6 +69,7 @@ def getProfile():
 #co-authors
 def getCoAuthors():
 	coAuthors = soup.find_all("a", {"class": "gsc_rsb_aa"})
+	print("Co-Authors:")
 	for item in coAuthors:
 		print(item.text.encode('ascii', 'ignore').decode('ascii') + "\n")
 
