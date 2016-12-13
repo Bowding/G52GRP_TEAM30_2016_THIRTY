@@ -46,4 +46,5 @@ Code repository: Gitlab
 
 Project management: Trello (Visiblity is changed to public contemporarily for marking the interim report) - https://trello.com/teamthirty 
 
-Document repository: OneDrive - https://uniofnottm-my.sharepoint.com/personal/psyam12_ad_nottingham_ac_uk/_layouts/15/onedrive.aspx?id=%2fpersonal%2fpsyam12_ad_nottingham_ac_uk%2fDocuments%2fG52GRP&FolderCTID=0x012000CB6C76B354998D44AAD54C268E21F647
+Document repository: OneDrive - 
+https://uniofnottm-my.sharepoint.com/personal/psyam12_ad_nottingham_ac_uk/_layouts/15/guestaccess.aspx?folderid=1c4fe4fec30b843a1bc823826a859552f&authkey=AeQtm0pYkfTVTUlvYrRCr04
