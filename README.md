@@ -2,6 +2,7 @@ About this project:
 
 For our second year group project, our team is looking into the professional interactions on Google Scholar. Our aim is to collect and analyse existing data from the site to find new, useful and interesting patterns.
 
+
 Progress:
 
 Completion of this project can be roughly divided in to the following stages:
@@ -25,8 +26,11 @@ Completion of this project can be roughly divided in to the following stages:
 
 4. Usability test and amendment (to do)
 
+
 Used project management tools:
 
 Code repository: Gitlab
+
 Project management: Trello (Visiblity is changed to public contemporarily for marking the interim report) - https://trello.com/teamthirty 
+
 Document repository: OneDrive - (view link here)
