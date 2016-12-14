@@ -9,24 +9,24 @@ Completion of this project can be roughly divided in to the following stages:
 
 1. Preparation (mostly finished)
 
-	. carried out research on related topics
+	. carried out research on related topics (whole group)
 
-	. compared different web scraping tools and finally decided to use "beautiful soup" for the project\n
+	. compared different web scraping tools and finally decided to use "beautiful soup" for the project (whole group)
 	
-	. designed basic website prototype
+	. designed basic website prototype (Adam Marshall, Ning Wang)
 	
-	. distributed an online survey to figure out user requirements (in progress: survey link has been sent, more responses are expected)
+	. distributed an online survey to figure out user requirements (in progress: survey link has been sent, more responses are expected) (Adam Marshall)
 	
 
 2. Implementation (in progress)
 
-	. database established
+	. database established (Adam Marshall, Akbar Mohammed)
 	
-	. website development in progress
+	. website development in progress (Adam Marshall)
 	
-	. visualization demo in progress
+	. visualization demo in progress (Kachun Lai)
 	
-	. python scripts in progress
+	. python scripts in progress (Nicholas Victoros, Esa Ikram, Akbar Mohammed, Ning Wang, Kachun Lai)
 	
 3. Integration (to do)
 
