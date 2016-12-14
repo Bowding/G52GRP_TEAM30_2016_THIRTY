@@ -1,0 +1,17 @@
+{
+    "name": "Max",
+    "children":
+    [
+        {"name": "Sylvia", "children": 
+            [
+                {"name": "Michael"},  
+                {"name": "Michael"},
+                {"name": "Michael"}
+            ]
+        },
+        {"name": "Sylvia"},
+        {"name": "Sylvia"},
+        {"name": "Sylvia"}
+
+    ]
+}
