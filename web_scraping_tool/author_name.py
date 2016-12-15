@@ -1,3 +1,6 @@
+#scraping script when keyword type is author name
+#all the "print out" should be replaced by insert to database after accomplishing desired funtionalities
+
 import requests
 from bs4 import BeautifulSoup
 import os
