@@ -1,0 +1,18 @@
+
+Essay Title: Finiteness in rigid supersymmetric theories
+Author(s): A Parkes, P West
+Publication Date: 1984/4/12
+Description: The two-loop  function for an arbitrary rigid supersymmetric theory is given. The necessary and 
+sufficient conditions for a rigid supersymmetric theory to be finite at one loop are derived. It is 
+shown that these conditions also imply two-loop finiteness.   ... Volume 138B, number 1,2,3 PHYSICS 
+LETTERS 12 April 1984 FINITENESS IN RIGID SUPERSYMMETRIC THEORIES A. PARKES 
+and P. WEST Mathematics Department, King's College, Strand, London WC2, UK Received 22 
+November 1983 The two -loop /3 function for an arbitrary rigid supersymmetric theory is  ... 
+Cited by 253
+
+5 Most Popular Papers that Cite this Article:
+Paper 1: [BOOK][B] Effective action in quantum gravity
+Paper 2: [BOOK][B] Introduction to supersymmetry and supergravity
+Paper 3: Supersymmetric grand unified theories: Two-loop evolution of gauge and Yukawa couplings
+Paper 4: Uncertainties in coupling constant unification
+Paper 5: On conformal field theories in four dimensions

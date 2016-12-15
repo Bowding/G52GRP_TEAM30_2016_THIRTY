@@ -1,0 +1,13 @@
+
+Essay Title: Can quantum-mechanical description of physical reality be considered complete?
+Author(s): Albert Einstein, Boris Podolsky, Nathan Rosen
+Publication Date: 1935/5/15
+Description: Abstract In a complete theory there is an element corresponding to each element of reality. A sufficient condition for the reality of a physical quantity is the possibility of predicting it with certainty, without disturbing the system. In quantum mechanics in the case of two physical quantities described by non-commuting operators, the knowledge of one precludes the knowledge of the other. Then either (1) the description of reality given by the wave function in quantum mechanics is not complete or (2) these two quantities cannot have  ...
+Cited by 14930
+
+5 Most Popular Papers that Cite this Article:
+Paper 1: Teleporting an unknown quantum state via dual classical and Einstein-Podolsky-Rosen channels
+Paper 2: On the einstein podolsky rosen paradox
+Paper 3: Quantum cryptography based on Bell's theorem
+Paper 4: [BOOK][B] The emperor's new mind: Concerning computers, minds, and the laws of physics
+Paper 5: Quantum cryptography

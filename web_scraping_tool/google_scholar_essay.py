@@ -12,8 +12,6 @@ def essayInformation(url):
 	publication_date = soup.find_all("div", {"class": "gsc_value"})[1]
 	citation_data = soup.findAll(text=re.compile("Cited by"), limit = 1)[0]
 	description = soup.find_all("div", {"id": "gsc_descr"})[0].text.encode('ascii', 'ignore').decode('ascii')
-	
-
 
 	print("\nEssay Title: " + essay_name.text)		
 	print("Author(s): " + author_names.text)	
@@ -39,10 +37,7 @@ def essayInformation(url):
 			break
 		x += 1	
 
-
-	
-		
 if __name__ == "__main__":
-	url = "https://scholar.google.co.uk/citations?view_op=view_citation&hl=en&user=G0yAJAwAAAAJ&citation_for_view=G0yAJAwAAAAJ:BqipwSGYUEgC"
-	#url = "https://scholar.google.co.uk/citations?view_op=view_citation&hl=en&user=qc6CJjYAAAAJ&authuser=1&citation_for_view=qc6CJjYAAAAJ:u5HHmVD_uO8C"
+	#url = "https://scholar.google.co.uk/citations?view_op=view_citation&hl=en&user=G0yAJAwAAAAJ&citation_for_view=G0yAJAwAAAAJ:BqipwSGYUEgC"
+	url = "https://scholar.google.co.uk/citations?view_op=view_citation&hl=en&user=qc6CJjYAAAAJ&authuser=1&citation_for_view=qc6CJjYAAAAJ:u5HHmVD_uO8C"
 	essayInformation(url)
