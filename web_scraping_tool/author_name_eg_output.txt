@@ -1,0 +1,203 @@
+Author Name: Robert John
+Institution: Professor of Operational Research and Computer Science, University of Nottingham
+studyField: Computational Intelligence, Fuzzy Logic
+avatarURL_S: /citations?view_op=view_photo&user=33ftCdEAAAAJ&citpid=2 125w
+avatarURL_M: /citations?view_op=medium_photo&user=33ftCdEAAAAJ&citpid=2 249w
+Citation indices	All	Since2011
+Citations		6158	4215
+h-index			35	28
+i10Index		86	61
+Co-Authors:
+Simon Coupland	/citations?user=qjkIlisAAAAJ&hl=en&oe=ASCII
+	Co-Authors:
+	Robert John
+	Hussam Hamrawi
+	Sarah Greenfield
+	Jethro Shell
+	Francisco Chiclana
+	David Croft
+	Benjamin N. Passow
+	j.m.mendel
+	Adrian Hopgood
+	Majid S Almaraashi
+	Will Blewitt
+	Shang-Ming Zhou
+	Stephen G. Matthews
+	Stephen Vickers
+	Eric Goodyer
+	Sultan Alhusain
+	Mihail Popescu
+	Chigozirim J Uzor
+	Aladdin Ayesh
+	James M Keller
+j.m.mendel	/citations?user=JrX99ekAAAAJ&hl=en&oe=ASCII
+	Co-Authors:
+	Qilian Liang
+	Dongrui Wu
+Jonathan M. Garibaldi	/citations?user=L_9C4v0AAAAJ&hl=en&oe=ASCII
+	Co-Authors:
+Francisco Chiclana	/citations?user=qDOxZIIAAAAJ&hl=en&oe=ASCII
+	Co-Authors:
+	Enrique Herrera-Viedma
+	Francisco Herrera
+	Sergio Alonso
+	Robert John
+	Francisco Javier Cabrerizo
+	Shang-Ming Zhou
+	Sarah Greenfield
+	Francisco Mata
+	Jonathan M. Garibaldi
+	Luis Martnez
+	Jian Wu
+	Raquel Urea
+	Maria Luque Rodrguez
+	Simon Coupland
+	Juan Antonio Morente Molinera
+	Carlos Porcel
+	Fujita H
+	Jesus Alcala-Fdez
+	Manuel Jesus Cobo Martin
+	D Elizondo
+Shang-Ming Zhou	/citations?user=iWiXGWMAAAAJ&hl=en&oe=ASCII
+	Co-Authors:
+Sarah Greenfield	/citations?user=zc28YRsAAAAJ&hl=en&oe=ASCII
+	Co-Authors:
+	Francisco Chiclana
+	Robert John
+	Scott Dick
+Majid S Almaraashi	/citations?user=jbQl8_IAAAAJ&hl=en&oe=ASCII
+	Co-Authors:
+	Robert John
+Simon Miller	/citations?user=oS_vGnIAAAAJ&hl=en&oe=ASCII
+	Co-Authors:
+	Jonathan M. Garibaldi
+	Christian Wagner
+	Robert John
+	Viara Popova
+	Uwe Aickelin
+Adel M. Alimi	/citations?user=Oo7jQA4AAAAJ&hl=en&oe=ASCII
+	Co-Authors:
+	Monji Kherallah
+	Ali Wali
+	Haikal El Abed
+	Ajith Abraham
+	hala bezine
+	Chokri BEN AMAR
+	Mounir Ben Ayed
+	Nizar Rokbani
+	Houcine Boubaker
+	Hichem Karray
+	Mohamed BEN AMMAR
+	Jean Hennebert
+	Fakhri Karray
+	Fouad Slimane
+	Volker Maergner
+	habib dhahri
+	Boudour AMMAR
+	Souhir Bouaziz
+	Leila Baccour
+	Rjean Plamondon
+Leila Baccour	/citations?user=hLnyuNQAAAAJ&hl=en&oe=ASCII
+	Co-Authors:
+Hani Hagras	/citations?user=ZZ61SZwAAAAJ&hl=en&oe=ASCII
+	Co-Authors:
+	Christian Wagner
+Mansoor Zolghadri Jahromi	/citations?user=OQ5UkKIAAAAJ&hl=en&oe=ASCII
+	Co-Authors:
+	Mehdi Roopaei
+	Mohammad Taheri
+	Reza Boostani
+	Mohammad R. Moosavi
+	Robert John
+	Dr Zohreh Azimifar
+	Eghbal Mansoori
+	Bijan Ranjbar-Sahraei
+	Behrooz Nasihatkon
+	Ali Mashhoori
+	Borhan Kazimipour
+	Ali Borji
+	Mahdi Eftekhari
+	Seyed Hossein Mousavi
+Anna Syberfeldt	/citations?user=5Tl24SIAAAAJ&hl=en&oe=ASCII
+	Co-Authors:
+	Robert John
+	Lihui Wang
+	Sunith Bandaru
+	Kristina Sfsten
+Hussam Hamrawi	/citations?user=qGxV0zkAAAAJ&hl=en&oe=ASCII
+	Co-Authors:
+	Simon Coupland
+	Robert John
+Daniel Hissel	/citations?user=C0YhMpsAAAAJ&hl=en&oe=ASCII
+	Co-Authors:
+Marie-Ccile Pra	/citations?user=Cody6_oAAAAJ&hl=en&oe=ASCII
+	Co-Authors:
+	Daniel Hissel
+	Rafael Gouriveau
+	Said Noureddine ZERHOUNI
+	Loc Boulon
+	JEMEI Samir
+	Marine Jouin
+	Mohamed Becherif
+	Nadia Yousfi Steiner
+	Frdric Gustin
+	Cesare Pianese
+	Bruno Grard Michel ROBERT
+	Philippe Delarue
+	Marco Sorrentino
+	Gualous
+	Robert John
+	Agbossou kodjo
+	Simon Morando
+	Javier Solano
+	Fabio Postiglione
+	Maurizio GUIDA
+Ender zcan	/citations?user=8maqKdgAAAAJ&hl=en&oe=ASCII
+	Co-Authors:
+	Edmund Kieran Burke
+	Professor Graham Kendall
+	Andrew J Parkes
+	Gabriela Ochoa
+	John R. Woodward
+	Chilukuri Mohan
+	Ahmed Kheiri
+	John H. Drake
+	A. Sima Etaner - Uyar
+	Shahriar Asta
+	Mustafa Msr
+	Berna Kiraz
+	Djamila Ouelhadj
+	Rong Qu
+	Jerry Swan
+	Simon Martin
+	Syariza Abdul Rahman
+	Greet Vanden Berghe
+	Hugo Terashima-Marn
+	Jos Carlos Ortiz-Bayliss
+John Q Gan	/citations?user=reTQcL8AAAAJ&hl=en&oe=ASCII
+	Co-Authors:
+Mehdi Roopaei	/citations?user=uuygLeoAAAAJ&hl=en&oe=ASCII
+	Co-Authors:
+	Mansoor Zolghadri Jahromi
+	Navid Noroozi
+	Bijan Ranjbar-Sahraei
+	Sos Agaian
+	Valentina E. Balas
+	Reza Boostani
+	Hassan Adloo
+	Robert John
+	Shahram Jafari
+	Mehdi Fatemi
+	David Akopian
+	Mo M Jamshidi
+Viara Popova	/citations?user=0OqDpXgAAAAJ&hl=en&oe=ASCII
+	Co-Authors:
+	Robert John
+	PInar Yolum
+
+Top-5 cited articles:
+NO.1 Type-2 fuzzy sets made simple (Cited by: 1602)
+NO.2 Interval type-2 fuzzy logic systems made simple (Cited by: 956)
+NO.3 Geometric type-1 and type-2 fuzzy logic systems (Cited by: 234)
+NO.4 Type-2 fuzzy logic: a historical view (Cited by: 192)
+NO.5 Type 2 fuzzy sets: an appraisal of theory and applications (Cited by: 147)

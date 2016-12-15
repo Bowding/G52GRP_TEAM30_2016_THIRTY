@@ -47,13 +47,27 @@ def getProfile():
 	getAvatar();
 	getCitationIndices();
 
+def getCoCoAuthors(href):
+
+	link = "https://scholar.google.co.uk" + href
+	coAu_r = requests.get(link)
+	coAu_soup = BeautifulSoup(coAu_r.content, "html.parser")
+
+	coCoAuthors = coAu_soup.find_all("a", {"class": "gsc_rsb_aa"})
+	print("\tCo-Authors:")
+	for item in coCoAuthors:
+		print("\t" + item.text.encode('ascii', 'ignore').decode('ascii'))
+
+
 #co-authors
 def getCoAuthors():
 
 	coAuthors = soup.find_all("a", {"class": "gsc_rsb_aa"})
 	print("Co-Authors:")
 	for item in coAuthors:
-		print(item.text.encode('ascii', 'ignore').decode('ascii') + "\n")
+		coAuthors_href = item.get('href')	#get a list of link to coAuthor profiles
+		print(item.text.encode('ascii', 'ignore').decode('ascii') + "\t" + coAuthors_href)
+		getCoCoAuthors(coAuthors_href)
 
 #get top-5 cited article
 def getTop5CitedArticle():
