@@ -47,6 +47,7 @@ def getProfile():
 	getAvatar();
 	getCitationIndices();
 
+#get coAuthors of an coAuthor
 def getCoCoAuthors(href):
 
 	link = "https://scholar.google.co.uk" + href
