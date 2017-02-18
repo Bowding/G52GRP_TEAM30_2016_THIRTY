@@ -4,7 +4,6 @@
 import requests
 from bs4 import BeautifulSoup
 import os
-from urllib.request import urlopen
 import time
 
 global url
