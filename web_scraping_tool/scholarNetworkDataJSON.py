@@ -9,7 +9,7 @@ except:
 
 cur = conn.cursor()
 
-object = open("andrewParkesNeighbourhood.json", "w")
+object = open("graph_data_googleScholar.json", "w")
 object.write('{\n  "nodes": [ \n')
 
 cur.execute("SELECT COUNT(*) FROM `nodes`")
