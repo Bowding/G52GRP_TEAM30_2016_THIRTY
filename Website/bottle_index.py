@@ -9,9 +9,9 @@ from bs4 import BeautifulSoup
 def login():
     return template("index.html")
 
-@bottle.route('/<filename>')
+@bottle.route('/<filename>.css')
 def stylesheets(filename):
-    return static_file(filename, root = '/')
+    return static_file('{}.css'.format(filename), root='./')
 
 try:
     print("Connecting to mySQL.....")
