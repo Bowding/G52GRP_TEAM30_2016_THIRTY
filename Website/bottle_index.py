@@ -14,8 +14,6 @@ def connect_to_db():
     except:
         print("Connection Failed!")
 
-
-
 #display website
 @bottle.route('/')
 def login():
