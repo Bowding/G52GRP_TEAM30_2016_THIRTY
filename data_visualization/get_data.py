@@ -19,7 +19,7 @@ try:
 except:
     print("Connection Failed!")
 
-#Name going to be searched
+#Name going to be search
 search = "Andrew J Parkes"
 
 cur = conn.cursor()
@@ -30,14 +30,15 @@ result = 0
 for row in cur:
     result += 1
 
-
 if result > 0:
     #construct sources scholar first
+    cur.execute("SELECT * FROM `connections` WHERE `sourceScholar` = '" + search +"'")
     targets = []
-    
+
     for row in cur:
         conLinks(row[0], row[1], "0.4px" ,"orange")
         targets.append(row[1])
+
 
     #access other sources and targets
     for element in targets:
@@ -54,7 +55,6 @@ if result > 0:
         for row in cur:
             conLinks(row[0], row[1], "0.09px", "yellow")
 
-
     @route('/hello/123')
     def index():
         return template("nodes_basic.html", links = string)
@@ -65,3 +65,5 @@ if result > 0:
     conn.close()
 else:
     print ("No Results Found On DB!!")
+
+
