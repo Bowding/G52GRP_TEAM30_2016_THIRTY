@@ -1,12 +1,21 @@
 import bottle
 import bottle_pymysql
+import html
+#import pymysql
 import requests
+import os
+import sys
+import subprocess
+import get_data
 from bottle import template, static_file
 from bs4 import BeautifulSoup
+
+print("hfufurh")
+
 #connect to db
 def connect_to_db():
     try:
-        print("Connecting to mySQL.....")
+        print("shit!!!!!!Connecting to mySQL.....")
         plugin = bottle_pymysql.Plugin(dbuser = 'root', dbpass = 'CHEERs0251', dbname = 'googlescholardb')
         #conn = pymysql.connect(host='localhost', db='googlescholardb', user='root', password='', cursorclass=pymysql.cursors.DictCursor)
         bottle.install(plugin)
@@ -14,33 +23,8 @@ def connect_to_db():
     except:
         print("Connection Failed!")
 
-#display website
-@bottle.route('/')
-def login():
-    return template("index.html")
 
-#link static files
-@bottle.route('/<filename>.css')
-def stylesheets(filename):
-    return static_file('{}.css'.format(filename), root='./')
-
-@bottle.route('/<filename>.png')
-def stylesheets(filename):
-    return static_file('{}.png'.format(filename), root='./')
-
-@bottle.route('/<filename>.ico')
-def stylesheets(filename):
-    return static_file('{}.ico'.format(filename), root='./')
-
-connect_to_db()
-
-#handle user input
-@bottle.route('/test', method="POST")
-def formhandler(pymydb):
-    """Handle the form submission"""
-    #get search keyword
-    search = bottle.request.forms.get('search')
-    
+def get_target_url(search):
     #generate searching url
     keyword = search.replace(" ", "+")
     search_url = "https://scholar.google.co.uk/scholar?q=" + keyword
@@ -58,6 +42,13 @@ def formhandler(pymydb):
 
     target_url_area = match_soup.find("h3", {"class": "gsc_1usr_name"})
     target_url = "https://scholar.google.co.uk" + target_url_area.find("a").get("href")
+
+    return target_url
+
+
+def get_profile_and_paper(search, pymydb):
+    
+    target_url = get_target_url(search)
 
     url = target_url.replace("oe=ASCII","oi=ao&cstart=0&pagesize=100")
 
@@ -139,8 +130,6 @@ def formhandler(pymydb):
         #access to next page
         r = requests.get(url)
         soup = BeautifulSoup(r.content, "html.parser")
-        
-
 
     print("\nINSERT INTO profile (aName, NumPaper, hIndex) VALUES ('%s', %d, %d)\n" % (name_data.text, int(x), int(hIndex[2].text)))
     try:
@@ -148,22 +137,63 @@ def formhandler(pymydb):
         #conn.commit()
     except:
         print("Failed inserting....")
-        
-    #pymydb.execute("SELECT * FROM `profile`")
-    #cur = pymydb.fetchall()
-    #for row in cur:
-    #    print(row)
 
-    #print("\n")
-        
-    #pymydb.execute("SELECT * FROM `papers`")
-    #cur = pymydb.fetchall()
-    #for row in cur:
-    #    print(row)
+    return name_data.text
 
-    #cur.close()
-    #conn.close()
-    return search
 
+def get_author_network(search):
+    target_url = get_target_url(search)
+    url = target_url.split("=")[1].split("&")[0]
+    os.system("python author_network.py %s" % (url))
+
+def visualize(authorName):
+    os.system("python get_data.py %s" % (authorName))
+    #string = get_data.get_string()
+    #print("+++++++" + string) 
+    #s2_out = subprocess.check_output([sys.executable, "get_data.py", str(10)])
+    f = open('myhtml.txt', 'r')
+    string = f.readline()  # python will convert \n to os.linesep
+    f.close()
+     
+    #print("++++++++" + str(s2_out))
+    return string
+
+
+#display website
+@bottle.route('/')
+def login():
+    return template("index.html")
+
+#link static files
+@bottle.route('/<filename>.css')
+def stylesheets(filename):
+    return static_file('{}.css'.format(filename), root='./')
+
+@bottle.route('/<filename>.png')
+def stylesheets(filename):
+    return static_file('{}.png'.format(filename), root='./')
+
+@bottle.route('/<filename>.ico')
+def stylesheets(filename):
+    return static_file('{}.ico'.format(filename), root='./')
+
+connect_to_db()
+
+#handle user input
+@bottle.route('/test', method="POST")
+def formhandler(pymydb):
+    """Handle the form submission"""
+    #get search keyword
+    search = bottle.request.forms.get('search')
+
+    authorName = get_profile_and_paper(search, pymydb).replace(" ", "+")
+
+    get_author_network(search)
+
+    string = visualize(authorName)
+    if(string == "No Results Found On DB!!"):
+        return string
+    else:
+        return template("nodes_basic.html", links = string)
 
 bottle.run(host='localhost', port=8080)
