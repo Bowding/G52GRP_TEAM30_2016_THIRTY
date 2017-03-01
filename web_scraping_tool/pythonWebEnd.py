@@ -1,6 +1,6 @@
 from bottle import route, run, template
 
-@route('/pythonWebEnd.py?first_name=<name>')
+@route('/hello/<name>')
 def index(name):
 	print name
 	return template('<b>Hello {{name}}</b>!', name=name)

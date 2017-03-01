@@ -1,3 +1,4 @@
+#-*-coding:utf-8-*-
 import bottle
 import bottle_pymysql
 import html
@@ -9,14 +10,16 @@ import subprocess
 import get_data
 from bottle import template, static_file
 from bs4 import BeautifulSoup
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 print("hfufurh")
 
 #connect to db
 def connect_to_db():
     try:
-        print("shit!!!!!!Connecting to mySQL.....")
-        plugin = bottle_pymysql.Plugin(dbuser = 'root', dbpass = 'CHEERs0251', dbname = 'googlescholardb')
+        print("Connecting to mySQL.....")
+        plugin = bottle_pymysql.Plugin(dbuser = 'root', dbpass = '', dbname = 'googlescholardb')
         #conn = pymysql.connect(host='localhost', db='googlescholardb', user='root', password='', cursorclass=pymysql.cursors.DictCursor)
         bottle.install(plugin)
         print("Connection established!")
@@ -115,10 +118,10 @@ def get_profile_and_paper(search, pymydb):
 
         #get this page paper number
         this_page_NumPaper_range = soup.find("span", {"id": "gsc_a_nn"}).text
+		#s = "–".encode("utf-8")
+		#print("======="+this_page_NumPaper_range.split("–")[0])
 
-        print("======="+this_page_NumPaper_range.split("–")[0])
-
-        this_page_NumPaper = int(this_page_NumPaper_range.split("–")[1])
+        this_page_NumPaper = int(this_page_NumPaper_range.split('–')[1])
         cstart +=100
 
         if(this_page_NumPaper < cstart):
