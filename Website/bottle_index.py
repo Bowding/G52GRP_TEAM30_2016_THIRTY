@@ -12,6 +12,7 @@ from bottle import template, static_file
 from bs4 import BeautifulSoup
 reload(sys)
 sys.setdefaultencoding('utf8')
+import threading
 
 print("hfufurh")
 
@@ -189,14 +190,24 @@ def formhandler(pymydb):
     #get search keyword
     search = bottle.request.forms.get('search')
 
-    authorName = get_profile_and_paper(search, pymydb).replace(" ", "+")
+    threads = []
+    t1 = threading.Thread(target = get_profile_and_paper, args = (search, pymydb, ))
+    #authorName = get_profile_and_paper(search, pymydb).replace(" ", "+")
+    threads.append(t1)
+    t2 = threading.Thread(target = get_author_network, args = (search, ))
+    threads.append(t2)
+    #get_author_network(search)
 
-    get_author_network(search)
+    for t in threads:
+        t.setDaemon(True)
+        t.start()
+        
+    return "successed!"
 
-    string = visualize(authorName)
-    if(string == "No Results Found On DB!!"):
-        return string
-    else:
-        return template("nodes_basic.html", links = string)
+    #string = visualize(authorName)
+    #if(string == "No Results Found On DB!!"):
+    #    return string
+    #else:
+    #    return template("nodes_basic.html", links = string)
 
 bottle.run(host='localhost', port=8080)
