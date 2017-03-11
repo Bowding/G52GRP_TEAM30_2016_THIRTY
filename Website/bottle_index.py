@@ -13,8 +13,6 @@ from bs4 import BeautifulSoup
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-print("hfufurh")
-
 #connect to db
 def connect_to_db():
     try:

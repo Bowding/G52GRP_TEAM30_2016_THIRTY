@@ -43,8 +43,8 @@ def breathFirstSearch(url, conn):
 	for link1stDegree in relatedScholars:
 		secondDegree(link1stDegree, cur)
 
-	for link2ndDegree in relatedScholars2ndDegree:
-		thirdDegree(link2ndDegree, cur)
+	#for link2ndDegree in relatedScholars2ndDegree:
+	#	thirdDegree(link2ndDegree, cur)
 		
 	cur.close()
 
