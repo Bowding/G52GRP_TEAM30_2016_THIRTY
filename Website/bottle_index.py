@@ -2,7 +2,6 @@
 import bottle
 import bottle_pymysql
 import html
-#import pymysql
 import requests
 import os
 import sys
@@ -10,14 +9,18 @@ import subprocess
 import get_data
 from bottle import template, static_file
 from bs4 import BeautifulSoup
-reload(sys)
-sys.setdefaultencoding('utf8')
+import threading
+
+#following codes is only needed for python 2.x and only works for python 2.x
+#reload(sys)
+#sys.setdefaultencoding('utf8')
+
 
 #connect to db
 def connect_to_db():
     try:
         print("Connecting to mySQL.....")
-        plugin = bottle_pymysql.Plugin(dbuser = 'root', dbpass = '', dbname = 'googlescholardb')
+        plugin = bottle_pymysql.Plugin(dbuser = 'root', dbpass = 'CHEERs0251', dbname = 'googlescholardb')
         #conn = pymysql.connect(host='localhost', db='googlescholardb', user='root', password='', cursorclass=pymysql.cursors.DictCursor)
         bottle.install(plugin)
         print("Connection established!")
@@ -46,9 +49,23 @@ def get_target_url(search):
 
     return target_url
 
+def insert_to_db(pymydb, filename):
+    f_read = open(filename, 'r')
+    sql_instructions = f_read.readline()
+    try:
+        pymydb.execute(sql_instructions)
+    except ValueError:
+        print("Failed inserting....")
+
+    f_read.close()
 
 def get_profile_and_paper(search, pymydb):
-    
+
+    global authorName
+
+    f_pp = open('profile_and_paper.txt', 'w')
+    #f_pp.write("dhuiwehduieh")
+
     target_url = get_target_url(search)
 
     url = target_url.replace("oe=ASCII","oi=ao&cstart=0&pagesize=100")
@@ -71,43 +88,43 @@ def get_profile_and_paper(search, pymydb):
         article = soup.find_all("tr", {"class": "gsc_a_tr"})
         for item in article:
             paperName = item.find_all("a", {"class": "gsc_a_at"})[0].text.encode('ascii', 'ignore').decode('ascii')
-            print("Paper: " + str(x) + " " + paperName)
+#            print("Paper: " + str(x) + " " + paperName)
             year = item.find_all("td", {"class": "gsc_a_y"})[0].text.encode('ascii', 'ignore').decode('ascii')
-            print("Year: " + year)
+#            print("Year: " + year)
 
             citationNumber = item.find_all("td", {"class": "gsc_a_c"})[0].text.encode('ascii', 'ignore').decode('ascii')
             seq_type = type(citationNumber)
             citationNumber = seq_type().join(filter(seq_type.isdigit, citationNumber))
             
             if citationNumber != "" and year != "":
-                print("Cited by: " + citationNumber)
-                print("INSERT into papers (paperName, author, yearPublished, numberOfCitations) VALUES ('%s','%s', %d, %d)\n" % (paperName, name_data.text, int(year), int(citationNumber)))
+#                print("Cited by: " + citationNumber)
+#                print("INSERT into papers (paperName, author, yearPublished, numberOfCitations) VALUES ('%s','%s', %d, %d)\n" % (paperName, name_data.text, int(year), int(citationNumber)))
                 try:
-                    pymydb.execute("INSERT into papers (paperName, author, yearPublished, numberOfCitations) VALUES ('%s','%s', %d, %d)" % (paperName.replace("'","\\\'"), name_data.text, int(year), int(citationNumber)))
+                    f_pp.write("INSERT into papers (paperName, author, yearPublished, numberOfCitations) VALUES ('%s','%s', %d, %d);" % (paperName.replace("'","\\\'"), name_data.text, int(year), int(citationNumber)))
                     #conn.commit()
                 except ValueError:
                     print("Failed inserting....")   
             elif citationNumber == "" and year != "":
-                print("Cited by: 0")
-                print("INSERT into papers (paperName, author, yearPublished) VALUES ('%s','%s', %d)\n" % (paperName, name_data.text, int(year)))
+#                print("Cited by: 0")
+#                print("INSERT into papers (paperName, author, yearPublished) VALUES ('%s','%s', %d)\n" % (paperName, name_data.text, int(year)))
                 try:
-                    pymydb.execute("INSERT into papers (paperName, author, yearPublished) VALUES ('%s','%s', %d)" % (paperName.replace("'","\\\'"), name_data.text, int(year)))
+                    f_pp.write("INSERT into papers (paperName, author, yearPublished) VALUES ('%s','%s', %d);" % (paperName.replace("'","\\\'"), name_data.text, int(year)))
                     #conn.commit()
                 except ValueError:
                     print("Failed inserting....")
             elif year == "" and citationNumber != "":
-                print("No publish year")
-                print("INSERT into papers (paperName, author, numberOfCitations) VALUES ('%s','%s', %d)\n" % (paperName, name_data.text, int(citationNumber)))
+#                print("No publish year")
+#                print("INSERT into papers (paperName, author, numberOfCitations) VALUES ('%s','%s', %d)\n" % (paperName, name_data.text, int(citationNumber)))
                 try:
-                    pymydb.execute("INSERT into papers (paperName, author, numberOfCitations) VALUES ('%s','%s', %d)" % (paperName.replace("'","\\\'"), name_data.text, int(citationNumber)))
+                    f_pp.write("INSERT into papers (paperName, author, numberOfCitations) VALUES ('%s','%s', %d);" % (paperName.replace("'","\\\'"), name_data.text, int(citationNumber)))
                     #conn.commit()
                 except ValueError:
                     print("Failed inserting....")
             else:
-                print("No publish year and citation number")
-                print("INSERT into papers (paperName, author) VALUES ('%s','%s')\n" % (paperName, name_data.text))
+#                print("No publish year and citation number")
+#                print("INSERT into papers (paperName, author) VALUES ('%s','%s')\n" % (paperName, name_data.text))
                 try:
-                    pymydb.execute("INSERT into papers (paperName, author) VALUES ('%s','%s')" % (paperName.replace("'","\\\'"), name_data.text))
+                    f_pp.write("INSERT into papers (paperName, author) VALUES ('%s','%s');" % (paperName.replace("'","\\\'"), name_data.text))
                     #conn.commit()
                 except ValueError:
                     print("Failed inserting....")
@@ -134,12 +151,14 @@ def get_profile_and_paper(search, pymydb):
 
     print("\nINSERT INTO profile (aName, NumPaper, hIndex) VALUES ('%s', %d, %d)\n" % (name_data.text, int(x), int(hIndex[2].text)))
     try:
-        pymydb.execute("INSERT INTO profile (aName, NumPaper, hIndex) VALUES ('%s', %d, %d)" % (name_data.text, int(x), int(hIndex[2].text)))
+        f_pp.write("INSERT INTO profile (aName, NumPaper, hIndex) VALUES ('%s', %d, %d);" % (name_data.text, int(x), int(hIndex[2].text)))
         #conn.commit()
     except:
         print("Failed inserting....")
 
-    return name_data.text
+    f_pp.close()
+
+    authorName = name_data.text
 
 
 def get_author_network(search):
@@ -187,14 +206,35 @@ def formhandler(pymydb):
     #get search keyword
     search = bottle.request.forms.get('search')
 
-    authorName = get_profile_and_paper(search, pymydb).replace(" ", "+")
+    threads = []
+    t1 = threading.Thread(target = get_profile_and_paper, args = (search, pymydb, ))
+    #authorName = get_profile_and_paper(search, pymydb).replace(" ", "+")
+    threads.append(t1)
+    t2 = threading.Thread(target = get_author_network, args = (search, ))
+    threads.append(t2)
+    #get_author_network(search)
 
-    get_author_network(search)
+    for t in threads:
+        t.setDaemon(True)
+        t.start()
 
-    string = visualize(authorName)
+    t.join()
+
+    insert_to_db(pymydb, 'profile_and_paper.txt')
+    insert_to_db(pymydb, 'author_network.txt')
+
+    
+    string = visualize(authorName.replace(" ", "+"))
     if(string == "No Results Found On DB!!"):
         return string
     else:
         return template("nodes_basic.html", links = string)
+    
+
+    #string = visualize(authorName)
+    #if(string == "No Results Found On DB!!"):
+    #    return string
+    #else:
+    #    return template("nodes_basic.html", links = string)
 
 bottle.run(host='localhost', port=8080)
