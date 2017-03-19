@@ -1,6 +1,8 @@
 import requests
 import pymysql
+import sys
 from bs4 import BeautifulSoup
+import threading
 
 #urls
 relatedScholars = []
@@ -8,7 +10,7 @@ relatedScholars2ndDegree = []
 		
 #A breadth first search pattern has been implemented to find unique scholars who are related to the input scholar
 
-def breathFirstSearch(url, conn):
+def breathFirstSearch(url):
 	relatedScholars.append(url)
 	
 	#print parent node name
@@ -21,23 +23,35 @@ def breathFirstSearch(url, conn):
 	institution = soup.find_all("div", {"class": "gsc_prf_il"})[0]
 	institutionName = institution.text.encode('ascii', 'ignore').decode('ascii')
 	
-	print(currentName + " Institution: " + institutionName)
+	#print(currentName + " Institution: " + institutionName)
+
+	threads = []
 	
-	cur = conn.cursor()
+	#cur = conn.cursor()
 		
 	#first degree - scholars the input scholar has collaborated with
 	for link in soup.find_all("a", {"class": "gsc_rsb_aa"}):		
 		name = link.text.encode('ascii', 'ignore').decode('ascii')	
 		link = "https://scholar.google.co.uk" + link.get('href')
-		relatedScholars.append(link)
+		#relatedScholars.append(link)
 		
-	for link1stDegree in relatedScholars:
-		secondDegree(link1stDegree, cur)
+		t = threading.Thread(target = secondDegree, args = (link, ))
+		threads.append(t)
+	    
+
+	for t in threads:
+		t.setDaemon(True)
+		t.start()
+
+	t.join()
+
+	#for link1stDegree in relatedScholars:
+	#	secondDegree(link1stDegree)
 		
-	cur.close()
+	#cur.close()
 
 #second degree - scholars the first degree scholar has collaborated with		
-def secondDegree(url, cur):
+def secondDegree(url):
 	#print parent node name
 	r = requests.get(url)
 	soup = BeautifulSoup(r.content, "html.parser")
@@ -48,8 +62,8 @@ def secondDegree(url, cur):
 	institution = soup.find_all("div", {"class": "gsc_prf_il"})[0]
 	institutionName = institution.text.encode('ascii', 'ignore').decode('ascii')
 	
-	print(currentName + " Institution: " + institutionName)
-	insertDB(currentName, institutionName, cur)		
+	#print(currentName + " Institution: " + institutionName)
+	insertDB(currentName, institutionName)		
 		
 	for link in soup.find_all("a", {"class": "gsc_rsb_aa"}):
 		link = "https://scholar.google.co.uk" + link.get('href')
@@ -68,30 +82,41 @@ def secondDegree(url, cur):
 				institution = soup.find_all("div", {"class": "gsc_prf_il"})[0]
 				institutionName = institution.text.encode('ascii', 'ignore').decode('ascii')
 				
-				print(currentName + " Institution: " + institutionName)
-				insertDB(currentName, institutionName, cur)		
+				#print(currentName + " Institution: " + institutionName)
+				insertDB(currentName, institutionName)		
 				
 #insert scholar and institutionName into db			
-def insertDB(name, institution, cur):	
+def insertDB(name, institution):	
 	name = name.replace("'", ":")
 	institution = institution.replace("'", ":")
 	
 	try:
-		cur.execute("INSERT into institutions (scholarName, institution) VALUES ('%s','%s')" % (name, institution))
-		conn.commit()
+		f_ai.write("INSERT into institutions (scholarName, institution) VALUES ('%s','%s');" % (name, institution))
+		#conn.commit()
 	except ValueError:
 		print("Failed inserting....")			
-			
+
+
 if __name__ == "__main__":
-	url = "https://scholar.google.co.uk/citations?user=G0yAJAwAAAAJ&hl=en&oi=ao&cstart=0&pagesize=200"
+
+	print("it's authors_institution.py!!!!!")
+
+	#url = "https://scholar.google.co.uk/citations?user=G0yAJAwAAAAJ&hl=en&oi=ao&cstart=0&pagesize=200"
 	
-	try:
-		print("Connecting to mySQL.....")
-		conn = pymysql.connect(host='localhost', db='googlescholardb', user='root', password='', cursorclass=pymysql.cursors.DictCursor)
-		print("Connection established!")
-	except:
-		print("Connection Failed!")
+	f_ai = open('authors_institution.txt', 'w')
+
+	url = "https://scholar.google.co.uk/citations?user=" + sys.argv[1]
+
+	#try:
+	#	print("Connecting to mySQL.....")
+	#	conn = pymysql.connect(host='localhost', db='googlescholardb', user='root', password='', cursorclass=pymysql.cursors.DictCursor)
+	#	print("Connection established!")
+	#except:
+	#	print("Connection Failed!")
 	
-	breathFirstSearch(url, conn)
+	breathFirstSearch(url)
+
+	f_ai.close()
+	print("finish authors institution")
 	
-	conn.close()
+	#conn.close()

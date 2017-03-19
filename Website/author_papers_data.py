@@ -1,6 +1,8 @@
 import requests
 import pymysql
+import sys
 from bs4 import BeautifulSoup
+import threading
 
 #urls
 relatedScholars = []
@@ -8,14 +10,15 @@ relatedScholars2ndDegree = []
 		
 #A breadth first search pattern has been implemented to find unique scholars who are related to the input scholar
 
-def breathFirstSearch(url, conn):
+def breathFirstSearch(url):
 	relatedScholars.append(url)
 	
 	#print parent node name
 	r = requests.get(url)
 	soup = BeautifulSoup(r.content, "html.parser")
 
-	cur = conn.cursor()
+	threads = []
+	#cur = conn.cursor()
 	
 	#for every paper listed on profile, get the paper title and author name
 	for paper in soup.find_all("tr", {"class": "gsc_a_tr"}):	
@@ -24,22 +27,33 @@ def breathFirstSearch(url, conn):
 		author_data = paper.find_all("div", {"class": "gs_gray"})[0]
 		authors = author_data.text.encode('ascii', 'ignore').decode('ascii')
 		
-		print(paperTitle + " " + authors)
-		insertDB(paperTitle, authors, cur)		
+		#print(paperTitle + " " + authors)
+		insertDB(paperTitle, authors)		
 			
 	#first degree - scholars the input scholar has collaborated with
 	for link in soup.find_all("a", {"class": "gsc_rsb_aa"}):		
 		name = link.text.encode('ascii', 'ignore').decode('ascii')	
 		link = "https://scholar.google.co.uk" + link.get('href')
-		relatedScholars.append(link)
+		#relatedScholars.append(link)
+
+		t = threading.Thread(target = secondDegree, args = (link, ))
+		threads.append(t)
+	    
+
+	for t in threads:
+		t.setDaemon(True)
+		t.start()
+
+	t.join()
+
 		
-	for link1stDegree in relatedScholars:
-		secondDegree(link1stDegree, cur)
+	#for link1stDegree in relatedScholars:
+	#	secondDegree(link1stDegree)
 		
-	cur.close()
+	#cur.close()
 
 #second degree - scholars the first degree scholar has collaborated with		
-def secondDegree(url, cur):
+def secondDegree(url):
 	#print parent node name
 	r = requests.get(url)
 	soup = BeautifulSoup(r.content, "html.parser")
@@ -51,8 +65,8 @@ def secondDegree(url, cur):
 		author_data = paper.find_all("div", {"class": "gs_gray"})[0]
 		authors = author_data.text.encode('ascii', 'ignore').decode('ascii')
 		
-		print(paperTitle + " " + authors)
-		insertDB(paperTitle, authors, cur)	
+		#print(paperTitle + " " + authors)
+		insertDB(paperTitle, authors)	
 	
 	for link in soup.find_all("a", {"class": "gsc_rsb_aa"}):
 		link = "https://scholar.google.co.uk" + link.get('href')
@@ -72,30 +86,41 @@ def secondDegree(url, cur):
 					author_data = paper.find_all("div", {"class": "gs_gray"})[0]
 					authors = author_data.text.encode('ascii', 'ignore').decode('ascii')
 					
-					print(paperTitle + " " + authors)
-					insertDB(paperTitle, authors, cur)	
+					#print(paperTitle + " " + authors)
+					insertDB(paperTitle, authors)	
 								
 #insert paper and and paper co-authors into db			
-def insertDB(paper, authors, cur):	
+def insertDB(paper, authors):	
 	paper = paper.replace("'", ":")
 	authors = authors.replace("'", ":")
 	
 	try:
-		cur.execute("INSERT into paperCoAuthors (paperTitle, paperAuthors) VALUES ('%s','%s')" % (paper, authors))
-		conn.commit()
+		f_apd.write("INSERT into paperCoAuthors (paperTitle, paperAuthors) VALUES ('%s','%s');" % (paper, authors))
+		#conn.commit()
 	except ValueError:
 		print("Failed inserting....")			
 			
+
 if __name__ == "__main__":
-	url = "https://scholar.google.co.uk/citations?user=G0yAJAwAAAAJ&hl=en&oi=ao&cstart=0&pagesize=200"
+
+	print("it's author_papers_data.py!!!!!")
+
+	#url = "https://scholar.google.co.uk/citations?user=G0yAJAwAAAAJ&hl=en&oi=ao&cstart=0&pagesize=200"
 	
-	try:
-		print("Connecting to mySQL.....")
-		conn = pymysql.connect(host='localhost', db='googlescholardb', user='root', password='', cursorclass=pymysql.cursors.DictCursor)
-		print("Connection established!")
-	except:
-		print("Connection Failed!")
+	f_apd = open('author_papers_data.txt', 'w')
+
+	url = "https://scholar.google.co.uk/citations?user=" + sys.argv[1]
+
+	#try:
+	#	print("Connecting to mySQL.....")
+	#	conn = pymysql.connect(host='localhost', db='googlescholardb', user='root', password='', cursorclass=pymysql.cursors.DictCursor)
+	#	print("Connection established!")
+	#except:
+	#	print("Connection Failed!")
 	
-	breathFirstSearch(url, conn)
+	breathFirstSearch(url)
+
+	f_apd.close()
+	print("finish authors institution")
 	
-	conn.close()
+	#conn.close()
