@@ -166,6 +166,11 @@ def get_author_network(search):
     url = target_url.split("=")[1].split("&")[0]
     os.system("python author_network.py %s" % (url))
 
+def get_author_fields(search):
+    target_url = get_target_url(search)
+    url = target_url.split("=")[1].split("&")[0]
+    os.system("python authors_fields.py %s" % (url))
+
 def visualize(authorName):
     os.system("python get_data.py %s" % (authorName))
     #string = get_data.get_string()
@@ -212,6 +217,9 @@ def formhandler(pymydb):
     threads.append(t1)
     t2 = threading.Thread(target = get_author_network, args = (search, ))
     threads.append(t2)
+    t3 = threading.Thread(target = get_author_fields, args = (search, ))
+    threads.append(t3)
+
     #get_author_network(search)
 
     for t in threads:
@@ -222,7 +230,7 @@ def formhandler(pymydb):
 
     insert_to_db(pymydb, 'profile_and_paper.txt')
     insert_to_db(pymydb, 'author_network.txt')
-
+    insert_to_db(pymydb, 'authors_fields.txt')
     
     string = visualize(authorName.replace(" ", "+"))
     if(string == "No Results Found On DB!!"):

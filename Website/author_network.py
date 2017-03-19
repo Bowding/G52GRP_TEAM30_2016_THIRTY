@@ -44,10 +44,10 @@ def breathFirstSearch(url):
 		link = "https://scholar.google.co.uk" + link.get('href')
 		#relatedScholars.append(link)
 
-<<<<<<< HEAD
+#<<<<<<< HEAD
 	#for link2ndDegree in relatedScholars2ndDegree:
 	#	thirdDegree(link2ndDegree, cur)
-=======
+#=======
 		t = threading.Thread(target = secondDegree, args = (link, ))
 		threads.append(t)
 	    
@@ -57,7 +57,7 @@ def breathFirstSearch(url):
 		t.start()
 
 	t.join()
->>>>>>> b5a807c3dc5027d45af3e4bcce5d050a105af4a9
+#>>>>>>> b5a807c3dc5027d45af3e4bcce5d050a105af4a9
 		
 	#for link1stDegree in relatedScholars:
 	#	secondDegree(link1stDegree)
