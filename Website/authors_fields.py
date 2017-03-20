@@ -7,6 +7,10 @@ import threading
 #urls
 relatedScholars = []
 relatedScholars2ndDegree = []
+global f_af
+global lock
+
+lock = threading.Lock()
 		
 #A breadth first search pattern has been implemented to find unique scholars who are related to the input scholar
 
@@ -27,7 +31,14 @@ def breathFirstSearch(url):
 	for fields in soup.find_all("a", {"class": "gsc_prf_ila"}): 
 		fieldName = fields.text.encode('ascii', 'ignore').decode('ascii')
 		#print(currentName + " " + fieldName)
-		insertDB(currentName, fieldName)
+		#insertDB(currentName, fieldName)
+		try:
+			lock.acquire()
+			f_af.write("INSERT into fields (scholarName, field) VALUES ('%s','%s');" % (currentName.replace("'", ":"), fieldName.replace("'", ":")))
+			lock.release()
+			#conn.commit()
+		except ValueError:
+			print("1111Failed inserting....")
 		
 	#first degree - scholars the input scholar has collaborated with
 	for link in soup.find_all("a", {"class": "gsc_rsb_aa"}):		
@@ -42,8 +53,8 @@ def breathFirstSearch(url):
 	for t in threads:
 		t.setDaemon(True)
 		t.start()
-
-	t.join()
+	for t in threads:
+		t.join()
 		
 	#for link1stDegree in relatedScholars:
 	#	secondDegree(link1stDegree)
@@ -62,7 +73,14 @@ def secondDegree(url):
 	for fields in soup.find_all("a", {"class": "gsc_prf_ila"}): 
 		fieldName = fields.text.encode('ascii', 'ignore').decode('ascii')	
 		#print(currentName + " " + fieldName)
-		insertDB(currentName, fieldName)
+		#insertDB(currentName, fieldName)
+		try:
+			lock.acquire()
+			f_af.write("INSERT into fields (scholarName, field) VALUES ('%s','%s');" % (currentName.replace("'", ":"), fieldName.replace("'", ":")))
+			lock.release()
+			#conn.commit()
+		except ValueError:
+			print("22222Failed inserting....")
 		
 	for link in soup.find_all("a", {"class": "gsc_rsb_aa"}):
 		link = "https://scholar.google.co.uk" + link.get('href')
@@ -81,18 +99,25 @@ def secondDegree(url):
 				for fields in soup.find_all("a", {"class": "gsc_prf_ila"}): 
 					fieldName = fields.text.encode('ascii', 'ignore').decode('ascii')	
 					#print(currentName + " " + fieldName)
-					insertDB(currentName, fieldName)
+					#insertDB(currentName, fieldName)
+		try:
+			lock.acquire()
+			f_af.write("INSERT into fields (scholarName, field) VALUES ('%s','%s');" % (currentName.replace("'", ":"), fieldName.replace("'", ":")))
+			lock.release()
+			#conn.commit()
+		except ValueError:
+			print("222222Failed inserting....")
 				
 #insert scholar and institutionName into db			
-def insertDB(name, field):	
-	name = name.replace("'", ":")
-	field = field.replace("'", ":")
+#def insertDB(name, field):	
+#	name = name.replace("'", ":")
+#	field = field.replace("'", ":")
 	
-	try:
-		f_af.write("INSERT into fields (scholarName, field) VALUES ('%s','%s');" % (name, field))
+#	try:
+#		f_af.write("INSERT into fields (scholarName, field) VALUES ('%s','%s');" % (name, field))
 		#conn.commit()
-	except ValueError:
-		print("Failed inserting....")			
+#	except ValueError:
+#		print("Failed inserting....")			
 			
 
 

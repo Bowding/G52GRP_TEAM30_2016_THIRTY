@@ -10,6 +10,9 @@ relatedScholars = []
 relatedScholars2ndDegree = []
 
 global f_an
+global lock
+
+lock = threading.Lock()
 		
 #A breadth first search pattern has been implemented to find unique scholars who are related to the input scholar
 
@@ -23,8 +26,12 @@ def breathFirstSearch(url):
 
 	#cur = conn.cursor()
 	
+
+
 	try:
+		lock.acquire()
 		f_an.write("INSERT into nodes (scholarName) VALUES ('%s');" % (currentName))
+		lock.release()
 		#conn.commit()
 	except ValueError:
 		print("Failed inserting....")	
@@ -36,7 +43,9 @@ def breathFirstSearch(url):
 		
 		#insert name of scholar and current node scholar into db
 		try:
+			lock.acquire()
 			f_an.write("INSERT into connections (sourceScholar, targetScholar) VALUES ('%s','%s');" % (currentName, name))
+			lock.release()
 			#conn.commit()
 		except ValueError:
 			print("Failed inserting....")	
@@ -55,8 +64,8 @@ def breathFirstSearch(url):
 	for t in threads:
 		t.setDaemon(True)
 		t.start()
-
-	t.join()
+	for t in threads:
+		t.join()
 #>>>>>>> b5a807c3dc5027d45af3e4bcce5d050a105af4a9
 		
 	#for link1stDegree in relatedScholars:
@@ -76,7 +85,9 @@ def secondDegree(url):
 	currentName = name_data.text.encode('ascii', 'ignore').decode('ascii')
 	
 	try:
+		lock.acquire()
 		f_an.write("INSERT into nodes (scholarName) VALUES ('%s');" % (currentName))
+		lock.release()
 		#conn.commit()
 	except ValueError:
 		print("Failed inserting....")
@@ -88,7 +99,9 @@ def secondDegree(url):
 				
 		#insert name of scholar and current node scholar into db
 		try:
+			lock.acquire()
 			f_an.write("INSERT into connections (sourceScholar, targetScholar) VALUES ('%s','%s');" % (currentName, name))
+			lock.release()
 			#conn.commit()
 		except ValueError:
 			print("Failed inserting....")	

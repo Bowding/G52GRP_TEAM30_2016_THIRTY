@@ -182,16 +182,17 @@ def get_author_papers_data(search):
     os.system("python author_papers_data.py %s" % (url))
 
 def visualize(authorName):
-    os.system("python get_data.py %s" % (authorName))
+    #os.system("python get_data.py %s" % (authorName))
     #string = get_data.get_string()
     #print("+++++++" + string) 
     #s2_out = subprocess.check_output([sys.executable, "get_data.py", str(10)])
-    f = open('myhtml.txt', 'r')
-    string = f.readline()  # python will convert \n to os.linesep
-    f.close()
+    #f = open('myhtml.txt', 'r')
+    #string = f.readline()  # python will convert \n to os.linesep
+    #f.close()
      
     #print("++++++++" + str(s2_out))
-    return string
+    #return string
+    os.system("python gra_coauthor_relationship.py %s" % (authorName))
 
 
 #display website
@@ -239,8 +240,8 @@ def formhandler(pymydb):
     for t in threads:
         t.setDaemon(True)
         t.start()
-
-    t.join()
+    for t in threads:
+        t.join()
 
     insert_to_db(pymydb, 'profile_and_paper.txt')
     insert_to_db(pymydb, 'author_network.txt')
@@ -248,12 +249,14 @@ def formhandler(pymydb):
     insert_to_db(pymydb, 'authors_institution.txt')
     insert_to_db(pymydb, 'author_papers_data.txt')
     
-    string = visualize(authorName.replace(" ", "+"))
-    if(string == "No Results Found On DB!!"):
-        return string
-    else:
-        return template("nodes_basic.html", links = string)
+#    string = visualize(authorName.replace(" ", "+"))
+#    if(string == "No Results Found On DB!!"):
+#        return string
+#    else:
+#        return template("nodes_basic.html", links = string)
     
+    visualize(authorName.replace(" ", "+"))
+    return template("img/coauthor_re.svg")
 
     #string = visualize(authorName)
     #if(string == "No Results Found On DB!!"):

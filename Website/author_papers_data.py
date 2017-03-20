@@ -7,7 +7,12 @@ import threading
 #urls
 relatedScholars = []
 relatedScholars2ndDegree = []
-		
+
+global f_apd
+global lock
+
+lock = threading.Lock()
+	
 #A breadth first search pattern has been implemented to find unique scholars who are related to the input scholar
 
 def breathFirstSearch(url):
@@ -43,8 +48,8 @@ def breathFirstSearch(url):
 	for t in threads:
 		t.setDaemon(True)
 		t.start()
-
-	t.join()
+	for t in threads:
+		t.join()
 
 		
 	#for link1stDegree in relatedScholars:
@@ -95,7 +100,9 @@ def insertDB(paper, authors):
 	authors = authors.replace("'", ":")
 	
 	try:
+		lock.acquire()
 		f_apd.write("INSERT into paperCoAuthors (paperTitle, paperAuthors) VALUES ('%s','%s');" % (paper, authors))
+		lock.release()
 		#conn.commit()
 	except ValueError:
 		print("Failed inserting....")			
@@ -121,6 +128,6 @@ if __name__ == "__main__":
 	breathFirstSearch(url)
 
 	f_apd.close()
-	print("finish authors institution")
+	print("finish authors papers data")
 	
 	#conn.close()
