@@ -166,5 +166,8 @@ if result > 0:
     conn.close()
 
 else:
+    f = open('img/coauthor_re.svg', 'w')
+    f.write("No Results Found On DB!!")
+    f.close()
     print ("No Results Found On DB!!")
     

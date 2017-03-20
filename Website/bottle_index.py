@@ -193,6 +193,11 @@ def visualize(authorName):
     #print("++++++++" + str(s2_out))
     #return string
     os.system("python gra_coauthor_relationship.py %s" % (authorName))
+    f_v = open('img/coauthor_re.svg', 'r')
+    string = f_v.readline()
+    print("=========="+string)
+    f_v.close
+    return string
 
 
 #display website
