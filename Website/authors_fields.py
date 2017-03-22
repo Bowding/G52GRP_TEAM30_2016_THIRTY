@@ -109,15 +109,15 @@ def secondDegree(url):
 			print("222222Failed inserting....")
 				
 #insert scholar and institutionName into db			
-#def insertDB(name, field):	
-#	name = name.replace("'", ":")
-#	field = field.replace("'", ":")
+def insertDB(name, field):	
+	name = name.replace("'", ":")
+	field = field.replace("'", ":")
 	
-#	try:
-#		f_af.write("INSERT into fields (scholarName, field) VALUES ('%s','%s');" % (name, field))
+	try:
+		f_af.write("INSERT into fields (scholarName, field) VALUES ('%s','%s');" % (name, field))
 		#conn.commit()
-#	except ValueError:
-#		print("Failed inserting....")			
+	except ValueError:
+		print("Failed inserting....")			
 			
 
 

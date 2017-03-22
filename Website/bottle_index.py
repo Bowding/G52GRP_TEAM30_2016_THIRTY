@@ -68,7 +68,7 @@ def requests_get(url):
 def connect_to_db():
     try:
         print("Connecting to mySQL.....")
-        plugin = bottle_pymysql.Plugin(dbuser = 'root', dbpass = 'CHEERs0251', dbname = 'googlescholardb')
+        plugin = bottle_pymysql.Plugin(dbuser = 'root', dbpass = '', dbname = 'googlescholardb')
         #conn = pymysql.connect(host='localhost', db='googlescholardb', user='root', password='', cursorclass=pymysql.cursors.DictCursor)
         bottle.install(plugin)
         print("Connection established!")
