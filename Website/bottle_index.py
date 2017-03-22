@@ -10,10 +10,58 @@ import get_data
 from bottle import template, static_file
 from bs4 import BeautifulSoup
 import threading
+from time import sleep
+import random
 
 #following codes is only needed for python 2.x and only works for python 2.x
 #reload(sys)
 #sys.setdefaultencoding('utf8')
+
+global timeout, proxies_list, headers
+
+# Timeout for connection time
+timeout = 10
+
+# Opening file with proxies and creates list of proxies
+with open('good_ssl_proxies_4.txt', 'r') as file:
+    content = file.readlines()
+    proxies_list = [item.replace('\n', '') for item in content]
+
+# Google chrome user agent 
+user_agent = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'             
+headers = {'User_Agent': user_agent} 
+
+def requests_get(url):
+    while True:
+        print('Number Proxies in list = {}'.format(len(proxies_list)))
+        # Choosing random proxy from the list of proxies
+        proxy = random.choice(proxies_list)
+        proxies = {
+              'http': 'https://{}/'.format(proxy),
+              'https': 'https://{}/'.format(proxy)
+              } 
+        
+        try:
+            # Trying to connect to the url via proxy
+            print('\nConnecting, wait 0 - 10 sec...')
+            req = requests.get(url, proxies = proxies, headers = headers, timeout = timeout)        
+            status = req.status_code
+            print('Status Code = {}\n'.format(status))
+            
+            if status != 200:
+                raise Exception
+            
+        except:  
+            # If status code is not == 200, removing bad proxy from the list, random wait and retry connection 
+            print('Exception when connecting')         
+            proxies_list.remove(proxy)
+            print('Sleeping, wait 2 - 6 sec...\n')
+            sleep(2 + 4 * random.random())
+            
+        else:
+            # If status code is 200, break the Try loop and exit from the function
+            break  
+    return req       
 
 
 #connect to db
@@ -34,14 +82,14 @@ def get_target_url(search):
     search_url = "https://scholar.google.co.uk/scholar?q=" + keyword
 
     #generate url of matching authors page
-    search_r = requests.get(search_url)
+    search_r = requests_get(search_url)
     search_soup = BeautifulSoup(search_r.content, "html.parser")
 
     match_url_area = search_soup.find("h3", {"class": "gs_rt"})
     match_url = "https://scholar.google.co.uk" + match_url_area.find("a").get("href")
 
     #generate url of target author page
-    match_r = requests.get(match_url)
+    match_r = requests_get(match_url)
     match_soup = BeautifulSoup(match_r.content, "html.parser")
 
     target_url_area = match_soup.find("h3", {"class": "gsc_1usr_name"})
@@ -71,7 +119,7 @@ def get_profile_and_paper(search, pymydb):
     url = target_url.replace("oe=ASCII","oi=ao&cstart=0&pagesize=100")
 
     #access to target author page - first page
-    r = requests.get(url)
+    r = requests_get(url)
     soup = BeautifulSoup(r.content, "html.parser")
 
     #get profile
@@ -146,7 +194,7 @@ def get_profile_and_paper(search, pymydb):
         #get next page url
         url = target_url.replace("oe=ASCII","oi=ao&cstart=%d&pagesize=100" % (cstart))
         #access to next page
-        r = requests.get(url)
+        r = requests_get(url)
         soup = BeautifulSoup(r.content, "html.parser")
 
     print("\nINSERT INTO profile (aName, NumPaper, hIndex) VALUES ('%s', %d, %d)\n" % (name_data.text, int(x), int(hIndex[2].text)))
@@ -233,12 +281,12 @@ def formhandler(pymydb):
     threads.append(t1)
     t2 = threading.Thread(target = get_author_network, args = (search, ))
     threads.append(t2)
-    t3 = threading.Thread(target = get_author_fields, args = (search, ))
-    threads.append(t3)
-    t4 = threading.Thread(target = get_author_institution, args = (search, ))
-    threads.append(t4)
-    t5 = threading.Thread(target = get_author_papers_data, args = (search, ))
-    threads.append(t5)
+#    t3 = threading.Thread(target = get_author_fields, args = (search, ))
+#    threads.append(t3)
+#    t4 = threading.Thread(target = get_author_institution, args = (search, ))
+#    threads.append(t4)
+#    t5 = threading.Thread(target = get_author_papers_data, args = (search, ))
+#    threads.append(t5)
 
     #get_author_network(search)
 
@@ -250,9 +298,9 @@ def formhandler(pymydb):
 
     insert_to_db(pymydb, 'profile_and_paper.txt')
     insert_to_db(pymydb, 'author_network.txt')
-    insert_to_db(pymydb, 'authors_fields.txt')
-    insert_to_db(pymydb, 'authors_institution.txt')
-    insert_to_db(pymydb, 'author_papers_data.txt')
+#    insert_to_db(pymydb, 'authors_fields.txt')
+#    insert_to_db(pymydb, 'authors_institution.txt')
+#    insert_to_db(pymydb, 'author_papers_data.txt')
     
 #    string = visualize(authorName.replace(" ", "+"))
 #    if(string == "No Results Found On DB!!"):
@@ -261,6 +309,12 @@ def formhandler(pymydb):
 #        return template("nodes_basic.html", links = string)
     
     visualize(authorName.replace(" ", "+"))
+
+    print('\nSleeping, wait 2 - 6 sec...\n')
+    sleep(2 + 4 * random.random()) 
+
+    print('Scraping Job Done')
+
     return template("img/coauthor_re.svg")
 
     #string = visualize(authorName)
