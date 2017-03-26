@@ -8,7 +8,7 @@ import os
 import sys
 import subprocess
 import get_data
-from bottle import template, static_file
+from bottle import template, static_file, ResourceManager
 from bs4 import BeautifulSoup
 import threading
 from time import sleep
@@ -286,13 +286,8 @@ def formhandler():
 #    print("=========="+string)
 #    f_v.close
 
-    print('\nSleeping, wait 2 - 6 sec...\n')
-    sleep(2 + 4 * random.random()) 
 
     print('Scraping Job Done')
-
-    f = open('img/coauthor_re.svg', 'r')
-    f.close()
 
     bottle.TEMPLATES.clear()
 
