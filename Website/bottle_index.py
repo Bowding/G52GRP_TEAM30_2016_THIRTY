@@ -82,14 +82,14 @@ def get_target_url(search):
     search_url = "https://scholar.google.co.uk/scholar?q=" + keyword
 
     #generate url of matching authors page
-    search_r = requests_get(search_url)
+    search_r = requests.get(search_url)
     search_soup = BeautifulSoup(search_r.content, "html.parser")
 
     match_url_area = search_soup.find("h3", {"class": "gs_rt"})
     match_url = "https://scholar.google.co.uk" + match_url_area.find("a").get("href")
 
     #generate url of target author page
-    match_r = requests_get(match_url)
+    match_r = requests.get(match_url)
     match_soup = BeautifulSoup(match_r.content, "html.parser")
 
     target_url_area = match_soup.find("h3", {"class": "gsc_1usr_name"})
@@ -119,7 +119,7 @@ def get_profile_and_paper(search, pymydb):
     url = target_url.replace("oe=ASCII","oi=ao&cstart=0&pagesize=100")
 
     #access to target author page - first page
-    r = requests_get(url)
+    r = requests.get(url)
     soup = BeautifulSoup(r.content, "html.parser")
 
     #get profile
@@ -194,7 +194,7 @@ def get_profile_and_paper(search, pymydb):
         #get next page url
         url = target_url.replace("oe=ASCII","oi=ao&cstart=%d&pagesize=100" % (cstart))
         #access to next page
-        r = requests_get(url)
+        r = requests.get(url)
         soup = BeautifulSoup(r.content, "html.parser")
 
     print("\nINSERT INTO profile (aName, NumPaper, hIndex) VALUES ('%s', %d, %d)\n" % (name_data.text, int(x), int(hIndex[2].text)))
@@ -241,11 +241,7 @@ def visualize(authorName):
     #print("++++++++" + str(s2_out))
     #return string
     os.system("python gra_coauthor_relationship.py %s" % (authorName))
-    f_v = open('img/coauthor_re.svg', 'r')
-    string = f_v.readline()
-    print("=========="+string)
-    f_v.close
-    return string
+    
 
 
 #display website
@@ -281,12 +277,12 @@ def formhandler(pymydb):
     threads.append(t1)
     t2 = threading.Thread(target = get_author_network, args = (search, ))
     threads.append(t2)
-#    t3 = threading.Thread(target = get_author_fields, args = (search, ))
-#    threads.append(t3)
-#    t4 = threading.Thread(target = get_author_institution, args = (search, ))
-#    threads.append(t4)
-#    t5 = threading.Thread(target = get_author_papers_data, args = (search, ))
-#    threads.append(t5)
+    t3 = threading.Thread(target = get_author_fields, args = (search, ))
+    threads.append(t3)
+    t4 = threading.Thread(target = get_author_institution, args = (search, ))
+    threads.append(t4)
+    t5 = threading.Thread(target = get_author_papers_data, args = (search, ))
+    threads.append(t5)
 
     #get_author_network(search)
 
@@ -298,9 +294,9 @@ def formhandler(pymydb):
 
     insert_to_db(pymydb, 'profile_and_paper.txt')
     insert_to_db(pymydb, 'author_network.txt')
-#    insert_to_db(pymydb, 'authors_fields.txt')
-#    insert_to_db(pymydb, 'authors_institution.txt')
-#    insert_to_db(pymydb, 'author_papers_data.txt')
+    insert_to_db(pymydb, 'authors_fields.txt')
+    insert_to_db(pymydb, 'authors_institution.txt')
+    insert_to_db(pymydb, 'author_papers_data.txt')
     
 #    string = visualize(authorName.replace(" ", "+"))
 #    if(string == "No Results Found On DB!!"):
@@ -309,6 +305,11 @@ def formhandler(pymydb):
 #        return template("nodes_basic.html", links = string)
     
     visualize(authorName.replace(" ", "+"))
+
+# f_v = open('img/coauthor_re.svg', 'r')
+#    string = f_v.readline()
+#    print("=========="+string)
+#    f_v.close
 
     print('\nSleeping, wait 2 - 6 sec...\n')
     sleep(2 + 4 * random.random()) 

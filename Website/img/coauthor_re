@@ -3,132 +3,95 @@ graph G {
 		node [style=filled]
 		style=filled
 		color=lightgrey
-		label = "Queen Mary University of London"
-			"Edmund Kieran Burke" [fontsize=13]
+		label = "Lecturer of Computer Science and Operational Research"
+			"Ender zcan" [fontsize=13]
 	}
 	subgraph cluster_1 {
 		node [style=filled]
 		style=filled
 		color=lightgrey
-		label = "Queen:s University"
-			"Barry McCollum" [fontsize=13]
+		label = "University of Nottingham"
+			"Andrew J Parkes" [fontsize=13]
+			"Warren G. Jackson" [fontsize=13]
 	}
 	subgraph cluster_2 {
 		node [style=filled]
 		style=filled
 		color=lightgrey
-		label = "Lecturer of Computer Science and Operational Research"
-			"Ender zcan" [fontsize=13]
+		label = "University of Exeter"
+			"Ed Keedwell" [fontsize=13]
+			"Dragan Savic" [fontsize=13]
 	}
 	subgraph cluster_3 {
 		node [style=filled]
 		style=filled
 		color=lightgrey
-		label = "IBM Research"
-			"Jakub Mareek" [fontsize=13]
+		label = "Queen Mary University of London"
+			"Edmund Kieran Burke" [fontsize=13]
 	}
 	subgraph cluster_4 {
-		node [style=filled]
-		style=filled
-		color=lightgrey
-		label = "University of Nottingham"
-			"Rong Qu" [fontsize=13]
-			"Professor Graham Kendall" [fontsize=13]
-			"Dario Landa-Silva" [fontsize=13]
-			"Matthew R. Hyde" [fontsize=13]
-	}
-	subgraph cluster_5 {
 		node [style=filled]
 		style=filled
 		color=lightgrey
 		label = "PhD - Data & Computer Scientist"
 			"Shahriar Asta" [fontsize=13]
 	}
-	subgraph cluster_6 {
-		node [style=filled]
-		style=filled
-		color=lightgrey
-		label = "Masaryk University"
-			"Hana Rudov" [fontsize=13]
-	}
-	subgraph cluster_7 {
-		node [style=filled]
-		style=filled
-		color=lightgrey
-		label = "University of Stirling"
-			"Gabriela Ochoa" [fontsize=13]
-	}
-	subgraph cluster_8 {
-		node [style=filled]
-		style=filled
-		color=lightgrey
-		label = "Tecnolgico de Monterrey"
-			"Hugo Terashima-Marn" [fontsize=13]
-			"Jos Carlos Ortiz-Bayliss" [fontsize=13]
-	}
-	subgraph cluster_9 {
-		node [style=filled]
-		style=filled
-		color=lightgrey
-		label = "Leibniz University Hannover"
-			"Olaf Lechtenfeld" [fontsize=13]
-	}
-	subgraph cluster_10 {
+	subgraph cluster_5 {
 		node [style=filled]
 		style=filled
 		color=lightgrey
 		label = "University of Essex"
 			"Daniel Karapetyan" [fontsize=13]
 	}
-	subgraph cluster_11 {
+	subgraph cluster_6 {
+		node [style=filled]
+		style=filled
+		color=lightgrey
+		label = "Nanjing University of Aeronautics and Astronautics"
+			"Mustafa Msr" [fontsize=13]
+	}
+	subgraph cluster_7 {
 		node [style=filled]
 		style=filled
 		color=lightgrey
 		label = "Cardiff University"
-			"Ahmed Kheiri" [fontsize=13]
 			"Rhyd Lewis" [fontsize=13]
 	}
-	subgraph cluster_12 {
-		node [style=filled]
-		style=filled
-		color=lightgrey
-		label = "Edinburgh Napier University"
-			"Ben Paechter" [fontsize=13]
-	}
-	subgraph cluster_13 {
-		node [style=filled]
-		style=filled
-		color=lightgrey
-		label = "University of Udine"
-			"Luca Di Gaspero" [fontsize=13]
-			"Andrea Schaerf" [fontsize=13]
-	}
-		"Edmund Kieran Burke" -- "Professor Graham Kendall" [penwidth=2]
-		"Edmund Kieran Burke" -- "Barry McCollum" [penwidth=2]
-		"Edmund Kieran Burke" -- "Rong Qu" [penwidth=2]
-		"Edmund Kieran Burke" -- "Ender zcan" [penwidth=2]
-		"Edmund Kieran Burke" -- "Gabriela Ochoa" [penwidth=2]
-		"Edmund Kieran Burke" -- "Matthew R. Hyde" [penwidth=2]
-		"Edmund Kieran Burke" -- "Dario Landa-Silva" [penwidth=2]
-		"Ender zcan" -- "Professor Graham Kendall" [penwidth=2]
-		"Ender zcan" -- "Gabriela Ochoa" [penwidth=2]
-		"Ender zcan" -- "Ahmed Kheiri" [penwidth=2]
+		"Ender zcan" -- "Edmund Kieran Burke" [penwidth=2]
+		"Ender zcan" -- "Andrew J Parkes" [penwidth=2]
 		"Ender zcan" -- "Shahriar Asta" [penwidth=2]
-		"Ender zcan" -- "Rong Qu" [penwidth=2]
-		"Ender zcan" -- "Hugo Terashima-Marn" [penwidth=2]
-		"Ender zcan" -- "Jos Carlos Ortiz-Bayliss" [penwidth=2]
-		"Shahriar Asta" -- "Ahmed Kheiri" [penwidth=2]
+		"Ender zcan" -- "Mustafa Msr" [penwidth=2]
+		"Ender zcan" -- "Edmund Kieran Burke" [penwidth=2]
+		"Ender zcan" -- "Andrew J Parkes" [penwidth=2]
+		"Ender zcan" -- "Shahriar Asta" [penwidth=2]
+		"Ender zcan" -- "Mustafa Msr" [penwidth=2]
+		"Ender zcan" -- "Edmund Kieran Burke" [penwidth=2]
+		"Ender zcan" -- "Andrew J Parkes" [penwidth=2]
+		"Ender zcan" -- "Shahriar Asta" [penwidth=2]
+		"Ender zcan" -- "Mustafa Msr" [penwidth=2]
+		"Andrew J Parkes" -- "Edmund Kieran Burke" [penwidth=2]
+		"Andrew J Parkes" -- "Shahriar Asta" [penwidth=2]
+		"Andrew J Parkes" -- "Daniel Karapetyan" [penwidth=2]
+		"Andrew J Parkes" -- "Rhyd Lewis" [penwidth=2]
+		"Andrew J Parkes" -- "Edmund Kieran Burke" [penwidth=2]
+		"Andrew J Parkes" -- "Shahriar Asta" [penwidth=2]
+		"Andrew J Parkes" -- "Daniel Karapetyan" [penwidth=2]
+		"Andrew J Parkes" -- "Rhyd Lewis" [penwidth=2]
+		"Andrew J Parkes" -- "Edmund Kieran Burke" [penwidth=2]
+		"Andrew J Parkes" -- "Shahriar Asta" [penwidth=2]
+		"Andrew J Parkes" -- "Daniel Karapetyan" [penwidth=2]
+		"Andrew J Parkes" -- "Rhyd Lewis" [penwidth=2]
+		"Ed Keedwell" -- "Dragan Savic" [penwidth=2]
+		"Shahriar Asta" -- "Daniel Karapetyan" [penwidth=2]
+		"Shahriar Asta" -- "Daniel Karapetyan" [penwidth=2]
 		"Shahriar Asta" -- "Daniel Karapetyan" [penwidth=2]
 		"Daniel Karapetyan" -- "Ender zcan" [penwidth=2]
-		"Ahmed Kheiri" -- "Edmund Kieran Burke" [penwidth=2]
-		"Ahmed Kheiri" -- "Daniel Karapetyan" [penwidth=2]
-		"Ahmed Kheiri" -- "Rhyd Lewis" [penwidth=2]
-		"Rhyd Lewis" -- "Ben Paechter" [penwidth=2]
-		"Rhyd Lewis" -- "Barry McCollum" [penwidth=2]
-		"Rhyd Lewis" -- "Rong Qu" [penwidth=2]
+		"Daniel Karapetyan" -- "Ender zcan" [penwidth=2]
+		"Daniel Karapetyan" -- "Ender zcan" [penwidth=2]
+		"Mustafa Msr" -- "Edmund Kieran Burke" [penwidth=2]
 		"Rhyd Lewis" -- "Edmund Kieran Burke" [penwidth=2]
-		"Rhyd Lewis" -- "Andrea Schaerf" [penwidth=2]
-		"Rhyd Lewis" -- "Luca Di Gaspero" [penwidth=2]
+		"Rhyd Lewis" -- "Edmund Kieran Burke" [penwidth=2]
+		"Rhyd Lewis" -- "Edmund Kieran Burke" [penwidth=2]
 ratio = compress
 size = "13,30"
  rankdir="BT"
