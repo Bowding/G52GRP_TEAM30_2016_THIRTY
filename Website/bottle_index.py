@@ -1,6 +1,7 @@
 #-*-coding:utf-8-*-
 import bottle
 import bottle_pymysql
+import pymysql
 import html
 import requests
 import os
@@ -15,65 +16,29 @@ import random
 
 #following codes is only needed for python 2.x and only works for python 2.x
 #reload(sys)
-#sys.setdefaultencoding('utf8')
-
-global timeout, proxies_list, headers
-
-# Timeout for connection time
-timeout = 10
-
-# Opening file with proxies and creates list of proxies
-with open('good_ssl_proxies_4.txt', 'r') as file:
-    content = file.readlines()
-    proxies_list = [item.replace('\n', '') for item in content]
-
-# Google chrome user agent 
-user_agent = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'             
-headers = {'User_Agent': user_agent} 
-
-def requests_get(url):
-    while True:
-        print('Number Proxies in list = {}'.format(len(proxies_list)))
-        # Choosing random proxy from the list of proxies
-        proxy = random.choice(proxies_list)
-        proxies = {
-              'http': 'https://{}/'.format(proxy),
-              'https': 'https://{}/'.format(proxy)
-              } 
-        
-        try:
-            # Trying to connect to the url via proxy
-            print('\nConnecting, wait 0 - 10 sec...')
-            req = requests.get(url, proxies = proxies, headers = headers, timeout = timeout)        
-            status = req.status_code
-            print('Status Code = {}\n'.format(status))
-            
-            if status != 200:
-                raise Exception
-            
-        except:  
-            # If status code is not == 200, removing bad proxy from the list, random wait and retry connection 
-            print('Exception when connecting')         
-            proxies_list.remove(proxy)
-            print('Sleeping, wait 2 - 6 sec...\n')
-            sleep(2 + 4 * random.random())
-            
-        else:
-            # If status code is 200, break the Try loop and exit from the function
-            break  
-    return req       
+#sys.setdefaultencoding('utf8')     
 
 
 #connect to db
 def connect_to_db():
+
     try:
         print("Connecting to mySQL.....")
-        plugin = bottle_pymysql.Plugin(dbuser = 'root', dbpass = '', dbname = 'googlescholardb')
-        #conn = pymysql.connect(host='localhost', db='googlescholardb', user='root', password='', cursorclass=pymysql.cursors.DictCursor)
-        bottle.install(plugin)
+        conn = pymysql.connect(user="root", passwd="CHEERs0251", host="127.0.0.1", port=3306, database="googlescholardb")
         print("Connection established!")
+        return conn
     except:
         print("Connection Failed!")
+
+
+#    try:
+#        print("Connecting to mySQL.....")
+#        plugin = bottle_pymysql.Plugin(dbuser = 'root', dbpass = 'CHEERs0251', dbname = 'googlescholardb')
+        #conn = pymysql.connect(host='localhost', db='googlescholardb', user='root', password='', cursorclass=pymysql.cursors.DictCursor)
+#        bottle.install(plugin)
+#        print("Connection established!")
+#    except:
+#        print("Connection Failed!")
 
 
 def get_target_url(search):
@@ -97,17 +62,20 @@ def get_target_url(search):
 
     return target_url
 
-def insert_to_db(pymydb, filename):
+#def insert_to_db(pymydb, filename):
+def insert_to_db(conn, cur, filename):
+    
     f_read = open(filename, 'r')
     sql_instructions = f_read.readline()
     try:
-        pymydb.execute(sql_instructions)
+        cur.execute(sql_instructions)
+        conn.commit()
     except ValueError:
         print("Failed inserting....")
 
     f_read.close()
 
-def get_profile_and_paper(search, pymydb):
+def get_profile_and_paper(search):
 
     global authorName
 
@@ -229,6 +197,11 @@ def get_author_papers_data(search):
     url = target_url.split("=")[1].split("&")[0]
     os.system("python author_papers_data.py %s" % (url))
 
+def get_scholar_data(search):
+    target_url = get_target_url(search)
+    url = target_url.split("=")[1].split("&")[0]
+    os.system("python scholar_data.py %s" % (url))
+
 def visualize(authorName):
     #os.system("python get_data.py %s" % (authorName))
     #string = get_data.get_string()
@@ -262,29 +235,26 @@ def stylesheets(filename):
 def stylesheets(filename):
     return static_file('{}.ico'.format(filename), root='./')
 
-connect_to_db()
+
 
 #handle user input
 @bottle.route('/test', method="POST")
-def formhandler(pymydb):
+def formhandler():
     """Handle the form submission"""
     #get search keyword
     search = bottle.request.forms.get('search')
 
+    conn = connect_to_db()
+    cur = conn.cursor()
+    
     threads = []
-    t1 = threading.Thread(target = get_profile_and_paper, args = (search, pymydb, ))
+    t1 = threading.Thread(target = get_profile_and_paper, args = (search, ))
     #authorName = get_profile_and_paper(search, pymydb).replace(" ", "+")
     threads.append(t1)
     t2 = threading.Thread(target = get_author_network, args = (search, ))
     threads.append(t2)
-    t3 = threading.Thread(target = get_author_fields, args = (search, ))
+    t3 = threading.Thread(target = get_scholar_data, args = (search, ))
     threads.append(t3)
-    t4 = threading.Thread(target = get_author_institution, args = (search, ))
-    threads.append(t4)
-    t5 = threading.Thread(target = get_author_papers_data, args = (search, ))
-    threads.append(t5)
-
-    #get_author_network(search)
 
     for t in threads:
         t.setDaemon(True)
@@ -292,11 +262,16 @@ def formhandler(pymydb):
     for t in threads:
         t.join()
 
-    insert_to_db(pymydb, 'profile_and_paper.txt')
-    insert_to_db(pymydb, 'author_network.txt')
-    insert_to_db(pymydb, 'authors_fields.txt')
-    insert_to_db(pymydb, 'authors_institution.txt')
-    insert_to_db(pymydb, 'author_papers_data.txt')
+    insert_to_db(conn, cur, 'profile_and_paper.txt')
+    insert_to_db(conn, cur, 'author_network.txt')
+    insert_to_db(conn, cur, 'scholar_data.txt')
+
+    cur.close()
+    conn.close()
+
+#    insert_to_db(pymydb, 'authors_fields.txt')
+#    insert_to_db(pymydb, 'authors_institution.txt')
+#    insert_to_db(pymydb, 'author_papers_data.txt')
     
 #    string = visualize(authorName.replace(" ", "+"))
 #    if(string == "No Results Found On DB!!"):
@@ -315,6 +290,11 @@ def formhandler(pymydb):
     sleep(2 + 4 * random.random()) 
 
     print('Scraping Job Done')
+
+    f = open('img/coauthor_re.svg', 'r')
+    f.close()
+
+    bottle.TEMPLATES.clear()
 
     return template("img/coauthor_re.svg")
 

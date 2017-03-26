@@ -8,7 +8,7 @@ import threading
 relatedScholars = []
 relatedScholars2ndDegree = []
 
-global f_apd
+global f_sd
 global lock
 
 lock = threading.Lock()
@@ -63,7 +63,7 @@ def secondDegree(url):
 				getDataFromProfile(soup)
 					
 def getDataFromProfile(soup):
- 	name_data = soup.find_all("div", {"id": "gsc_prf_in"})[0]
+	name_data = soup.find_all("div", {"id": "gsc_prf_in"})[0]
 	currentName = name_data.text.encode('ascii', 'ignore').decode('ascii')
 	
 	institution = soup.find_all("div", {"class": "gsc_prf_il"})[0]
@@ -91,7 +91,7 @@ def insertDB_paperData(paper, authors):
 	
 	try:
 		lock.acquire()
-		f_apd.write("INSERT into paperCoAuthors (paperTitle, paperAuthors) VALUES ('%s','%s');" % (paper, authors))
+		f_sd.write("INSERT into paperCoAuthors (paperTitle, paperAuthors) VALUES ('%s','%s');" % (paper, authors))
 		lock.release()
 	except ValueError:
 		print("Failed inserting....")			
@@ -103,7 +103,7 @@ def insertDB_institution(name, institution):
 	
 	try:
 		lock.acquire()
-		f_ai.write("INSERT into institutions (scholarName, institution) VALUES ('%s','%s');" % (name, institution))
+		f_sd.write("INSERT into institutions (scholarName, institution) VALUES ('%s','%s');" % (name, institution))
 		lock.release()
 	except ValueError:
 		print("Failed inserting....")			
@@ -112,20 +112,20 @@ def insertDB_institution(name, institution):
 def insertDB_fields(name, field):	
 	try:
 		lock.acquire()
-		f_af.write("INSERT into fields (scholarName, field) VALUES ('%s','%s');" % (name.replace("'", ":"), field.replace("'", ":")))
+		f_sd.write("INSERT into fields (scholarName, field) VALUES ('%s','%s');" % (name.replace("'", ":"), field.replace("'", ":")))
 		lock.release()
 	except ValueError:
 		print("Failed inserting....")			
 			
 if __name__ == "__main__":
 
-	print("it's author_papers_data.py!!!!!")
+	print("it's scholar_data.py!!!!!")
 	
-	f_apd = open('author_papers_data.txt', 'w')
+	f_sd = open('scholar_data.txt', 'w')
 
 	url = "https://scholar.google.co.uk/citations?user=" + sys.argv[1]
 	
 	breathFirstSearch(url)
 
-	f_apd.close()
-	print("finish authors papers data")
+	f_sd.close()
+	print("finish scholar data")
