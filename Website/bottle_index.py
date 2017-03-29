@@ -42,6 +42,12 @@ def connect_to_db():
 
 
 def get_target_url(search):
+
+    if((search.startswith('https://scholar.google.co.uk/citations?user=')==True)): #If the user enters a link to a scholars page, it will return the link straightaway
+        return search
+	
+	#This part of the function pieces together a link for a scholars page on Google Scholar using the user search query
+
     #generate searching url
     keyword = search.replace(" ", "+")
     search_url = "https://scholar.google.co.uk/scholar?q=" + keyword
@@ -51,6 +57,11 @@ def get_target_url(search):
     search_soup = BeautifulSoup(search_r.content, "html.parser")
 
     match_url_area = search_soup.find("h3", {"class": "gs_rt"})
+    
+    if ((match_url_area == None)==True) or (match_url_area.text.startswith('User profiles for') == False):
+        print("Scholar '" + search + "' not found")
+        sys.exit()
+    
     match_url = "https://scholar.google.co.uk" + match_url_area.find("a").get("href")
 
     #generate url of target author page
