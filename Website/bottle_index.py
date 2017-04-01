@@ -225,7 +225,10 @@ def visualize(authorName):
     #print("++++++++" + str(s2_out))
     #return string
     os.system("python gra_coauthor_relationship.py %s" % (authorName))
-    
+    f = open('img/coauthor_re.svg', 'r')
+    string = f.readline()  # python will convert \n to os.linesep
+    f.close()
+    return string
 
 
 #display website
@@ -258,47 +261,52 @@ def formhandler():
     conn = connect_to_db()
     cur = conn.cursor()
     
-    threads = []
-    t1 = threading.Thread(target = get_profile_and_paper, args = (search, ))
-    #authorName = get_profile_and_paper(search, pymydb).replace(" ", "+")
-    threads.append(t1)
-    t2 = threading.Thread(target = get_author_network, args = (search, ))
-    threads.append(t2)
-    t3 = threading.Thread(target = get_scholar_data, args = (search, ))
-    threads.append(t3)
-
-    for t in threads:
-        t.setDaemon(True)
-        t.start()
-    for t in threads:
-        t.join()
-
-    insert_to_db(conn, cur, 'profile_and_paper.txt')
-    insert_to_db(conn, cur, 'author_network.txt')
-    insert_to_db(conn, cur, 'scholar_data.txt')
-
-    cur.close()
-    conn.close()
-
-#    insert_to_db(pymydb, 'authors_fields.txt')
-#    insert_to_db(pymydb, 'authors_institution.txt')
-#    insert_to_db(pymydb, 'author_papers_data.txt')
+    vis_result = visualize(search.replace(" ", "+"))
     
-#    string = visualize(authorName.replace(" ", "+"))
-#    if(string == "No Results Found On DB!!"):
-#        return string
-#    else:
-#        return template("nodes_basic.html", links = string)
-    
-    visualize(authorName.replace(" ", "+"))
+    if(vis_result == "No Results Found On DB!!"):
 
-# f_v = open('img/coauthor_re.svg', 'r')
-#    string = f_v.readline()
-#    print("=========="+string)
-#    f_v.close
+        threads = []
+        t1 = threading.Thread(target = get_profile_and_paper, args = (search, ))
+        #authorName = get_profile_and_paper(search, pymydb).replace(" ", "+")
+        threads.append(t1)
+        t2 = threading.Thread(target = get_author_network, args = (search, ))
+        threads.append(t2)
+        t3 = threading.Thread(target = get_scholar_data, args = (search, ))
+        threads.append(t3)
+
+        for t in threads:
+            t.setDaemon(True)
+            t.start()
+        for t in threads:
+            t.join()
+
+        insert_to_db(conn, cur, 'profile_and_paper.txt')
+        insert_to_db(conn, cur, 'author_network.txt')
+        insert_to_db(conn, cur, 'scholar_data.txt')
+
+        cur.close()
+        conn.close()
+
+    #    insert_to_db(pymydb, 'authors_fields.txt')
+    #    insert_to_db(pymydb, 'authors_institution.txt')
+    #    insert_to_db(pymydb, 'author_papers_data.txt')
+        
+    #    string = visualize(authorName.replace(" ", "+"))
+    #    if(string == "No Results Found On DB!!"):
+    #        return string
+    #    else:
+    #        return template("nodes_basic.html", links = string)
+        
+        visualize(authorName.replace(" ", "+"))
+
+    # f_v = open('img/coauthor_re.svg', 'r')
+    #    string = f_v.readline()
+    #    print("=========="+string)
+    #    f_v.close
 
 
-    print('Scraping Job Done')
+        print('Scraping Job Done')
+
 
     bottle.TEMPLATES.clear()
 
