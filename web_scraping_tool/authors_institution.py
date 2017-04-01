@@ -19,7 +19,12 @@ def breathFirstSearch(url, conn):
 	currentName = name_data.text.encode('ascii', 'ignore').decode('ascii')
 	
 	institution = soup.find_all("div", {"class": "gsc_prf_il"})[0]
-	institutionName = institution.text.encode('ascii', 'ignore').decode('ascii')
+	
+	try:
+		institution2 = institution.find_all("a")[0]
+		institutionName = institution2.text.encode('ascii', 'ignore').decode('ascii')
+	except IndexError:
+		institutionName = "Unknown"
 	
 	print(currentName + " Institution: " + institutionName)
 	
@@ -46,7 +51,12 @@ def secondDegree(url, cur):
 	currentName = name_data.text.encode('ascii', 'ignore').decode('ascii')
 	
 	institution = soup.find_all("div", {"class": "gsc_prf_il"})[0]
-	institutionName = institution.text.encode('ascii', 'ignore').decode('ascii')
+	
+	try:
+		institution2 = institution.find_all("a")[0]
+		institutionName = institution2.text.encode('ascii', 'ignore').decode('ascii')
+	except IndexError:
+		institutionName = "Unknown"
 	
 	print(currentName + " Institution: " + institutionName)
 	insertDB(currentName, institutionName, cur)		
@@ -66,7 +76,12 @@ def secondDegree(url, cur):
 				currentName = name_data.text.encode('ascii', 'ignore').decode('ascii')
 				
 				institution = soup.find_all("div", {"class": "gsc_prf_il"})[0]
-				institutionName = institution.text.encode('ascii', 'ignore').decode('ascii')
+				
+				try:
+					institution2 = institution.find_all("a")[0]
+					institutionName = institution2.text.encode('ascii', 'ignore').decode('ascii')
+				except IndexError:
+					institutionName = "Unknown"
 				
 				print(currentName + " Institution: " + institutionName)
 				insertDB(currentName, institutionName, cur)		
