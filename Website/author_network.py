@@ -23,6 +23,7 @@ def breathFirstSearch(url):
 	name_data = soup.find_all("div", {"id": "gsc_prf_in"})[0]
 	currentName = name_data.text.encode('ascii', 'ignore').decode('ascii')
 	threads = []
+	currentURL = url
 
 	#cur = conn.cursor()
 	
@@ -30,7 +31,7 @@ def breathFirstSearch(url):
 
 	try:
 		lock.acquire()
-		f_an.write("INSERT into nodes (scholarName) VALUES ('%s');" % (currentName))
+		f_an.write("INSERT into nodes (scholarURL) VALUES ('%s');" % (currentURL))
 		lock.release()
 		#conn.commit()
 	except ValueError:
@@ -40,17 +41,19 @@ def breathFirstSearch(url):
 	for link in soup.find_all("a", {"class": "gsc_rsb_aa"}):
 		name = link.text.encode('ascii', 'ignore').decode('ascii')
 #		print(currentName + " " + name)
-		
+
+		link = "https://scholar.google.co.uk" + link.get('href')
+
 		#insert name of scholar and current node scholar into db
 		try:
 			lock.acquire()
-			f_an.write("INSERT into connections (sourceScholar, targetScholar) VALUES ('%s','%s');" % (currentName, name))
+			f_an.write("INSERT into connections (sourceScholarURL, targetScholarURL) VALUES ('%s','%s');" % (currentURL, link))
 			lock.release()
 			#conn.commit()
 		except ValueError:
 			print("Failed inserting....")	
 		
-		link = "https://scholar.google.co.uk" + link.get('href')
+		
 		#relatedScholars.append(link)
 
 #<<<<<<< HEAD
@@ -83,10 +86,11 @@ def secondDegree(url):
 	soup = BeautifulSoup(r.content, "html.parser")
 	name_data = soup.find_all("div", {"id": "gsc_prf_in"})[0]
 	currentName = name_data.text.encode('ascii', 'ignore').decode('ascii')
+	currentURL = url
 	
 	try:
 		lock.acquire()
-		f_an.write("INSERT into nodes (scholarName) VALUES ('%s');" % (currentName))
+		f_an.write("INSERT into nodes (scholarURL) VALUES ('%s');" % (currentURL))
 		lock.release()
 		#conn.commit()
 	except ValueError:
@@ -96,17 +100,18 @@ def secondDegree(url):
 		#print name 
 		name = link.text.encode('ascii', 'ignore').decode('ascii')
 #		print(currentName + " " + name)
-				
+		
+		link = "https://scholar.google.co.uk" + link.get('href')
+
 		#insert name of scholar and current node scholar into db
 		try:
 			lock.acquire()
-			f_an.write("INSERT into connections (sourceScholar, targetScholar) VALUES ('%s','%s');" % (currentName, name))
+			f_an.write("INSERT into connections (sourceScholarURL, targetScholarURL) VALUES ('%s','%s');" % (currentURL, link))
 			lock.release()
 			#conn.commit()
 		except ValueError:
 			print("Failed inserting....")	
-
-		link = "https://scholar.google.co.uk" + link.get('href')
+			
 
 		#check if link exists in first degree array and the second degree array
 		if link not in relatedScholars:

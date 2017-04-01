@@ -86,14 +86,14 @@ def insert_to_db(conn, cur, filename):
 
     f_read.close()
 
-def get_profile_and_paper(search):
+def get_profile_and_paper(target_url):
 
     global authorName
 
     f_pp = open('profile_and_paper.txt', 'w')
     #f_pp.write("dhuiwehduieh")
 
-    target_url = get_target_url(search)
+    #target_url = get_target_url(search)
 
     url = target_url.replace("oe=ASCII","oi=ao&cstart=0&pagesize=100")
 
@@ -176,9 +176,9 @@ def get_profile_and_paper(search):
         r = requests.get(url)
         soup = BeautifulSoup(r.content, "html.parser")
 
-    print("\nINSERT INTO profile (aName, NumPaper, hIndex) VALUES ('%s', %d, %d)\n" % (name_data.text, int(x), int(hIndex[2].text)))
+    print("\nINSERT INTO profile (aName, NumPaper, hIndex, authorURL) VALUES ('%s', %d, %d, '%s')\n" % (name_data.text, int(x), int(hIndex[2].text), target_url))
     try:
-        f_pp.write("INSERT INTO profile (aName, NumPaper, hIndex) VALUES ('%s', %d, %d);" % (name_data.text, int(x), int(hIndex[2].text)))
+        f_pp.write("INSERT INTO profile (aName, NumPaper, hIndex, authorURL) VALUES ('%s', %d, %d, '%s');" % (name_data.text, int(x), int(hIndex[2].text), target_url))
         #conn.commit()
     except:
         print("Failed inserting....")
@@ -188,32 +188,17 @@ def get_profile_and_paper(search):
     authorName = name_data.text
 
 
-def get_author_network(search):
-    target_url = get_target_url(search)
+def get_author_network(target_url):
+    #target_url = get_target_url(search)
     url = target_url.split("=")[1].split("&")[0]
     os.system("python author_network.py %s" % (url))
 
-def get_author_fields(search):
-    target_url = get_target_url(search)
-    url = target_url.split("=")[1].split("&")[0]
-    os.system("python authors_fields.py %s" % (url))
-
-def get_author_institution(search):
-    target_url = get_target_url(search)
-    url = target_url.split("=")[1].split("&")[0]
-    os.system("python authors_institution.py %s" % (url))
-
-def get_author_papers_data(search):
-    target_url = get_target_url(search)
-    url = target_url.split("=")[1].split("&")[0]
-    os.system("python author_papers_data.py %s" % (url))
-
-def get_scholar_data(search):
-    target_url = get_target_url(search)
+def get_scholar_data(target_url):
+    #target_url = get_target_url(search)
     url = target_url.split("=")[1].split("&")[0]
     os.system("python scholar_data.py %s" % (url))
 
-def visualize(authorName):
+def visualize(target_url):
     #os.system("python get_data.py %s" % (authorName))
     #string = get_data.get_string()
     #print("+++++++" + string) 
@@ -224,7 +209,8 @@ def visualize(authorName):
      
     #print("++++++++" + str(s2_out))
     #return string
-    os.system("python gra_coauthor_relationship.py %s" % (authorName))
+    url = target_url.split("=")[1].split("&")[0]
+    os.system("python gra_coauthor_relationship.py %s" % (url))
     f = open('img/coauthor_re.svg', 'r')
     string = f.readline()  # python will convert \n to os.linesep
     f.close()
@@ -257,21 +243,24 @@ def formhandler():
     """Handle the form submission"""
     #get search keyword
     search = bottle.request.forms.get('search')
+    target_url = get_target_url(search)
 
     conn = connect_to_db()
     cur = conn.cursor()
     
-    vis_result = visualize(search.replace(" ", "+"))
+    #vis_result = visualize(target_url)
+
+    vis_result = "No Results Found On DB!!"
     
     if(vis_result == "No Results Found On DB!!"):
 
         threads = []
-        t1 = threading.Thread(target = get_profile_and_paper, args = (search, ))
+        t1 = threading.Thread(target = get_profile_and_paper, args = (target_url, ))
         #authorName = get_profile_and_paper(search, pymydb).replace(" ", "+")
         threads.append(t1)
-        t2 = threading.Thread(target = get_author_network, args = (search, ))
+        t2 = threading.Thread(target = get_author_network, args = (target_url, ))
         threads.append(t2)
-        t3 = threading.Thread(target = get_scholar_data, args = (search, ))
+        t3 = threading.Thread(target = get_scholar_data, args = (target_url, ))
         threads.append(t3)
 
         for t in threads:
@@ -296,8 +285,8 @@ def formhandler():
     #        return string
     #    else:
     #        return template("nodes_basic.html", links = string)
-        
-        visualize(authorName.replace(" ", "+"))
+        return "yaaayyyy!"
+        visualize(target_url)
 
     # f_v = open('img/coauthor_re.svg', 'r')
     #    string = f_v.readline()

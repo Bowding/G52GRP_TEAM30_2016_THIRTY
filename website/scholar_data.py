@@ -24,7 +24,7 @@ def breathFirstSearch(url):
 	r = requests.get(url)
 	soup = BeautifulSoup(r.content, "html.parser")
 	
-	getDataFromProfile(soup)
+	getDataFromProfile(soup, url)
 				
 	#first degree - scholars the input scholar has collaborated with
 	for link in soup.find_all("a", {"class": "gsc_rsb_aa"}):		
@@ -47,7 +47,7 @@ def secondDegree(url):
 	r = requests.get(url)
 	soup = BeautifulSoup(r.content, "html.parser")
 	
-	getDataFromProfile(soup)
+	getDataFromProfile(soup, url)
 
 	for link in soup.find_all("a", {"class": "gsc_rsb_aa"}):
 		link = "https://scholar.google.co.uk" + link.get('href')
@@ -60,20 +60,21 @@ def secondDegree(url):
 				r = requests.get(link)
 				soup = BeautifulSoup(r.content, "html.parser")
 				
-				getDataFromProfile(soup)
+				getDataFromProfile(soup, link)
 					
-def getDataFromProfile(soup):
+def getDataFromProfile(soup, url):
 	name_data = soup.find_all("div", {"id": "gsc_prf_in"})[0]
 	currentName = name_data.text.encode('ascii', 'ignore').decode('ascii')
+	currentURL = url
 	
 	institution = soup.find_all("div", {"class": "gsc_prf_il"})[0]
 	institutionName = institution.text.encode('ascii', 'ignore').decode('ascii')
 	
-	insertDB_institution(currentName, institutionName)
+	insertDB_institution(currentURL, institutionName)
 	
 	for fields in soup.find_all("a", {"class": "gsc_prf_ila"}): 
 		fieldName = fields.text.encode('ascii', 'ignore').decode('ascii')
-		insertDB_fields(currentName, fieldName)
+		insertDB_fields(currentURL, fieldName)
 	
 	#for every paper listed on profile, get the paper title and author name
 	for paper in soup.find_all("tr", {"class": "gsc_a_tr"}):	
@@ -97,22 +98,22 @@ def insertDB_paperData(paper, authors):
 		print("Failed inserting....")			
 			
 #insert scholar and institutionName into db			
-def insertDB_institution(name, institution):	
-	name = name.replace("'", ":")
+def insertDB_institution(url, institution):	
+	#name = name.replace("'", ":")
 	institution = institution.replace("'", ":")
 	
 	try:
 		lock.acquire()
-		f_sd.write("INSERT into institutions (scholarName, institution) VALUES ('%s','%s');" % (name, institution))
+		f_sd.write("INSERT into institutions (scholarURL, institution) VALUES ('%s','%s');" % (url, institution))
 		lock.release()
 	except ValueError:
 		print("Failed inserting....")			
 			
 #insert scholar and institutionName into db			
-def insertDB_fields(name, field):	
+def insertDB_fields(url, field):	
 	try:
 		lock.acquire()
-		f_sd.write("INSERT into fields (scholarName, field) VALUES ('%s','%s');" % (name.replace("'", ":"), field.replace("'", ":")))
+		f_sd.write("INSERT into fields (scholarURL, field) VALUES ('%s','%s');" % (url, field.replace("'", ":")))
 		lock.release()
 	except ValueError:
 		print("Failed inserting....")			
