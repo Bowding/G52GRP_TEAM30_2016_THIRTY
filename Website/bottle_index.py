@@ -87,7 +87,7 @@ def insert_to_db(conn, cur, filename):
 
     f_read.close()
 
-def get_profile_and_paper(target_url):
+def get_profile_and_paper(target_user_id):
 
     global authorName
 
@@ -96,7 +96,8 @@ def get_profile_and_paper(target_url):
 
     #target_url = get_target_url(search)
 
-    url = target_url.replace("oe=ASCII","oi=ao&cstart=0&pagesize=100")
+#    url = target_url.replace("oe=ASCII","oi=ao&cstart=0&pagesize=100")
+    url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "AAAAJ" + "&oi=ao&cstart=0&pagesize=100"
 
     #access to target author page - first page
     r = requests.get(url)
@@ -172,14 +173,15 @@ def get_profile_and_paper(target_url):
             break
         
         #get next page url
-        url = target_url.replace("oe=ASCII","oi=ao&cstart=%d&pagesize=100" % (cstart))
+#        url = target_url.replace("oe=ASCII","oi=ao&cstart=%d&pagesize=100" % (cstart))
+        url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "AAAAJ" + "&oi=ao&cstart=%d&pagesize=100" % (cstart)
         #access to next page
         r = requests.get(url)
         soup = BeautifulSoup(r.content, "html.parser")
 
     #print("\nINSERT INTO profile (aName, NumPaper, hIndex, authorURL) VALUES ('%s', %d, %d, '%s')\n" % (name_data.text, int(x), int(hIndex[2].text), target_url))
     try:
-        f_pp.write("INSERT INTO profile (aName, NumPaper, hIndex, authorURL) VALUES ('%s', %d, %d, '%s');" % (name_data.text, int(x), int(hIndex[2].text), target_url))
+        f_pp.write("INSERT INTO profile (aName, NumPaper, hIndex, authorID) VALUES ('%s', %d, %d, '%s');" % (name_data.text, int(x), int(hIndex[2].text), target_user_id))
         #conn.commit()
     except:
         print("Failed inserting....")
@@ -189,17 +191,17 @@ def get_profile_and_paper(target_url):
     authorName = name_data.text
 
 
-def get_author_network(target_url):
+def get_author_network(target_user_id):
     #target_url = get_target_url(search)
-    url = target_url.split("=")[1].split("&")[0]
-    os.system("python author_network.py %s" % (url))
+    #url = target_url.split("=")[1].split("&")[0]
+    os.system("python author_network.py %s" % (target_user_id))
 
-def get_scholar_data(target_url):
+def get_scholar_data(target_user_id):
     #target_url = get_target_url(search)
-    url = target_url.split("=")[1].split("&")[0]
-    os.system("python scholar_data.py %s" % (url))
+    #url = target_url.split("=")[1].split("&")[0]
+    os.system("python scholar_data.py %s" % (target_user_id))
 
-def visualize(target_url):
+def visualize(target_user_id):
     #os.system("python get_data.py %s" % (authorName))
     #string = get_data.get_string()
     #print("+++++++" + string) 
@@ -210,8 +212,8 @@ def visualize(target_url):
      
     #print("++++++++" + str(s2_out))
     #return string
-    url = target_url.split("=")[1].split("&")[0]
-    os.system("python gra_coauthor_relationship.py %s" % (url))
+    #url = target_url.split("=")[1].split("&")[0]
+    os.system("python gra_coauthor_relationship.py %s" % (target_user_id))
     f = open('img/coauthor_re.svg', 'r')
     string = f.readline()  # python will convert \n to os.linesep
     f.close()
@@ -245,6 +247,12 @@ def formhandler():
     #get search keyword
     search = bottle.request.forms.get('search')
     target_url = get_target_url(search)
+    target_user_id = target_url.split("user=")[1].split("AAAAJ")[0]
+
+#    url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "AAAAJ"
+#    url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "AAAAJ" + "&oi=ao&cstart=%d&pagesize=100" % (1)
+
+#   return url
 
     conn = connect_to_db()
     cur = conn.cursor()
@@ -256,12 +264,12 @@ def formhandler():
     if(vis_result == "No Results Found On DB!!"):
 
         threads = []
-        t1 = threading.Thread(target = get_profile_and_paper, args = (target_url, ))
+        t1 = threading.Thread(target = get_profile_and_paper, args = (target_user_id, ))
         #authorName = get_profile_and_paper(search, pymydb).replace(" ", "+")
         threads.append(t1)
-        t2 = threading.Thread(target = get_author_network, args = (target_url, ))
+        t2 = threading.Thread(target = get_author_network, args = (target_user_id, ))
         threads.append(t2)
-        t3 = threading.Thread(target = get_scholar_data, args = (target_url, ))
+        t3 = threading.Thread(target = get_scholar_data, args = (target_user_id, ))
         threads.append(t3)
 
         for t in threads:

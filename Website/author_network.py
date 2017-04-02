@@ -16,14 +16,13 @@ lock = threading.Lock()
 		
 #A breadth first search pattern has been implemented to find unique scholars who are related to the input scholar
 
-def breathFirstSearch(url):
+def breathFirstSearch(url, current_user_id):
 	#print parent node name
 	r = requests.get(url)
 	soup = BeautifulSoup(r.content, "html.parser")
 	name_data = soup.find_all("div", {"id": "gsc_prf_in"})[0]
 	currentName = name_data.text.encode('ascii', 'ignore').decode('ascii')
 	threads = []
-	currentURL = url
 
 	#cur = conn.cursor()
 	
@@ -31,7 +30,7 @@ def breathFirstSearch(url):
 
 	try:
 		lock.acquire()
-		f_an.write("INSERT into nodes (scholarURL) VALUES ('%s');" % (currentURL))
+		f_an.write("INSERT into nodes (scholarID) VALUES ('%s');" % (current_user_id))
 		lock.release()
 		#conn.commit()
 	except ValueError:
@@ -39,15 +38,16 @@ def breathFirstSearch(url):
 	
 	#first degree - scholars the input scholar has collaborated with
 	for link in soup.find_all("a", {"class": "gsc_rsb_aa"}):
-		name = link.text.encode('ascii', 'ignore').decode('ascii')
+#		name = link.text.encode('ascii', 'ignore').decode('ascii')
 #		print(currentName + " " + name)
 
 		link = "https://scholar.google.co.uk" + link.get('href')
+		user_id = link.split("user=")[1].split("AAAAJ")[0]
 
 		#insert name of scholar and current node scholar into db
 		try:
 			lock.acquire()
-			f_an.write("INSERT into connections (sourceScholarURL, targetScholarURL) VALUES ('%s','%s');" % (currentURL, link))
+			f_an.write("INSERT into connections (sourceScholarID, targetScholarID) VALUES ('%s','%s');" % (current_user_id, user_id))
 			lock.release()
 			#conn.commit()
 		except ValueError:
@@ -60,7 +60,7 @@ def breathFirstSearch(url):
 	#for link2ndDegree in relatedScholars2ndDegree:
 	#	thirdDegree(link2ndDegree, cur)
 #=======
-		t = threading.Thread(target = secondDegree, args = (link, ))
+		t = threading.Thread(target = secondDegree, args = (link, user_id, ))
 		threads.append(t)
 	    
 
@@ -77,7 +77,7 @@ def breathFirstSearch(url):
 #	cur.close()
 
 #second degree - scholars the first degree scholar has collaborated with		
-def secondDegree(url):
+def secondDegree(url, current_user_id):
 	r = requests.get(url)
 	soup = BeautifulSoup(r.content, "html.parser")
 	
@@ -86,11 +86,10 @@ def secondDegree(url):
 	soup = BeautifulSoup(r.content, "html.parser")
 	name_data = soup.find_all("div", {"id": "gsc_prf_in"})[0]
 	currentName = name_data.text.encode('ascii', 'ignore').decode('ascii')
-	currentURL = url
 	
 	try:
 		lock.acquire()
-		f_an.write("INSERT into nodes (scholarURL) VALUES ('%s');" % (currentURL))
+		f_an.write("INSERT into nodes (scholarID) VALUES ('%s');" % (current_user_id))
 		lock.release()
 		#conn.commit()
 	except ValueError:
@@ -98,15 +97,16 @@ def secondDegree(url):
 	
 	for link in soup.find_all("a", {"class": "gsc_rsb_aa"}):
 		#print name 
-		name = link.text.encode('ascii', 'ignore').decode('ascii')
+#		name = link.text.encode('ascii', 'ignore').decode('ascii')
 #		print(currentName + " " + name)
 		
 		link = "https://scholar.google.co.uk" + link.get('href')
+		user_id = link.split("user=")[1].split("AAAAJ")[0]
 
 		#insert name of scholar and current node scholar into db
 		try:
 			lock.acquire()
-			f_an.write("INSERT into connections (sourceScholarURL, targetScholarURL) VALUES ('%s','%s');" % (currentURL, link))
+			f_an.write("INSERT into connections (sourceScholarID, targetScholarID) VALUES ('%s','%s');" % (current_user_id, user_id))
 			lock.release()
 			#conn.commit()
 		except ValueError:
@@ -133,10 +133,12 @@ if __name__ == "__main__":
 	
 	f_an = open('author_network.txt', 'w', encoding = 'utf-8')
 
-	url = "https://scholar.google.co.uk/citations?user=" + sys.argv[1]
+	target_user_id = sys.argv[1]
+
+	url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "AAAAJ"
 	#print(url)
 	#url = "https://scholar.google.co.uk/citations?user=qc6CJjYAAAAJ"
-	breathFirstSearch(url)
+	breathFirstSearch(url, target_user_id)
 
 	f_an.close()
 	print("finish coauthor")
