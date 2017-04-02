@@ -131,7 +131,7 @@ if __name__ == "__main__":
 	#except:
 	#	print("Connection Failed!")
 	
-	f_an = open('author_network.txt', 'w')
+	f_an = open('author_network.txt', 'w', encoding = 'utf-8')
 
 	url = "https://scholar.google.co.uk/citations?user=" + sys.argv[1]
 	#print(url)

@@ -122,7 +122,7 @@ if __name__ == "__main__":
 
 	print("it's scholar_data.py!!!!!")
 	
-	f_sd = open('scholar_data.txt', 'w')
+	f_sd = open('scholar_data.txt', 'w', encoding = 'utf-8')
 
 	url = "https://scholar.google.co.uk/citations?user=" + sys.argv[1]
 	

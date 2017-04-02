@@ -43,7 +43,8 @@ def connect_to_db():
 
 def get_target_url(search):
 
-    if((search.startswith('https://scholar.google.co.uk/citations?user=')==True)): #If the user enters a link to a scholars page, it will return the link straightaway
+    if((search.startswith('https://scholar.google.')==True)): #If the user enters a link to a scholars page, it will return the link straightaway
+        print("chuewhdu")
         return search
 	
 	#This part of the function pieces together a link for a scholars page on Google Scholar using the user search query
@@ -76,13 +77,13 @@ def get_target_url(search):
 #def insert_to_db(pymydb, filename):
 def insert_to_db(conn, cur, filename):
     
-    f_read = open(filename, 'r')
+    f_read = open(filename, 'r', encoding = 'utf-8' )
     sql_instructions = f_read.readline()
     try:
         cur.execute(sql_instructions)
         conn.commit()
     except ValueError:
-        print("Failed inserting....")
+        print("Failed inserting...." + filename)
 
     f_read.close()
 
@@ -90,7 +91,7 @@ def get_profile_and_paper(target_url):
 
     global authorName
 
-    f_pp = open('profile_and_paper.txt', 'w')
+    f_pp = open('profile_and_paper.txt', 'w', encoding = 'utf-8')
     #f_pp.write("dhuiwehduieh")
 
     #target_url = get_target_url(search)
@@ -105,7 +106,7 @@ def get_profile_and_paper(target_url):
     name_data = soup.find_all("div", {"id": "gsc_prf_in"})[0]
     hIndex = soup.find_all("td", {"class": "gsc_rsb_std"})
 
-    print("Author Name: " + name_data.text)
+    print("Author Name: " + name_data.text.encode('ascii', 'ignore').decode('ascii'))
     print("h-index (all time): " + hIndex[2].text)
     print("h-index (Since 2011): " + hIndex[3].text + "\n")
 
@@ -176,7 +177,7 @@ def get_profile_and_paper(target_url):
         r = requests.get(url)
         soup = BeautifulSoup(r.content, "html.parser")
 
-    print("\nINSERT INTO profile (aName, NumPaper, hIndex, authorURL) VALUES ('%s', %d, %d, '%s')\n" % (name_data.text, int(x), int(hIndex[2].text), target_url))
+    #print("\nINSERT INTO profile (aName, NumPaper, hIndex, authorURL) VALUES ('%s', %d, %d, '%s')\n" % (name_data.text, int(x), int(hIndex[2].text), target_url))
     try:
         f_pp.write("INSERT INTO profile (aName, NumPaper, hIndex, authorURL) VALUES ('%s', %d, %d, '%s');" % (name_data.text, int(x), int(hIndex[2].text), target_url))
         #conn.commit()
