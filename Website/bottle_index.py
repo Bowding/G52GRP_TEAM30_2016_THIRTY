@@ -43,9 +43,22 @@ def connect_to_db():
 
 def get_target_url(search):
 
-    if((search.startswith('https://scholar.google.')==True)): #If the user enters a link to a scholars page, it will return the link straightaway
-        print("chuewhdu")
+#URL CHECK
+
+    if(search.startswith('https://scholar.google.co.uk/citations?user=')==True) or (search.startswith('https://scholar.google.com/citations?user=')==True): #If the user enters a link to a scholars page, it will return the link straightaway
+        check_url = requests.get(search)
+        check_url_soup = BeautifulSoup(check_url.content, "html.parser")
+        check = check_url_soup.find_all("div", {"class": "gs_med"})
+        #print(check)
+        if ((not check) == False) and ("Please click here if you are not redirected within a few seconds." in check[0].text):
+            print("Error: Invalid URL. Please enter valid Google Scholar profile URL. e.g. https://scholar.google.co.uk/citations?user=...")
+            sys.exit() 
+        print("URL Accepted!")
         return search
+        
+    if((search.startswith('www.')==True) or (search.startswith('http')==True)):
+        print("Error: Invalid URL. Please enter valid Google Scholar profile URL. e.g. https://scholar.google.co.uk/citations?user=...")
+        sys.exit()
 	
 	#This part of the function pieces together a link for a scholars page on Google Scholar using the user search query
 
@@ -74,6 +87,9 @@ def get_target_url(search):
 
     return target_url
 
+search = "www.google.com"
+get_target_url(search)
+    
 #def insert_to_db(pymydb, filename):
 def insert_to_db(conn, cur, filename):
     
@@ -316,4 +332,4 @@ def formhandler():
     #else:
     #    return template("nodes_basic.html", links = string)
 
-bottle.run(host='localhost', port=8080)
+#bottle.run(host='localhost', port=8080)
