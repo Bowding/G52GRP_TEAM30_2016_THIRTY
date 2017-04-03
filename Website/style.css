@@ -1,0 +1,58 @@
+body {
+   font-family: "Arial", Times, Sans-serif;
+   background-color: white;
+}
+
+h1{
+  padding: 8px;
+color: white;
+background-color: grey;
+}
+
+ul.nav {
+  list-style-type: none;
+    margin: 0;
+    padding: 0;
+	background-color: darkblue;	
+}
+
+li.nav {
+	float: left;
+	display: inline;
+    padding: 8px;
+    background-color: darkblue;
+	border-right: 1px solid white;
+	color: white;
+}
+
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 5px;
+}
+
+th{
+background-color: darkblue;
+color: white;
+}
+
+td{
+background-color: lightblue;
+color: black;
+}
+
+a:link.nav {
+    color: white;
+	text-decoration: none;
+}
+
+a:visited.nav {
+    color: white;
+	text-decoration: none;
+}
+
+a:hover.nav {
+    color: grey;
+}
