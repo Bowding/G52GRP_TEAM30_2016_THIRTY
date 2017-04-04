@@ -7,7 +7,6 @@ import requests
 import os
 import sys
 import subprocess
-import get_data
 from bottle import template, static_file, ResourceManager
 from bs4 import BeautifulSoup
 import threading
@@ -87,8 +86,8 @@ def get_target_url(search):
 
     return target_url
 
-search = "www.google.com"
-get_target_url(search)
+#search = "www.google.com"
+#get_target_url(search)
     
 #def insert_to_db(pymydb, filename):
 def insert_to_db(conn, cur, filename):
@@ -332,4 +331,4 @@ def formhandler():
     #else:
     #    return template("nodes_basic.html", links = string)
 
-#bottle.run(host='localhost', port=8080)
+bottle.run(host='localhost', port=8080)
