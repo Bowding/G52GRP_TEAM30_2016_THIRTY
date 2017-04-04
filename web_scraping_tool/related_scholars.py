@@ -68,8 +68,10 @@ def getInformation(url, degree):
 	soup = BeautifulSoup(r.content, "html.parser")
 	name_data = soup.find_all("div", {"id": "gsc_prf_in"})[0]
 	
-	currentName = name_data.text.encode('ascii', 'ignore').decode('ascii')
+	#soup = BeautifulSoup(response.read().decode('utf-8', 'ignore'))
 
+	currentName = name_data.text.encode('utf-8', 'ignore').decode('utf-8')
+	
 	if degree == 0:
 		print("Author Name - Input Scholar Name: " + currentName)
 		global inputScholar 

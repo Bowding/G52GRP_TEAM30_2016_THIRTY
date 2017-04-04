@@ -1,8 +1,14 @@
+#-*-coding:utf-8-*-
+import codecs
 import requests
 import pymysql
 import sys
 from bs4 import BeautifulSoup
 import threading
+
+#following codes is only needed for python 2.x and only works for python 2.x
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 #urls
 relatedScholars = []
@@ -16,8 +22,9 @@ lock = threading.Lock()
 #A breadth first search pattern has been implemented to find unique scholars who are related to the input scholar
 
 def breathFirstSearch(url, current_user_id):
-	relatedScholars.append(url)
-		
+	global inputURL
+	inputURL = url
+	
 	threads = []
 	
 	#print parent node name
@@ -31,7 +38,9 @@ def breathFirstSearch(url, current_user_id):
 		name = link.text.encode('ascii', 'ignore').decode('ascii')	
 		link = "https://scholar.google.co.uk" + link.get('href')
 		user_id = link.split("user=")[1].split("AAAAJ")[0]
-		relatedScholars.append(link)
+		
+		if link not in inputURL:
+			relatedScholars.append(link)
 
 		t = threading.Thread(target = secondDegree, args = (link, user_id, ))
 		threads.append(t)
@@ -56,13 +65,14 @@ def secondDegree(url, current_user_id):
 		
 		#check if link exists in first degree array and the second degree array
 		if link not in relatedScholars:
-			if link not in relatedScholars2ndDegree:		
-				relatedScholars2ndDegree.append(link)
-
-				r = requests.get(link)
-				soup = BeautifulSoup(r.content, "html.parser")
-				
-				getDataFromProfile(soup, user_id)
+			if link not in relatedScholars2ndDegree:
+				if link not in inputURL:
+					relatedScholars2ndDegree.append(link)
+					
+					r = requests.get(link)
+					soup = BeautifulSoup(r.content, "html.parser")
+					
+					getDataFromProfile(soup, user_id)
 					
 def getDataFromProfile(soup, current_user_id):
 	name_data = soup.find_all("div", {"id": "gsc_prf_in"})[0]
@@ -77,15 +87,52 @@ def getDataFromProfile(soup, current_user_id):
 		fieldName = fields.text.encode('ascii', 'ignore').decode('ascii')
 		insertDB_fields(current_user_id, fieldName)
 	
+	hIndex = soup.find_all("td", {"class": "gsc_rsb_std"})
+	hIndexValue = int(hIndex[2].text)
+	
 	#for every paper listed on profile, get the paper title and author name
-	for paper in soup.find_all("tr", {"class": "gsc_a_tr"}):	
-		paperTitle = paper.text.encode('ascii', 'ignore').decode('ascii')
+	paperCount = 1;
+	cstart = 0
+	while(1):
+		for paper in soup.find_all("tr", {"class": "gsc_a_tr"}):	
+			paperTitle = paper.text.encode('ascii', 'ignore').decode('ascii')
+			
+			author_data = paper.find_all("div", {"class": "gs_gray"})[0]
+			authors = author_data.text.encode('ascii', 'ignore').decode('ascii')
+			
+			paperCount += 1;
+			insertDB_paperData(paperTitle, authors)		
 		
-		author_data = paper.find_all("div", {"class": "gs_gray"})[0]
-		authors = author_data.text.encode('ascii', 'ignore').decode('ascii')
+			cstart +=100
+
+			#get this page paper number
+			this_page_NumPaper_range = soup.find("span", {"id": "gsc_a_nn"}).text
+			this_page_NumPaper = int(this_page_NumPaper_range.split('–')[1])
+			
+			if(this_page_NumPaper < cstart):
+				paperCount -= 1
+				break
+			
+			#get next page url
+			url = "https://scholar.google.co.uk/citations?user=" + current_user_id + "AAAAJ" + "&oi=ao&cstart=%d&pagesize=100" % (cstart)
+
+			#access to next page
+			r = requests.get(url)
+			soup = BeautifulSoup(r.content, "html.parser")
+			
+	insertDB_profileData(currentName, paperCount, hIndexValue, current_user_id)	
 		
-		insertDB_paperData(paperTitle, authors)				
-							
+#insert paper and and paper co-authors into db			
+def insertDB_profileData(name, numberOfPapers, hIndex, user_id):	
+	name = name.replace("'", ":")
+	
+	try:
+		lock.acquire()
+		f_sd.write("INSERT into profile (aName, NumPaper, hIndex, authorID) VALUES ('%s','%s','%d','%s');" % (name, numberOfPapers, hIndex, user_id))
+		lock.release()
+	except ValueError:
+		print("Failed inserting....")	
+
 #insert paper and and paper co-authors into db			
 def insertDB_paperData(paper, authors):	
 	paper = paper.replace("'", ":")
@@ -123,7 +170,7 @@ if __name__ == "__main__":
 
 	print("it's scholar_data.py!!!!!")
 	
-	f_sd = open('scholar_data.txt', 'w', encoding = 'utf-8')
+	f_sd = codecs.open('scholar_data.txt', 'w', encoding = 'utf-8')
 
 	target_user_id = sys.argv[1]
 

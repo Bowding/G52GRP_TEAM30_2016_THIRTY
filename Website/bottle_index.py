@@ -1,4 +1,5 @@
 #-*-coding:utf-8-*-
+import codecs
 import bottle
 import bottle_pymysql
 import pymysql
@@ -14,8 +15,8 @@ from time import sleep
 import random
 
 #following codes is only needed for python 2.x and only works for python 2.x
-#reload(sys)
-#sys.setdefaultencoding('utf8')     
+reload(sys)
+sys.setdefaultencoding('utf8')     
 
 
 #connect to db
@@ -23,7 +24,7 @@ def connect_to_db():
 
     try:
         print("Connecting to mySQL.....")
-        conn = pymysql.connect(user="root", passwd="CHEERs0251", host="127.0.0.1", port=3306, database="googlescholardb")
+        conn = pymysql.connect(user="root", passwd="", host="127.0.0.1", port=3306, database="googlescholardb")
         print("Connection established!")
         return conn
     except:
@@ -92,7 +93,7 @@ def get_target_url(search):
 #def insert_to_db(pymydb, filename):
 def insert_to_db(conn, cur, filename):
     
-    f_read = open(filename, 'r', encoding = 'utf-8' )
+    f_read = codecs.open(filename, 'r', encoding = 'utf-8')
     sql_instructions = f_read.readline()
     try:
         cur.execute(sql_instructions)
@@ -106,7 +107,7 @@ def get_profile_and_paper(target_user_id):
 
     global authorName
 
-    f_pp = open('profile_and_paper.txt', 'w', encoding = 'utf-8')
+    f_pp = codecs.open('profile_and_paper.txt', 'w', encoding = 'utf-8')
     #f_pp.write("dhuiwehduieh")
 
     #target_url = get_target_url(search)

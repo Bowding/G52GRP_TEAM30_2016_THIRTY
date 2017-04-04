@@ -1,3 +1,4 @@
+import codecs
 import requests
 import pymysql
 import sys
@@ -56,25 +57,14 @@ def breathFirstSearch(url, current_user_id):
 		
 		#relatedScholars.append(link)
 
-#<<<<<<< HEAD
-	#for link2ndDegree in relatedScholars2ndDegree:
-	#	thirdDegree(link2ndDegree, cur)
-#=======
 		t = threading.Thread(target = secondDegree, args = (link, user_id, ))
 		threads.append(t)
 	    
-
 	for t in threads:
 		t.setDaemon(True)
 		t.start()
 	for t in threads:
 		t.join()
-#>>>>>>> b5a807c3dc5027d45af3e4bcce5d050a105af4a9
-		
-	#for link1stDegree in relatedScholars:
-	#	secondDegree(link1stDegree)
-
-#	cur.close()
 
 #second degree - scholars the first degree scholar has collaborated with		
 def secondDegree(url, current_user_id):
@@ -131,7 +121,7 @@ if __name__ == "__main__":
 	#except:
 	#	print("Connection Failed!")
 	
-	f_an = open('author_network.txt', 'w', encoding = 'utf-8')
+	f_an = codecs.open('author_network.txt', 'w', encoding = 'utf-8')
 
 	target_user_id = sys.argv[1]
 
