@@ -7,7 +7,7 @@ import requests
 import os
 import sys
 import subprocess
-from bottle import template, static_file, ResourceManager
+from bottle import template, static_file
 from bs4 import BeautifulSoup
 import threading
 from time import sleep
@@ -43,48 +43,64 @@ def connect_to_db():
 def get_target_url(search):
 
 #URL CHECK
+    URLcase0 = search.startswith('https://scholar.google.co.uk/citations?user=')
+    URLcase1 = search.startswith('https://scholar.google.com/citations?user=')
+    URLcase2 = search.startswith('://scholar.google.com/citations?user=')
+    URLcase3 = search.startswith('//scholar.google.com/citations?user=')
+    URLcase4 = search.startswith('/scholar.google.com/citations?user=')
+    URLcase5 = search.startswith('scholar.google.com/citations?user=')
 
-    if(search.startswith('https://scholar.google.co.uk/citations?user=')==True) or (search.startswith('https://scholar.google.com/citations?user=')==True): #If the user enters a link to a scholars page, it will return the link straightaway
+    errURLcase0 = search.startswith('www.')
+    errURLcase1 = search.startswith('http')
+
+    if(URLcase0 or URLcase1 or URLcase2 or URLcase3 or URLcase4 or URLcase5): #If the user enters a link to a scholars page, it will return the link straightaway
         check_url = requests.get(search)
         check_url_soup = BeautifulSoup(check_url.content, "html.parser")
         check = check_url_soup.find_all("div", {"class": "gs_med"})
         #print(check)
         if ((not check) == False) and ("Please click here if you are not redirected within a few seconds." in check[0].text):
-            print("Error: Invalid URL. Please enter valid Google Scholar profile URL. e.g. https://scholar.google.co.uk/citations?user=...")
-            sys.exit() 
-        print("URL Accepted!")
-        return search
+            err_msg = "Error: Invalid URL. Please enter valid Google Scholar profile URL. e.g. https://scholar.google.co.uk/citations?user=..."
+            print(err_msg)
+            return err_msg
+            #sys.exit() 
+        else: 
+            print("URL Accepted!")
+            return search
         
-    if((search.startswith('www.')==True) or (search.startswith('http')==True)):
-        print("Error: Invalid URL. Please enter valid Google Scholar profile URL. e.g. https://scholar.google.co.uk/citations?user=...")
-        sys.exit()
+    elif(errURLcase0 or errURLcase1): #If the input is an invalid URL
+        err_msg = "Error: Invalid URL. Please enter valid Google Scholar profile URL. e.g. https://scholar.google.co.uk/citations?user=..."
+        print(err_msg)
+        return err_msg
+        #sys.exit()
 	
+    else:   #If the input is not a URL
 	#This part of the function pieces together a link for a scholars page on Google Scholar using the user search query
 
-    #generate searching url
-    keyword = search.replace(" ", "+")
-    search_url = "https://scholar.google.co.uk/scholar?q=" + keyword
+        #generate searching url
+        keyword = search.replace(" ", "+")
+        search_url = "https://scholar.google.co.uk/scholar?q=" + keyword
 
-    #generate url of matching authors page
-    search_r = requests.get(search_url)
-    search_soup = BeautifulSoup(search_r.content, "html.parser")
+        #generate url of matching authors page
+        search_r = requests.get(search_url)
+        search_soup = BeautifulSoup(search_r.content, "html.parser")
 
-    match_url_area = search_soup.find("h3", {"class": "gs_rt"})
+        match_url_area = search_soup.find("h3", {"class": "gs_rt"})
     
-    if ((match_url_area == None)==True) or (match_url_area.text.startswith('User profiles for') == False):
-        print("Scholar '" + search + "' not found")
-        sys.exit()
-    
-    match_url = "https://scholar.google.co.uk" + match_url_area.find("a").get("href")
+        if ((match_url_area == None)==True) or (match_url_area.text.startswith('User profiles for') == False):
+            err_msg = "Error: Scholar '" + search + "' not found.\n\nTry to search using Google Scholar profile URL. e.g. https://scholar.google.co.uk/citations?user=..."
+            print("Scholar not found")
+            return err_msg
+        else:
+            match_url = "https://scholar.google.co.uk" + match_url_area.find("a").get("href")
 
-    #generate url of target author page
-    match_r = requests.get(match_url)
-    match_soup = BeautifulSoup(match_r.content, "html.parser")
+            #generate url of target author page
+            match_r = requests.get(match_url)
+            match_soup = BeautifulSoup(match_r.content, "html.parser")
 
-    target_url_area = match_soup.find("h3", {"class": "gsc_1usr_name"})
-    target_url = "https://scholar.google.co.uk" + target_url_area.find("a").get("href")
+            target_url_area = match_soup.find("h3", {"class": "gsc_1usr_name"})
+            target_url = "https://scholar.google.co.uk" + target_url_area.find("a").get("href")
 
-    return target_url
+            return target_url
 
 #search = "www.google.com"
 #get_target_url(search)
@@ -234,6 +250,25 @@ def visualize(target_user_id):
     f.close()
     return string
 
+def template_info(conn, cur, target_user_id):
+    try:
+        cur.execute("SELECT * FROM `profile` WHERE `authorID` = '%s'" % target_user_id)
+        conn.commit()
+    except ValueError:
+        print("Failed selecting....")
+
+    data = cur.fetchone()
+
+    if(data == None):
+        return
+    else:
+        authorName = data[0]
+        numPaper = data[1]
+        hIndex = data[2]
+    
+        info = {'authorName': authorName, 'numPaper': numPaper, 'hIndex': hIndex}
+
+        return info
 
 #display website
 @bottle.route('/')
@@ -257,27 +292,43 @@ def stylesheets(filename):
 
 #handle user input
 @bottle.route('/test', method="POST")
+@bottle.view('scholar.html')
 def formhandler():
     """Handle the form submission"""
     #get search keyword
+    
+
     search = bottle.request.forms.get('search')
     target_url = get_target_url(search)
+
+    #url checking
+    if(not target_url.startswith('https://scholar.google.co.uk/citations?user=')):
+        err_msg = target_url
+        return err_msg
+
+    #if url is valid
     target_user_id = target_url.split("user=")[1].split("AAAAJ")[0]
 
 #    url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "AAAAJ"
 #    url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "AAAAJ" + "&oi=ao&cstart=%d&pagesize=100" % (1)
-
 #   return url
 
     conn = connect_to_db()
     cur = conn.cursor()
-    
+
+    info = template_info(conn, cur, target_user_id)
+
+
     #vis_result = visualize(target_url)
 
     vis_result = "No Results Found On DB!!"
     
-    if(vis_result == "No Results Found On DB!!"):
+    if(info != None):   #cache hit
+        print("caching successful!")
+        cur.close()
+        conn.close()
 
+    else:   #do scraping
         threads = []
         t1 = threading.Thread(target = get_profile_and_paper, args = (target_user_id, ))
         #authorName = get_profile_and_paper(search, pymydb).replace(" ", "+")
@@ -297,9 +348,12 @@ def formhandler():
         insert_to_db(conn, cur, 'author_network.txt')
         insert_to_db(conn, cur, 'scholar_data.txt')
 
+        info = template_info(conn, cur, target_user_id)
+
         cur.close()
         conn.close()
-
+        
+        print('Scraping Job Done')
     #    insert_to_db(pymydb, 'authors_fields.txt')
     #    insert_to_db(pymydb, 'authors_institution.txt')
     #    insert_to_db(pymydb, 'author_papers_data.txt')
@@ -309,8 +363,8 @@ def formhandler():
     #        return string
     #    else:
     #        return template("nodes_basic.html", links = string)
-        return "yaaayyyy!"
-        visualize(target_url)
+        #return "yaaayyyy!"
+        #visualize(target_url)
 
     # f_v = open('img/coauthor_re.svg', 'r')
     #    string = f_v.readline()
@@ -318,13 +372,14 @@ def formhandler():
     #    f_v.close
 
 
-        print('Scraping Job Done')
+        
 
 
-    bottle.TEMPLATES.clear()
+#    bottle.TEMPLATES.clear()
 
-    return template("img/coauthor_re.svg")
+#    return template("img/coauthor_re.svg")
 
+    return info
     #string = visualize(authorName)
     #if(string == "No Results Found On DB!!"):
     #    return string
