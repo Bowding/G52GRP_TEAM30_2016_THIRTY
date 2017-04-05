@@ -3,6 +3,41 @@
 <head> 
 <link rel = "stylesheet"  type = "text/css" href = "style.css?<?php echo time();?>">
 <title> Scholar Profile: -NAME- </title>   
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> 
+    <script> 
+        $(document).ready(function() { 
+            $('#graphForm').submit(function(){ 
+               if ($('.coauBox:checked').length == 0){ 
+                   alert( "At least one Co-author should be selected!" ); 
+                   return false; 
+                } 
+            }); 
+            $("#select_all").change(function(){  //"select all" change  
+            $(".coauBox").prop('checked', $(this).prop("checked")); //change all ".checkbox" checked status 
+            }); 
+ 
+            //".checkbox" change  
+            $('.coauBox').change(function(){  
+                //uncheck "select all", if one of the listed checkbox item is unchecked 
+                if(false == $(this).prop("checked")){ //if this item is unchecked 
+                    $("#select_all").prop('checked', false); //change "select all" checked status to false 
+                } 
+                //check "select all" if all checkbox items are checked 
+                if ($('.coauBox:checked').length == $('.coauBox').length ){ 
+                    $("#select_all").prop('checked', true); 
+                } 
+            }); 
+             
+            $('.relation').change(function(){ 
+               if(true == $('#relation1').prop('checked')){ 
+                   $('#auBox').prop('disabled', true); 
+               }  
+                if(true == $('#relation2').prop('checked')){ 
+                   $('#auBox').prop('disabled', false); 
+               }  
+            }); 
+        });   
+    </script> 
 </head>
 <body>
 <p><a href="https://www.w3schools.com">
@@ -15,5 +50,33 @@
     <li>h-Index: {{hIndex}}</li>
 </ul>
 <br/><br/>
+<div> 
+  <table><form id = "graphForm" name="graphForm" method="post" action="/hello/graph" target="blank"> 
+      <tr> 
+        <th rowspan="3" valign="top">Relationship: </th> 
+        <td><input id="relation1" class="relation" type="radio" name="graphRelation" value="relation1">Co-Author Relationship</td> 
+      </tr> 
+        <tr> 
+            <td><input id="relation2" class="relation" type="radio" name="graphRelation" value="relation2">Author-Field of Study Relationship</td> 
+        </tr> 
+    </table> 
+        <table> 
+            <tr> 
+                <th>Author: </th> 
+                <td>{{ !authorHTML }}</td> 
+            </tr>       
+        </table> 
+        <table> 
+            <tr> 
+                <th rowspan="{{ !target_counter }}" valign="top">Co-author: </th> 
+                <td rowspan="{{ !target_counter }}" valign="top"><input type="checkbox" id="select_all"/> Selecct All</td> 
+                <td>{{ !coauthorHTML }}</td> 
+            </tr> 
+            <tr><td><input value="Generate" type="submit" class="submit" /></td></tr> 
+        </table> 
+         
+        </form> 
+</div> 
+ 
 </body>
 </html>

@@ -121,7 +121,7 @@ if __name__ == "__main__":
 	#except:
 	#	print("Connection Failed!")
 	
-	f_an = codecs.open('author_network.txt', 'w', encoding = 'utf-8')
+	f_an = open('author_network.txt', 'w', encoding = 'utf-8')
 
 	target_user_id = sys.argv[1]
 
