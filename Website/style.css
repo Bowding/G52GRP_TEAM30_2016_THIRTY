@@ -10,19 +10,12 @@ background-color: grey;
 }
 
 ul.nav {
-  list-style-type: none;
-    margin: 0;
-    padding: 0;
-	background-color: darkblue;	
+    margin:0 0 10px 0;
 }
 
 li.nav {
-	float: left;
-	display: inline;
-    padding: 8px;
-    background-color: darkblue;
-	border-right: 1px solid white;
-	color: white;
+    margin: 0 0 1px 0;
+    padding: 3px;
 }
 
 table, th, td {
