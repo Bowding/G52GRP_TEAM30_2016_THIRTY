@@ -100,10 +100,10 @@ while True:
     for row in rows:
         print('Position = ', position)
         title = row.find('td', class_ ="gs_title")
-        print('Article name = {}'.format(title.find('a').text))
+        print('Article name = {}'.format(title.find('a').text.encode('utf-8')))
         url_to_publication = title.find('a').get('href')
         print('Publication, url = ', url_to_publication)        
-        print('Authors = {}'.format(title.find('span', class_ = "gs_authors").text))
+        print('Authors = {}'.format(title.find('span', class_ = "gs_authors").text.encode('utf-8')))
         print('Published = {}'.format(title.find('span', class_ = "gs_pub").text))    
         sited_by = row.find_all('td', class_ ="gs_num")[0]
         print('Cited by = {}'.format(sited_by.text))    
