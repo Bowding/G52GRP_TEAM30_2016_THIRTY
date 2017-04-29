@@ -28,7 +28,7 @@ def connect_to_db():
 
     try:
         print("Connecting to mySQL.....")
-        conn = pymysql.connect(user="root", passwd="CHEERs0251", host="127.0.0.1", port=3306, database="googlescholardb")
+        conn = pymysql.connect(user="root", passwd="CHEERs0251", host="127.0.0.1", port=3306, database="googlescholardb", charset='utf8')
         print("Connection established!")
         return conn
     except:
@@ -536,11 +536,11 @@ def CoAuGraph(filename, targets):
 def visualize(conn, cur, target_user_id): 
     
 #    os.system("python gra_coauthor_relationship.py %s" % (target_user_id))
-#    f = open('img/coauthor_re.svg', 'r')
+#    f = open('test.txt', 'w', encoding = 'utf-8')
 #    string = f.readline()  # python will convert \n to os.linesep
 #    f.close()
 #    return string
-
+    
     htmlFileName = "dataviz" 
     global targets, viz_search, authorName 
  
@@ -575,18 +575,36 @@ def visualize(conn, cur, target_user_id):
                 targetsLinks.append(row[1]) 
  
         #search their name in database 
-        cur.execute("SELECT * FROM `profile` WHERE `authorID` = '" + viz_search +"'") 
+        #cur.execute("SELECT * FROM `profile` WHERE `authorID` = '" + viz_search +"'")
+        try:
+            cur.execute("SELECT * FROM `profile` WHERE `authorID` = '%s'" % viz_search)
+            conn.commit()
+        except ValueError:
+            print("Failed selecting....") 
  
         #author first 
-        for row in cur: 
-            authorName = row[0] 
-            break 
+        #for row in cur: 
+        #    authorName = row[0] 
+        #    break 
+        data = cur.fetchone()
+        if(data == None):
+            print("errrrrr!")
+            sys.exit(1)
+        else:
+            authorName = data[0]
  
         #coauthor next 
         for targetLink in targetsLinks: 
-            cur.execute("SELECT * FROM `profile` WHERE `authorID` = '" + targetLink +"'") 
-            for row in cur: 
-                targets.append((row[0], targetLink)) 
+            #cur.execute("SELECT * FROM `profile` WHERE `authorID` = '" + targetLink +"'") 
+            try:
+                cur.execute("SELECT * FROM `profile` WHERE `authorID` = '%s'" % targetLink)
+                conn.commit()
+            except ValueError:
+                print("Failed selecting....")
+            #for row in cur: 
+            #    targets.append((row[0], targetLink)) 
+            data = cur.fetchone()
+            targets.append((data[0], targetLink))
  
         authorHTML = '<input id="auBox" type="checkbox" name="authorBox" value="1" disabled="true">' + authorName 
         coauthorHTML = '' 
@@ -597,8 +615,10 @@ def visualize(conn, cur, target_user_id):
             else: 
                 coauthorHTML += '<tr><td><input class="coauBox" type="checkbox" name="coauthorBox" value="'+str(target_counter)+'">' + target[0] + '</td></tr>' 
             target_counter += 1 
+            #f.write(coauthorHTML)
         #t = template("html/" + htmlFileName + ".html", authorHTML=authorHTML, coauthorHTML=coauthorHTML, target_counter=target_counter) 
         vis_info = {'authorHTML': authorHTML, 'coauthorHTML':coauthorHTML, 'target_counter': target_counter}
+        #f.close()
         return vis_info 
  
 def template_info(conn, cur, target_user_id):
@@ -641,15 +661,23 @@ def stylesheets(filename):
     return static_file('{}.ico'.format(filename), root='./')
 
 conn = connect_to_db() 
-cur = conn.cursor() 
+cur = conn.cursor()
+
+#conn.set_character_set('utf8')
+cur.execute('SET NAMES utf8;')
+cur.execute('SET CHARACTER SET utf8;')
+cur.execute('SET character_set_connection=utf8;')
 
 #handle user input
 @bottle.route('/test', method="POST")
 @bottle.view('home.html')
 def formhandler():
     """Handle the form submission"""
+
+    #insert_to_db(conn, cur, 'scholar_data.txt')
+    #return "hahaha"
+
     #get search keyword
-    
 
     search = bottle.request.forms.get('search')
     target_url = get_target_url(search)
