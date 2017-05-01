@@ -57,6 +57,8 @@ def get_target_url(search):
 
     errURLcase0 = search.startswith('www.')
     errURLcase1 = search.startswith('http')
+    errURLcase2 = search.endswith(".co.uk")
+    errURLcase3 = search.endswith(".com")
 
     if(URLcase0 or URLcase1 or URLcase2 or URLcase3 or URLcase4 or URLcase5): #If the user enters a link to a scholars page, it will return the link straightaway
         check_url = requests.get(search)
@@ -67,16 +69,14 @@ def get_target_url(search):
             err_msg = "Error: Invalid URL. Please enter valid Google Scholar profile URL. e.g. https://scholar.google.co.uk/citations?user=..."
             print(err_msg)
             return err_msg
-            #sys.exit() 
         else: 
             print("URL Accepted!")
             return "https://scholar.google.co.uk/citations?user=" + search.split("user=")[1].split("AAAAJ")[0]
         
-    elif(errURLcase0 or errURLcase1): #If the input is an invalid URL
+    elif(errURLcase0 or errURLcase1 or errURLcase2 or errURLcase3): #If the input is an invalid URL
         err_msg = "Error: Invalid URL. Please enter valid Google Scholar profile URL. e.g. https://scholar.google.co.uk/citations?user=..."
         print(err_msg)
         return err_msg
-        #sys.exit()
 	
     else:   #If the input is not a URL
 	#This part of the function pieces together a link for a scholars page on Google Scholar using the user search query
