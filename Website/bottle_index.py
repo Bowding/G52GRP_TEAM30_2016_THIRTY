@@ -1,5 +1,5 @@
 #-*-coding:utf-8-*-
-#import codecs
+import codecs
 import bottle
 import bottle_pymysql
 import pymysql
@@ -10,40 +10,29 @@ import sys
 import subprocess
 from bottle import template, static_file
 from bs4 import BeautifulSoup
-import threading
 from time import sleep
+import threading
 import random
 from graphviz import Digraph 
 from graphviz import Graph 
 import webbrowser 
 from random import randint 
 
-#following codes is only needed for python 2.x and only works for python 2.x
-#reload(sys)
-#sys.setdefaultencoding('utf8')     
+#to make the script compatiable with python 2.7 
+if sys.version_info[0] < 3:
+	reload(sys)
+	sys.setdefaultencoding('utf8')     
 
 global conn, cur 
 #connect to db
 def connect_to_db():
-
     try:
         print("Connecting to mySQL.....")
-        conn = pymysql.connect(user="root", passwd="CHEERs0251", host="127.0.0.1", port=3306, database="googlescholardb", charset='utf8')
+        conn = pymysql.connect(user="root", passwd="", host="127.0.0.1", port=3306, database="googlescholardb", charset='utf8')
         print("Connection established!")
         return conn
     except:
         print("Connection Failed!")
-
-
-#    try:
-#        print("Connecting to mySQL.....")
-#        plugin = bottle_pymysql.Plugin(dbuser = 'root', dbpass = 'CHEERs0251', dbname = 'googlescholardb')
-        #conn = pymysql.connect(host='localhost', db='googlescholardb', user='root', password='', cursorclass=pymysql.cursors.DictCursor)
-#        bottle.install(plugin)
-#        print("Connection established!")
-#    except:
-#        print("Connection Failed!")
-
 
 def get_target_url(search):
 
@@ -113,8 +102,13 @@ def get_target_url(search):
 #def insert_to_db(pymydb, filename):
 def insert_to_db(conn, cur, filename):
     
-    f_read = open(filename, 'r', encoding = 'utf-8')
+    if sys.version_info[0] < 3:
+        f_read = codecs.open(filename, 'r', encoding = 'utf-8')
+    else: 
+        f_read = open(filename, 'r', encoding = 'utf-8')
+
     sql_instructions = f_read.readline()
+    
     try:
         cur.execute(sql_instructions)
         conn.commit()
@@ -125,12 +119,16 @@ def insert_to_db(conn, cur, filename):
 
 def get_profile_and_paper(target_user_id):
 
-    f_pp = open('profile_and_paper.txt', 'w', encoding = 'utf-8')
-    #f_pp.write("dhuiwehduieh")
+    if sys.version_info[0] < 3:
+        f_pp = codecs.open('profile_and_paper.txt', 'w', encoding = 'utf-8')
+    else:
+        f_pp = codecs.open('profile_and_paper.txt', 'w', encoding = 'utf-8')
+
+   #f_pp.write("dhuiwehduieh")
 
     #target_url = get_target_url(search)
 
-#    url = target_url.replace("oe=ASCII","oi=ao&cstart=0&pagesize=100")
+#   url = target_url.replace("oe=ASCII","oi=ao&cstart=0&pagesize=100")
     url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "AAAAJ" + "&oi=ao&cstart=0&pagesize=100"
 
     #access to target author page - first page

@@ -7,8 +7,8 @@ from bs4 import BeautifulSoup
 import threading
 
 #following codes is only needed for python 2.x and only works for python 2.x
-#reload(sys)
-#sys.setdefaultencoding('utf8')
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 #urls
 relatedScholars = []
@@ -212,7 +212,10 @@ if __name__ == "__main__":
 
 	print("it's scholar_data.py!!!!!")
 	
-	f_sd = open('scholar_data.txt', 'w', encoding = 'utf-8')
+	if sys.version_info[0] < 3:
+		f_sd = codecs.open('scholar_data.txt', 'w', encoding = 'utf-8')
+	else: 
+		f_sd = open('scholar_data.txt', 'w', encoding = 'utf-8')
 
 	target_user_id = sys.argv[1]
 	#target_user_id = "8maqKdg"
