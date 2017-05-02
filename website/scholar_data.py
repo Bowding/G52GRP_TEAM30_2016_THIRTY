@@ -104,7 +104,13 @@ def getDataFromProfile(current_user_id):
 	institutionName = institution.text
 	
 	insertDB_institution(current_user_id, institutionName)
-	
+
+	nation_data = soup.find_all("div", {"id": "gsc_prf_ivh"})[0].text
+	if ".uk" in nation_data:
+		nation = "uk"
+	else:
+		nation = "non-uk"
+
 	for fields in soup.find_all("a", {"class": "gsc_prf_ila"}): 
 		fieldName = fields.text
 		t = threading.Thread(target = insertDB_fields, args = (current_user_id, fieldName, ))
@@ -161,16 +167,16 @@ def getDataFromProfile(current_user_id):
 		r = requests.get(url)
 		soup = BeautifulSoup(r.content, "html.parser")
 			
-	insertDB_profileData(currentName, paperCount, hIndexValue, current_user_id)
+	insertDB_profileData(currentName, paperCount, hIndexValue, nation, current_user_id)
 	#print(currentName + "+++ %d" % paperCount)	
 		
 #insert paper and and paper co-authors into db			
-def insertDB_profileData(name, numberOfPapers, hIndex, user_id):	
+def insertDB_profileData(name, numberOfPapers, hIndex, nation, user_id):	
 	name = name.replace("'", ":")
 	
 	try:
 		lock.acquire()
-		f_sd.write("INSERT into profile (aName, NumPaper, hIndex, authorID) VALUES ('%s','%s','%d','%s');" % (name, numberOfPapers, hIndex, user_id))
+		f_sd.write("INSERT into profile (aName, NumPaper, hIndex, nation, authorID) VALUES ('%s','%s','%d','%s','%s');" % (name, numberOfPapers, hIndex, nation, user_id))
 		lock.release()
 	except ValueError:
 		print("Failed inserting....")	
@@ -214,8 +220,8 @@ if __name__ == "__main__":
 	
 	f_sd = open('scholar_data.txt', 'w', encoding = 'utf-8')
 
-	target_user_id = sys.argv[1]
-	#target_user_id = "8maqKdg"
+	#target_user_id = sys.argv[1]
+	target_user_id = "G0yAJAw"
 
 	url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "AAAAJ" + "&cstart=0&pagesize=100"
 	
