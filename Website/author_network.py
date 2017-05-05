@@ -27,8 +27,6 @@ def breathFirstSearch(url, current_user_id):
 
 	#cur = conn.cursor()
 	
-
-
 	try:
 		lock.acquire()
 		f_an.write("INSERT into nodes (scholarID) VALUES ('%s');" % (current_user_id))
@@ -37,12 +35,23 @@ def breathFirstSearch(url, current_user_id):
 	except ValueError:
 		print("Failed inserting....")	
 	
+	r = requests.get(url)
+	soup = BeautifulSoup(r.content, "html.parser")
+
+	url = soup.find_all("a", {"class": "gsc_rsb_lc"})[0]
+	link = "https://scholar.google.co.uk" + url.get('href')	
+	
+	r = requests.get(link)
+	soup = BeautifulSoup(r.content, "html.parser")
+		
 	#first degree - scholars the input scholar has collaborated with
-	for link in soup.find_all("a", {"class": "gsc_rsb_aa"}):
+	for scholar in soup.findAll("div", {"class": "gsc_1usr_text"}):
 #		name = link.text.encode('ascii', 'ignore').decode('ascii')
 #		print(currentName + " " + name)
 
-		link = "https://scholar.google.co.uk" + link.get('href')
+		scholarLink = scholar.find('a', href=True)
+		link = "https://scholar.google.co.uk" + scholarLink['href']
+
 		user_id = link.split("user=")[1].split("AAAAJ")[0]
 
 		#insert name of scholar and current node scholar into db
@@ -53,8 +62,7 @@ def breathFirstSearch(url, current_user_id):
 			#conn.commit()
 		except ValueError:
 			print("Failed inserting....")	
-		
-		
+			
 		#relatedScholars.append(link)
 
 		t = threading.Thread(target = secondDegree, args = (link, user_id, ))
@@ -84,13 +92,23 @@ def secondDegree(url, current_user_id):
 		#conn.commit()
 	except ValueError:
 		print("Failed inserting....")
+		
+	r = requests.get(url)
+	soup = BeautifulSoup(r.content, "html.parser")
+
+	url = soup.find_all("a", {"class": "gsc_rsb_lc"})[0]
+	link = "https://scholar.google.co.uk" + url.get('href')	
 	
-	for link in soup.find_all("a", {"class": "gsc_rsb_aa"}):
+	r = requests.get(link)
+	soup = BeautifulSoup(r.content, "html.parser")
+		
+	for scholar in soup.findAll("div", {"class": "gsc_1usr_text"}):
 		#print name 
 #		name = link.text.encode('ascii', 'ignore').decode('ascii')
 #		print(currentName + " " + name)
 		
-		link = "https://scholar.google.co.uk" + link.get('href')
+		scholarLink = scholar.find('a', href=True)
+		link = "https://scholar.google.co.uk" + scholarLink['href']
 		user_id = link.split("user=")[1].split("AAAAJ")[0]
 
 		#insert name of scholar and current node scholar into db

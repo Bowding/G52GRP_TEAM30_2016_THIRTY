@@ -18,7 +18,7 @@ from graphviz import Graph
 import webbrowser 
 from random import randint 
 
-#to make the script compatiable with python 2.7 
+#to make the script compatible with python 2.7 
 if sys.version_info[0] < 3:
 	reload(sys)
 	sys.setdefaultencoding('utf8')     
@@ -124,7 +124,7 @@ def get_profile_and_paper(target_user_id):
     else:
         f_pp = codecs.open('profile_and_paper.txt', 'w', encoding = 'utf-8')
 
-   #f_pp.write("dhuiwehduieh")
+   # f_pp.write("dhuiwehduieh")
 
     #target_url = get_target_url(search)
 
@@ -205,7 +205,7 @@ def get_profile_and_paper(target_user_id):
             break
         
         #get next page url
-#        url = target_url.replace("oe=ASCII","oi=ao&cstart=%d&pagesize=100" % (cstart))
+#       url = target_url.replace("oe=ASCII","oi=ao&cstart=%d&pagesize=100" % (cstart))
         url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "AAAAJ" + "&oi=ao&cstart=%d&pagesize=100" % (cstart)
         #access to next page
         r = requests.get(url)

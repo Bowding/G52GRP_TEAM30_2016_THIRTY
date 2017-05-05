@@ -36,11 +36,20 @@ def breathFirstSearch(url, current_user_id):
 #	f.write(soup.text)
 #	f.close()
 	getDataFromProfile(current_user_id)
-				
+	
+	r = requests.get(url)
+	soup = BeautifulSoup(r.content, "html.parser")
+
+	url = soup.find_all("a", {"class": "gsc_rsb_lc"})[0]
+	link = "https://scholar.google.co.uk" + url.get('href')	
+	
+	r = requests.get(link)
+	soup = BeautifulSoup(r.content, "html.parser")
+					
 	#first degree - scholars the input scholar has collaborated with
-	for link in soup.find_all("a", {"class": "gsc_rsb_aa"}):		
-		name = link.text	
-		link = "https://scholar.google.co.uk" + link.get('href') 
+	for scholar in soup.findAll("div", {"class": "gsc_1usr_text"}):
+		scholarLink = scholar.find('a', href=True)
+		link = "https://scholar.google.co.uk" + scholarLink['href']
 		user_id = link.split("user=")[1].split("AAAAJ")[0]
 		
 		if link not in inputURL:
@@ -65,9 +74,19 @@ def secondDegree(url, current_user_id):
 	soup = BeautifulSoup(r.content, "html.parser")
 	
 	getDataFromProfile(current_user_id)
+	
+	r = requests.get(url)
+	soup = BeautifulSoup(r.content, "html.parser")
 
-	for link in soup.find_all("a", {"class": "gsc_rsb_aa"}):
-		link = "https://scholar.google.co.uk" + link.get('href')
+	url = soup.find_all("a", {"class": "gsc_rsb_lc"})[0]
+	link = "https://scholar.google.co.uk" + url.get('href')	
+	
+	r = requests.get(link)
+	soup = BeautifulSoup(r.content, "html.parser")
+		
+	for scholar in soup.findAll("div", {"class": "gsc_1usr_text"}):
+		scholarLink = scholar.find('a', href=True)
+		link = "https://scholar.google.co.uk" + scholarLink['href']
 		user_id = link.split("user=")[1].split("AAAAJ")[0]
 		
 		#check if link exists in first degree array and the second degree array
