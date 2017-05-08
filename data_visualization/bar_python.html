@@ -14,7 +14,6 @@
 
 var data = [{{ !barSetString }}];
 
-
 var width = 600;
 var height = 300;
 var padding = 40;
@@ -60,6 +59,7 @@ var bars = canvas.selectAll(".bar")
     .attr("id", function(d,i){ return "bar"+i;})
     .attr("transform", function(d) { return "translate(" + "0" + ", " + (height - 20 - barScale(d.barLength))+ ")"})
     .attr("transform", "rotate(180)")
+    .attr("class", "bar")
 
 
 
@@ -68,11 +68,12 @@ var bars = canvas.selectAll(".bar")
 canvas.selectAll(".barLength")
   .data(data).enter()
   .append("text")
-    .text(function(d){return d.barLength})
+    .text(0)
+    .attr("class", "barLength")
     .style("font", "normal 13px Arial")
     .attr("text-anchor", "middle")
     .attr("x", function(d, i) { return width - (i * 75 + 35)})
-    .attr("y", function(d) { return height - padding + 15 - barScale(d.barLength);});
+    .attr("y", function(d) { return height - 20 });
 
 
 
@@ -85,18 +86,23 @@ canvas.selectAll(".name")
     .text(function(d){return d.name})
     .attr("text-anchor", "middle")
     .style("font", "normal 12px Arial")
-    .attr("x", function(d, i) { return width - (i * 75 + 37)})
+    .attr("x", function(d, i) { return width - (i * 75 + 35)})
     .attr("y", height - 5)
 
-data.forEach(function(d, i){
-  var selectedBar = d3.selectAll("#bar" + i);
-
-
-  selectedBar.transition()
-    .duration(1500)
-
+  var selectedBar = d3.selectAll(".bar");
+  selectedBar.transition().ease("quad-out")
+    .duration(2000)
       .attr("height", function(d) { return barScale(d.barLength);});
-});
+
+
+
+  canvas.selectAll(".barLength").transition().ease("quad-out").duration(2000)
+    .attr("y", function(d) { return height - padding + 15 - barScale(d.barLength);})
+    .tween("text", function(d) {
+      return function(t) {
+        d3.select(this).text( Math.floor(d.barLength*t));
+      };
+    });
 
 
 </script>
