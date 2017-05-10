@@ -20,6 +20,12 @@ lock = threading.Lock()
 def breathFirstSearch(url, current_user_id):
 	#print parent node name
 	r = requests.get(url)
+
+	f = open('test.html', 'w', encoding = 'utf-8')
+	f.write(r.text)
+	f.close()
+	sys.exit(1)
+
 	soup = BeautifulSoup(r.content, "html.parser")
 	name_data = soup.find_all("div", {"id": "gsc_prf_in"})[0]
 	currentName = name_data.text.encode('ascii', 'ignore').decode('ascii')
@@ -38,8 +44,8 @@ def breathFirstSearch(url, current_user_id):
 	r = requests.get(url)
 	soup = BeautifulSoup(r.content, "html.parser")
 
-	url = soup.find_all("a", {"class": "gsc_rsb_lc"})[0]
-	link = "https://scholar.google.co.uk" + url.get('href')	
+	#url = soup.find_all("a", {"class": "gsc_rsb_lc"})[0]
+	link = "https://scholar.google.co.uk/citations?view_op=list_colleagues&user=" + current_user_id + "AAAAJ"	
 	
 	r = requests.get(link)
 	soup = BeautifulSoup(r.content, "html.parser")
@@ -96,8 +102,8 @@ def secondDegree(url, current_user_id):
 	r = requests.get(url)
 	soup = BeautifulSoup(r.content, "html.parser")
 
-	url = soup.find_all("a", {"class": "gsc_rsb_lc"})[0]
-	link = "https://scholar.google.co.uk" + url.get('href')	
+	#url = soup.find_all("a", {"class": "gsc_rsb_lc"})[0]
+	link = "https://scholar.google.co.uk/citations?view_op=list_colleagues&user=" + current_user_id + "AAAAJ"
 	
 	r = requests.get(link)
 	soup = BeautifulSoup(r.content, "html.parser")
@@ -144,7 +150,8 @@ if __name__ == "__main__":
 	else: 
 		f_an = open('author_network.txt', 'w', encoding = 'utf-8')
 
-	target_user_id = sys.argv[1]
+	#target_user_id = sys.argv[1]
+	target_user_id = "8maqKdg"
 
 	url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "AAAAJ"
 	#print(url)

@@ -5,10 +5,12 @@ import pymysql
 import sys
 from bs4 import BeautifulSoup
 import threading
+import re
 
-#following codes is only needed for python 2.x and only works for python 2.x
-reload(sys)
-sys.setdefaultencoding('utf8')
+#to make the script compatible with python 2.7 
+if sys.version_info[0] < 3:
+	reload(sys)
+	sys.setdefaultencoding('utf8') 
 
 #urls
 relatedScholars = []
@@ -31,17 +33,17 @@ def breathFirstSearch(url, current_user_id):
 	
 	#print parent node name
 	r = requests.get(url)
-#	f = open('test.html', 'w', encoding = 'utf-8')
+	f = open('test.html', 'w', encoding = 'utf-8')
 	soup = BeautifulSoup(r.content, "html.parser")
-#	f.write(soup.text)
-#	f.close()
+	f.write(r.text)
+	f.close()
 	getDataFromProfile(current_user_id)
 	
 	r = requests.get(url)
 	soup = BeautifulSoup(r.content, "html.parser")
 
-	url = soup.find_all("a", {"class": "gsc_rsb_lc"})[0]
-	link = "https://scholar.google.co.uk" + url.get('href')	
+	#url = soup.find_all("a", {"class": "gsc_rsb_lc"})[0]
+	link = "https://scholar.google.co.uk/citations?view_op=list_colleagues&user=" + current_user_id
 	
 	r = requests.get(link)
 	soup = BeautifulSoup(r.content, "html.parser")
@@ -50,7 +52,7 @@ def breathFirstSearch(url, current_user_id):
 	for scholar in soup.findAll("div", {"class": "gsc_1usr_text"}):
 		scholarLink = scholar.find('a', href=True)
 		link = "https://scholar.google.co.uk" + scholarLink['href']
-		user_id = link.split("user=")[1].split("AAAAJ")[0]
+		user_id = link.split("user=")[1].split("&")[0]
 		
 		if link not in inputURL:
 			relatedScholars.append(link)
@@ -63,6 +65,7 @@ def breathFirstSearch(url, current_user_id):
 		t.start()
 	for t in threads:
 		t.join()
+
 
 #second degree - scholars the first degree scholar has collaborated with		
 def secondDegree(url, current_user_id):
@@ -78,8 +81,8 @@ def secondDegree(url, current_user_id):
 	r = requests.get(url)
 	soup = BeautifulSoup(r.content, "html.parser")
 
-	url = soup.find_all("a", {"class": "gsc_rsb_lc"})[0]
-	link = "https://scholar.google.co.uk" + url.get('href')	
+	#url = soup.find_all("a", {"class": "gsc_rsb_lc"})[0]
+	link = "https://scholar.google.co.uk/citations?view_op=list_colleagues&user=" + current_user_id
 	
 	r = requests.get(link)
 	soup = BeautifulSoup(r.content, "html.parser")
@@ -87,7 +90,7 @@ def secondDegree(url, current_user_id):
 	for scholar in soup.findAll("div", {"class": "gsc_1usr_text"}):
 		scholarLink = scholar.find('a', href=True)
 		link = "https://scholar.google.co.uk" + scholarLink['href']
-		user_id = link.split("user=")[1].split("AAAAJ")[0]
+		user_id = link.split("user=")[1].split("&")[0]
 		
 		#check if link exists in first degree array and the second degree array
 		if link not in relatedScholars:
@@ -111,7 +114,7 @@ def secondDegree(url, current_user_id):
 def getDataFromProfile(current_user_id):
 	threads = []
 
-	url = "https://scholar.google.co.uk/citations?user=" + current_user_id + "AAAAJ" + "&oi=ao&cstart=0&pagesize=100"
+	url = "https://scholar.google.co.uk/citations?user=" + current_user_id + "&oi=ao&cstart=0&pagesize=100"
 
 	r = requests.get(url)
 	soup = BeautifulSoup(r.content, "html.parser")
@@ -150,13 +153,11 @@ def getDataFromProfile(current_user_id):
 	paperCount = 1;
 	cstart = 0
 	while(1):
-		for paper in soup.find_all("tr", {"class": "gsc_a_tr"}):	
-			paperTitle = paper.text
-			#print(paperTitle)
+		for paper in soup.find_all("tr", {"class": "gsc_a_tr"}):
 			
-			#author_data = paper.find_all("div", {"class": "gs_gray"})[0]
-			#authors = author_data.text.encode('ascii', 'ignore').decode('ascii')
-			
+			paperID = paper.find("td", {"class": "gsc_a_t"}).find("a", {"class": "gsc_a_at"}).get('href').split(":")[1]
+			getDataOfPaper(current_user_id, paperID)
+
 			paperCount += 1;
 			#insertDB_paperData(paperTitle, authors)		
 		
@@ -180,7 +181,7 @@ def getDataFromProfile(current_user_id):
 			break
 			
 		#get next page url
-		url = "https://scholar.google.co.uk/citations?user=" + current_user_id + "AAAAJ" + "&oi=ao&cstart=%d&pagesize=100" % (cstart)
+		url = "https://scholar.google.co.uk/citations?user=" + current_user_id + "&oi=ao&cstart=%d&pagesize=100" % (cstart)
 
 		#access to next page
 		r = requests.get(url)
@@ -188,10 +189,51 @@ def getDataFromProfile(current_user_id):
 			
 	insertDB_profileData(currentName, paperCount, hIndexValue, nation, current_user_id)
 	#print(currentName + "+++ %d" % paperCount)	
-		
+
+def getDataOfPaper(current_user_id, paperID):
+	paperURL = "https://scholar.google.co.uk/citations?view_op=view_citation&user=" + current_user_id + "&citation_for_view=" + current_user_id + ":" + paperID
+	
+	paper_r = requests.get(paperURL)
+	paper_soup = BeautifulSoup(paper_r.content, "html.parser")
+
+	#get paper title
+	paperName = paper_soup.find_all("div", {"id": "gsc_title"})[0].text
+
+	index = 0
+	data = paper_soup.find_all("div", {"class": "gs_scl"})
+
+	#get author names if exist
+	if data[index].find("div", {"class": "gsc_field"}).text == "Authors":
+		authorNames = data[index].find("div", {"class": "gsc_value"}).text
+		index += 1
+	else:
+		authorNames = ""
+
+	#get publication date if exists
+	if data[index].find("div", {"class": "gsc_field"}).text == "Publication date":
+		publicationDate = data[index].find("div", {"class": "gsc_value"}).text
+	else:
+		publicationDate = ""
+
+	#get citation number if exists
+	citationDataArea = paper_soup.findAll(text=re.compile("Cited by"), limit = 1)
+	if len(citationDataArea) != 0:
+		citationData = citationDataArea[0]
+	else:
+		citationData = "Cited by 0"
+
+	#get description if exists
+	descriptionArea = paper_soup.find_all("div", {"id": "gsc_descr"})
+	if len(descriptionArea) != 0:
+		description = descriptionArea[0].text
+	else:
+		description = ""
+
+	insertDB_paperData(paperName, authorNames, publicationDate, citationData, description, paperID)
+
 #insert paper and and paper co-authors into db			
 def insertDB_profileData(name, numberOfPapers, hIndex, nation, user_id):	
-	name = name.replace("'", ":")
+	name = name.replace("'","\\\'")
 	
 	try:
 		lock.acquire()
@@ -201,21 +243,35 @@ def insertDB_profileData(name, numberOfPapers, hIndex, nation, user_id):
 		print("Failed inserting....")	
 
 #insert paper and and paper co-authors into db			
-def insertDB_paperData(paper, authors):	
-	paper = paper.replace("'", ":")
-	authors = authors.replace("'", ":")
-	
-	try:
-		lock.acquire()
-		f_sd.write("INSERT into paperCoAuthors (paperTitle, paperAuthors) VALUES ('%s','%s');" % (paper, authors))
-		lock.release()
-	except ValueError:
-		print("Failed inserting....")			
+def insertDB_paperData(paperName, authorNames, publicationDate, citationData, description, paperID):
+	#print("=====" + authorNames)
+	paperName = paperName.replace("'","\\\'")
+	authorNames = authorNames.replace("'","\\\'")
+	publicationYear = publicationDate.split("/")[0]
+	description = description.replace("'","\\\'")
+	numberOfCitations = citationData.split("Cited by ")[1]
+	print(numberOfCitations)
+	#sys.exit(1)
+
+	if publicationYear != "":
+		try:
+			lock.acquire()
+			f_sd.write("INSERT into papers (paperName, authorNames, publicationYear, numberOfCitations, description, paperID) VALUES ('%s', '%s', %d, %d, '%s', '%s');" % (paperName, authorNames, int(publicationYear), int(numberOfCitations), description, paperID))
+			lock.release()
+		except ValueError:
+			print("Failed inserting....")
+	else:
+		try:
+			lock.acquire()
+			f_sd.write("INSERT into papers (paperName, authorNames, numberOfCitations, description, paperID) VALUES ('%s', '%s', %d, '%s', '%s');" % (paperName, authorNames, int(numberOfCitations), description, paperID))
+			lock.release()
+		except ValueError:
+			print("Failed inserting....")
 			
 #insert scholar and institutionName into db			
 def insertDB_institution(user_id, institution):	
 	#name = name.replace("'", ":")
-	institution = institution.replace("'", ":")
+	institution = institution.replace("'","\\\'")
 	
 	try:
 		lock.acquire()
@@ -231,7 +287,8 @@ def insertDB_fields(user_id, field):
 		f_sd.write("INSERT into fields (scholarID, field) VALUES ('%s','%s');" % (user_id, field.replace("'", ":")))
 		lock.release()
 	except ValueError:
-		print("Failed inserting....")			
+		print("Failed inserting....")
+
 			
 if __name__ == "__main__":
 
@@ -243,9 +300,9 @@ if __name__ == "__main__":
 		f_sd = open('scholar_data.txt', 'w', encoding = 'utf-8')
 
 	#target_user_id = sys.argv[1]
-	target_user_id = "G0yAJAw"
+	target_user_id = "wtdCugIAAAAJ"
 
-	url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "AAAAJ" + "&cstart=0&pagesize=100"
+	url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "&cstart=0&pagesize=100"
 	
 	breathFirstSearch(url, target_user_id)
 
