@@ -6,17 +6,6 @@
 
     <script type="text/javascript" src="https://d3js.org/d3.v3.js"></script>
 
-
-
-    <style type="text/css">
-      svg {
-        font: 10px sans-serif;
-        display: block;
-      }
-    </style>
-
-
-
   </head>
   <body>
 
@@ -43,26 +32,22 @@
 
           var thisObject = d3.select(this);
           var typeValue = thisObject.attr("type_value");
-          var strippedTypeValue = typeValue.replace(/ /g, "_");
+          typeValue = typeValue.replace(/ /g, "_");
           var numPaperValue = thisObject.attr("numPaper_value");
 
-          var legendBulletSelector = "." + "legendBullet-" + strippedTypeValue;
-          var selectedBullet = d3.selectAll(legendBulletSelector);
+          var selectedBullet = d3.selectAll(".bullet-" + typeValue);
           selectedBullet.style("fill", "#46460B");
          selectedBullet.attr("r", 1.2*6);
 
-          var legendTextSelector = "." + "legendText-" + strippedTypeValue;
-          var selectedLegendText = d3.selectAll(legendTextSelector);
-          selectedLegendText.style("font", "bold 16px Arial")
-          selectedLegendText.style("fill", "#46460B");
+          var selectedBulletText = d3.selectAll(".bulletText-" + typeValue);
+          selectedBulletText.style("font", "bold 16px Arial")
+          selectedBulletText.style("fill", "#46460B");
 
-          var coauthorTextSelector = "." + "coauthorText-" + strippedTypeValue;
-          var selectedcoauthorText = d3.selectAll(coauthorTextSelector);
+          var selectedcoauthorText = d3.selectAll(".coauthorText-" + typeValue);
           selectedcoauthorText.style("font", "bold 16px Arial")
           selectedcoauthorText.style("fill", "#46460B");
 
-          var coauthorCircleSelector = "." + "coauthorCircle-" + strippedTypeValue;
-          var selectedcoauthorCircle = d3.selectAll(coauthorCircleSelector);
+          var selectedcoauthorCircle = d3.selectAll(".coauthorCircle-" + typeValue);
           selectedcoauthorCircle.style("fill", "#46460B");
           selectedcoauthorCircle.style("stroke", "#46460B");
           //grey all irrelevant names
@@ -74,19 +59,13 @@
             }
           });
 
-
-
-          var authorCircleSelector = "." + "authorCircle";
-
-          var selectedauthorCircle = d3.selectAll(authorCircleSelector);
+          var selectedauthorCircle = d3.selectAll(".authorCircle");
           var authorCircleType = selectedauthorCircle.attr("type_value");
           if (typeValue == authorCircleType){
             selectedauthorCircle.style("stroke", "#46460B");
             selectedauthorCircle.style("fill", "White");
           };
-
-          var authorTextSelector = "." + "authorText";
-          var selectedauthorText = d3.selectAll(authorTextSelector);
+          var selectedauthorText = d3.selectAll(".authorText");
           var authorTextType = selectedauthorText.attr("type_value");
           if (typeValue == authorTextType) {
             selectedauthorText.style("fill", "#46460B");
@@ -99,18 +78,16 @@
 
           var thisObject = d3.select(this);
           var typeValue = thisObject.attr("type_value");
+          typeValue = typeValue.replace(/ /g, "_");
           var colorValue = thisObject.attr("color_value");
-          var strippedTypeValue = typeValue.replace(/ /g, "_");
 
-          var legendBulletSelector = "." + "legendBullet-" + strippedTypeValue;
-          var selectedBullet = d3.selectAll(legendBulletSelector);
+          var selectedBullet = d3.selectAll(".bullet-" + typeValue);
           selectedBullet.style("fill", colorValue);
-			selectedBullet.attr("r", 6);
+      selectedBullet.attr("r", 6);
 
-          var legendTextSelector = "." + "legendText-" + strippedTypeValue;
-          var selectedLegendText = d3.selectAll(legendTextSelector);
-          selectedLegendText.style("font", "normal 16px Arial")
-          selectedLegendText.style("fill", colorValue);
+          var selectedBulletText = d3.selectAll(".bulletText-" + typeValue);
+          selectedBulletText.style("font", "normal 16px Arial")
+          selectedBulletText.style("fill", colorValue);
 
           //recover all irrelevant names
           nodeSet.forEach(function(d, i){
@@ -118,22 +95,19 @@
               linkedText.style("font", "normal 16px Arial")
               linkedText.style("fill", "Blue");
           });
-          var coauthorCircleSelector = "." + "coauthorCircle-" + strippedTypeValue;
-          var selectedcoauthorCircle = d3.selectAll(coauthorCircleSelector);
+          var selectedcoauthorCircle = d3.selectAll(".coauthorCircle-" + typeValue);
           selectedcoauthorCircle.style("fill", colorValue);
           selectedcoauthorCircle.style("stroke", "white");
 
 
-          var authorCircleSelector = "." + "authorCircle";
-          var selectedauthorCircle = d3.selectAll(authorCircleSelector);
+          var selectedauthorCircle = d3.selectAll(".authorCircle");
           var authorType = selectedauthorCircle.attr("type_value");
           if (typeValue == authorType){
             selectedauthorCircle.style("stroke", colorValue);
             selectedauthorCircle.style("fill", "White");
           };
 
-          var authorTextSelector = "." + "authorText";
-          var selectedauthorText = d3.selectAll(authorTextSelector);
+          var selectedauthorText = d3.selectAll(".authorText");
           selectedauthorText.style("fill", "Blue");
           selectedauthorText.style("font", "normal 14px Arial")
 
@@ -146,7 +120,7 @@
           var colorValue = thisObject.attr("color_value");
           var idValue = thisObject.attr("id_value");
           var numPaperValue = thisObject.attr("numPaper_value");
-          var strippedTypeValue = typeValue.replace(/ /g, "_");
+          typeValue = typeValue.replace(/ /g, "_");
 
 
     d3.select(this).select("text").transition()
@@ -154,15 +128,13 @@
         .style("font", "bold 16px Arial")
         .attr("fill", "Blue");
 
-          var legendBulletSelector = "." + "legendBullet-" + strippedTypeValue;
-          var selectedBullet = d3.selectAll(legendBulletSelector);
+          var selectedBullet = d3.selectAll(".bullet-" + typeValue);
           selectedBullet.style("fill", "#46460B");
     selectedBullet.attr("r", 1.2*6);
 
-          var legendTextSelector = "." + "legendText-" + strippedTypeValue;
-          var selectedLegendText = d3.selectAll(legendTextSelector);
-          selectedLegendText.style("font", "bold 16px Arial")
-          selectedLegendText.style("fill", "#46460B");
+          var selectedBulletText = d3.selectAll(".bulletText-" + typeValue);
+          selectedBulletText.style("font", "bold 16px Arial")
+          selectedBulletText.style("fill", "#46460B");
 
           //change edges color and width
           var changed = [];
@@ -170,8 +142,7 @@
         linkSet.forEach(function(d, i) {
           if(d.sourceId == idValue ||  d.targetId == idValue)
           {
-            var linkSelector = "#link" + i;
-            var selectedlink = d3.selectAll(linkSelector);
+            var selectedlink = d3.selectAll("#link" + i);
             selectedlink.style("stroke", colorValue);
             selectedlink.style("stroke-width", "2");
 
@@ -213,38 +184,35 @@
           var colorValue = thisObject.attr("color_value");
           var idValue = thisObject.attr("id_value");
           var numPaperValue = thisObject.attr("numPaper_value");
-          var strippedTypeValue = typeValue.replace(/ /g, "_");
+          typeValue = typeValue.replace(/ /g, "_");
 
 
 
-          var legendBulletSelector = "." + "legendBullet-" + strippedTypeValue;
-          var selectedBullet = d3.selectAll(legendBulletSelector);
+          var selectedBullet = d3.selectAll(".bullet-" + typeValue);
           selectedBullet.style("fill", colorValue);
           selectedBullet.attr("r", 6);
 
-          var legendTextSelector = "." + "legendText-" + strippedTypeValue;
-          var selectedLegendText = d3.selectAll(legendTextSelector);
-          selectedLegendText.style("font", "normal 16px Arial")
-          selectedLegendText.style("fill", colorValue);
+          var selectedBulletText = d3.selectAll(".bulletText-" + typeValue);
+          selectedBulletText.style("font", "normal 16px Arial")
+          selectedBulletText.style("fill", colorValue);
 
         //change edges and text color and width
         linkSet.forEach(function(d, i) {
           if(d.sourceId == idValue ||  d.targetId == idValue)
           {
-            var linkSelector = "#link" + i;
-            var selectedlink = d3.selectAll(linkSelector);
+            var selectedlink = d3.selectAll("#link" + i);
             selectedlink.style("stroke", "#CCC");
             selectedlink.style("stroke-width", ".4");
           }
           });
-		 //change text
+     //change text
         nodeSet.forEach(function(d1, i){
 
-			var linkedText = d3.selectAll("#text"+i);
-			linkedText.style("fill", "Blue");
-			linkedText.style("font", "normal 16px Arial")
+      var linkedText = d3.selectAll("#text"+i);
+      linkedText.style("fill", "Blue");
+      linkedText.style("font", "normal 16px Arial")
 
-		});
+    });
         }
 
 
@@ -340,9 +308,9 @@
             .attr("stroke-width", function(d) { if (d.id==authorID) { return "3"; } else { return "1"; } })
             .attr("class", function(d) {
               var str = d.type;
-              var strippedString = str.replace(/ /g, "_")
+              var type = str.replace(/ /g, "_")
         if (d.id==authorID) { return "authorCircle"; }
-        else { return "coauthorCircle-" + strippedString; }
+        else { return "coauthorCircle-" + type; }
             })
       .call(graph.drag);
 
@@ -360,9 +328,9 @@
             .attr("color_value", function(d) { return typesColor[d.type]; })
             .attr("class", function(d) {
               var str = d.type;
-              var strippedString = str.replace(/ /g, "_");
+              var type = str.replace(/ /g, "_");
         if (d.id==authorID) { return "authorText"; }
-        else { return "coauthorText-" + strippedString; }
+        else { return "coauthorText-" + type; }
             })
             .text(function(d) { return d.name; })
             .attr("id", function(d, i) {return "text"+i;});
@@ -377,7 +345,7 @@
             .attr("text-anchor","start");
 
         //types circle
-        svgCanvas.selectAll("focalNodeCanvas")
+        svgCanvas.selectAll("bullet")
             .data(Types).enter().append("svg:circle") 
             .attr("cx", -1*(width/2 - 25))
             .attr("cy", function(d, i) { return (i*20-height/7*3 -10); } )
@@ -388,27 +356,28 @@
             .attr("type_value", function(d) { return d; })
             .attr("class", function(d) {
                 var str = d;
-                var strippedString = str.replace(/ /g, "_")
-    return "legendBullet-" + strippedString; })
+                var type = str.replace(/ /g, "_")
+    return "bullet-" + type; })
             .on('mouseover', mouseOverType)
             .on("mouseout", mouseOutType);
 
-        svgCanvas.selectAll("a.legend_link")
-            .data(Types) // Instruct to bind dataSet to text elements
-          .enter().append("svg:a") // Append legend elements
+
+        svgCanvas.selectAll("bullet_text")
+            .data(Types) 
+          .enter().append("svg:a") 
             .append("text")
               .attr("text-anchor", "center")
               .attr("x", -1*(width/2 - 40))
               .attr("y", function(d, i) { return (i*20-height/7*3 -10); } )
               .attr("dx", 0)
-              .attr("dy", "4px") // Controls padding to place text in alignment with bullets
+              .attr("dy", "4px")
               .text(function(d) { return d;})
               .attr("color_value", function(d) { return typesColor[d]; })
               .attr("type_value", function(d) { return d; })
               .attr("class", function(d) {
                 var str = d;
-                var strippedString = str.replace(/ /g, "_")
-                return "legendText-" + strippedString; })
+                var type = str.replace(/ /g, "_")
+                return "bulletText-" + type; })
               .style("fill", function(d, i) { return typesColor[d]; })
               .style("font", "normal 16px Arial")
               .on('mouseover', mouseOverType)
