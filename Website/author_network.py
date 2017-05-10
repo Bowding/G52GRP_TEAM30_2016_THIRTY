@@ -2,6 +2,7 @@ import codecs
 import requests
 import pymysql
 import sys
+import os
 from bs4 import BeautifulSoup
 import threading
 #import bottle_index
@@ -19,18 +20,13 @@ lock = threading.Lock()
 
 def breathFirstSearch(url, current_user_id):
 	#print parent node name
-	r = requests.get(url)
 
-	f = open('test.html', 'w', encoding = 'utf-8')
-	f.write(r.text)
-	f.close()
-	sys.exit(1)
-
-	soup = BeautifulSoup(r.content, "html.parser")
+	soup = perform_request(url)
 	name_data = soup.find_all("div", {"id": "gsc_prf_in"})[0]
 	currentName = name_data.text.encode('ascii', 'ignore').decode('ascii')
 	threads = []
 
+	print(currentName)
 	#cur = conn.cursor()
 	
 	try:
@@ -41,14 +37,13 @@ def breathFirstSearch(url, current_user_id):
 	except ValueError:
 		print("Failed inserting....")	
 	
-	r = requests.get(url)
-	soup = BeautifulSoup(r.content, "html.parser")
 
 	#url = soup.find_all("a", {"class": "gsc_rsb_lc"})[0]
-	link = "https://scholar.google.co.uk/citations?view_op=list_colleagues&user=" + current_user_id + "AAAAJ"	
+	link = "https://scholar.google.co.uk/citations?view_op=list_colleagues&user=" + current_user_id
 	
-	r = requests.get(link)
-	soup = BeautifulSoup(r.content, "html.parser")
+	#r = requests.get(link)
+	#soup = BeautifulSoup(r.content, "html.parser")
+	soup = perform_request(link)
 		
 	#first degree - scholars the input scholar has collaborated with
 	for scholar in soup.findAll("div", {"class": "gsc_1usr_text"}):
@@ -56,9 +51,9 @@ def breathFirstSearch(url, current_user_id):
 #		print(currentName + " " + name)
 
 		scholarLink = scholar.find('a', href=True)
-		link = "https://scholar.google.co.uk" + scholarLink['href']
 
-		user_id = link.split("user=")[1].split("AAAAJ")[0]
+		user_id = scholarLink['href'].split("user=")[1].split("&")[0]
+		link = "https://scholar.google.co.uk/citations?user=" + user_id
 
 		#insert name of scholar and current node scholar into db
 		try:
@@ -82,15 +77,18 @@ def breathFirstSearch(url, current_user_id):
 
 #second degree - scholars the first degree scholar has collaborated with		
 def secondDegree(url, current_user_id):
-	r = requests.get(url)
-	soup = BeautifulSoup(r.content, "html.parser")
+	#r = requests.get(url)
+	#soup = BeautifulSoup(r.content, "html.parser")
+	soup = perform_request(url)
 	
 	#print parent node name
-	r = requests.get(url)
-	soup = BeautifulSoup(r.content, "html.parser")
+	#r = requests.get(url)
+	#soup = BeautifulSoup(r.content, "html.parser")
 	name_data = soup.find_all("div", {"id": "gsc_prf_in"})[0]
 	currentName = name_data.text.encode('ascii', 'ignore').decode('ascii')
-	
+
+	print(currentName)
+
 	try:
 		lock.acquire()
 		f_an.write("INSERT into nodes (scholarID) VALUES ('%s');" % (current_user_id))
@@ -99,14 +97,15 @@ def secondDegree(url, current_user_id):
 	except ValueError:
 		print("Failed inserting....")
 		
-	r = requests.get(url)
-	soup = BeautifulSoup(r.content, "html.parser")
+	#r = requests.get(url)
+	#soup = BeautifulSoup(r.content, "html.parser")
 
 	#url = soup.find_all("a", {"class": "gsc_rsb_lc"})[0]
-	link = "https://scholar.google.co.uk/citations?view_op=list_colleagues&user=" + current_user_id + "AAAAJ"
+	link = "https://scholar.google.co.uk/citations?view_op=list_colleagues&user=" + current_user_id
 	
-	r = requests.get(link)
-	soup = BeautifulSoup(r.content, "html.parser")
+	#r = requests.get(link)
+	#soup = BeautifulSoup(r.content, "html.parser")
+	soup = perform_request(link)
 		
 	for scholar in soup.findAll("div", {"class": "gsc_1usr_text"}):
 		#print name 
@@ -114,8 +113,8 @@ def secondDegree(url, current_user_id):
 #		print(currentName + " " + name)
 		
 		scholarLink = scholar.find('a', href=True)
-		link = "https://scholar.google.co.uk" + scholarLink['href']
-		user_id = link.split("user=")[1].split("AAAAJ")[0]
+		user_id = scholarLink['href'].split("user=")[1].split("&")[0]
+		link = "https://scholar.google.co.uk/citations?user=" + user_id
 
 		#insert name of scholar and current node scholar into db
 		try:
@@ -133,6 +132,28 @@ def secondDegree(url, current_user_id):
 				relatedScholars2ndDegree.append(link)
 		
 
+def perform_request(url):
+
+	filename = "requestsCache/" + url.split("citations?")[1].replace(":","---")+ ".html"
+
+	try:
+		soup = BeautifulSoup(open(filename, encoding = 'utf-8'), "html.parser")
+	except FileNotFoundError:
+		r = requests.get(url)
+
+		captchaContent = "Our systems have detected unusual traffic from your computer network."
+		if captchaContent in r.text:
+			print("could not connect to Google...")
+			print(url)
+			os._exit(1)
+		else:
+			f_r = open(filename, 'w', encoding = 'utf-8')
+			f_r.write(r.text)
+			f_r.close()
+
+			soup = BeautifulSoup(r.content, "html.parser")
+
+	return soup
 							
 if __name__ == "__main__":
 
@@ -150,10 +171,12 @@ if __name__ == "__main__":
 	else: 
 		f_an = open('author_network.txt', 'w', encoding = 'utf-8')
 
-	#target_user_id = sys.argv[1]
-	target_user_id = "8maqKdg"
+	target_user_id = sys.argv[1]
+	#target_user_id = "41m5j04AAAAJ"
 
-	url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "AAAAJ"
+	url = "https://scholar.google.co.uk/citations?user=" + target_user_id
+
+	#perform_request(url)
 	#print(url)
 	#url = "https://scholar.google.co.uk/citations?user=qc6CJjYAAAAJ"
 	breathFirstSearch(url, target_user_id)

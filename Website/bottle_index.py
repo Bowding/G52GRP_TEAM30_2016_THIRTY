@@ -60,7 +60,7 @@ def get_target_url(search):
             return err_msg
         else: 
             print("URL Accepted!")
-            return "https://scholar.google.co.uk/citations?user=" + search.split("user=")[1].split("AAAAJ")[0]
+            return "https://scholar.google.co.uk/citations?user=" + search.split("user=")[1].split("&")[0]
         
     elif(errURLcase0 or errURLcase1 or errURLcase2 or errURLcase3): #If the input is an invalid URL
         err_msg = "Error: Invalid URL. Please enter valid Google Scholar profile URL. e.g. https://scholar.google.co.uk/citations?user=..."
@@ -129,7 +129,7 @@ def get_profile_and_paper(target_user_id):
     #target_url = get_target_url(search)
 
 #   url = target_url.replace("oe=ASCII","oi=ao&cstart=0&pagesize=100")
-    url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "AAAAJ" + "&oi=ao&cstart=0&pagesize=100"
+    url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "&oi=ao&cstart=0&pagesize=100"
 
     #access to target author page - first page
     r = requests.get(url)
@@ -206,7 +206,7 @@ def get_profile_and_paper(target_user_id):
         
         #get next page url
 #       url = target_url.replace("oe=ASCII","oi=ao&cstart=%d&pagesize=100" % (cstart))
-        url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "AAAAJ" + "&oi=ao&cstart=%d&pagesize=100" % (cstart)
+        url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "&oi=ao&cstart=%d&pagesize=100" % (cstart)
         #access to next page
         r = requests.get(url)
         soup = BeautifulSoup(r.content, "html.parser")
@@ -686,7 +686,7 @@ def formhandler():
         return err_msg
 
     #if url is valid
-    target_user_id = target_url.split("user=")[1].split("AAAAJ")[0]
+    target_user_id = target_url.split("user=")[1].split("&")[0]
 
     #get_scholar_data(target_user_id)
     #return "hsdkjfhkshfkhak"
