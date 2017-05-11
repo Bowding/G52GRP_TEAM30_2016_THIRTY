@@ -57,10 +57,10 @@ if result > 0:
     for node in nodeSet:
         cur.execute("SELECT * FROM `profile` WHERE `authorID` = '" + node[0] +"'")
         for row in cur:
-            if row[4] == node[0]:
+            if row[5] == node[0]:
                 node[1] = row[0]
                 node[2] = row[1]
-                node[3] = row[3]
+                node[3] = row[4]
 
 
     #access relationship between target scholar
