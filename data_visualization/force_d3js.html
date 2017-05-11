@@ -143,6 +143,15 @@
           selectedBullet.style("fill", "#46460B");
     selectedBullet.attr("r", 1.2*6);
 
+        Types.forEach(function(d,i){
+          type = d;
+          type = type.replace(/ /g, "_");
+          type = type.replace("(", "_")
+          type = type.replace(")", "_")
+          var unselectBullectText = d3.selectAll(".bulletText-" + type);
+          unselectBullectText.style("fill", "#CCC");
+        });
+
           var selectedBulletText = d3.selectAll(".bulletText-" + typeValue);
           selectedBulletText.style("font", "bold 16px Arial")
           selectedBulletText.style("fill", "#46460B");
@@ -204,10 +213,17 @@
           var selectedBullet = d3.selectAll(".bullet-" + typeValue);
           selectedBullet.style("fill", colorValue);
           selectedBullet.attr("r", 6);
+       
+        Types.forEach(function(d,i){
+          type = d;
+          type = type.replace(/ /g, "_");
+          type = type.replace("(", "_")
+          type = type.replace(")", "_")
+          var unselectBullectText = d3.selectAll(".bulletText-" + type);
+          unselectBullectText.style("font", "normal 16px Arial")
+          unselectBullectText.style("fill", typesColor[d]);
+        });
 
-          var selectedBulletText = d3.selectAll(".bulletText-" + typeValue);
-          selectedBulletText.style("font", "normal 16px Arial")
-          selectedBulletText.style("fill", colorValue);
 
         //change edges and text color and width
         linkSet.forEach(function(d, i) {
@@ -232,7 +248,10 @@
 
         var authorID = nodeSet[0].id;
 
-        var colorScale = d3.scale.category20();  
+        var colorScale1 = d3.scale.category20();  
+        var colorScale2 = d3.scale.category20b();  
+        var colorScale3 = d3.scale.category10();
+
         var height = 800;
         var width = window.innerWidth;
         if(width < 665 ) { width = 665; }
@@ -262,7 +281,20 @@
         Types = Types.sort();
         
         Types.forEach(function(d, i) {
-          typesColor[d] = colorScale(i);
+
+          if( i < 20)
+          {
+            typesColor[d] = colorScale1(i);
+          }
+          if( i > 19 && i < 40)
+          {
+            typesColor[d] = colorScale2(i);
+          }
+          if( i > 39 && i < 60)
+          {
+            typesColor[d] = colorScale3(i);
+          }
+
         });
 
         var node_id = [];
@@ -370,7 +402,7 @@
 
         //Types title
         svgCanvas.append("text").attr("class","typesTitle")
-            .text({{ !typesTitle }})  //needed to be modified
+            .text({{!typesTitle}})  //needed to be modified
             .attr("x", -1*(width/2 - 10))
             .attr("y", (-height/7*3 -30))
             .style("fill", "Black")
