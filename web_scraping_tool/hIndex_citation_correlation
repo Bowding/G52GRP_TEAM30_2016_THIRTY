@@ -1,0 +1,89 @@
+# -*-coding:utf-8-*-
+import requests
+import pymysql
+import sys
+from bs4 import BeautifulSoup
+
+# following codes is only needed for python 2.x and only works for python 2.x
+reload(sys)
+sys.setdefaultencoding('utf8')
+
+hIndexValuesArray = []
+
+# A breadth first search pattern has been implemented to find unique scholars who are related to the input scholar
+def scrapePaperData(url, cur):
+
+    r = requests.get(url)
+    soup = BeautifulSoup(r.content, "html.parser")
+
+    # for every paper listed on profile, get the paper title and author name
+    for paper in soup.find_all("tr", {"class": "gsc_a_tr"}):
+        paperName = paper.find_all("a", {"class": "gsc_a_at"})[0]
+
+        paperTitle = paperName.text.encode('ascii', 'ignore').decode('ascii')
+
+        author_data = paper.find_all("div", {"class": "gs_gray"})[0]
+        authors = author_data.text.encode('ascii', 'ignore').decode('ascii')
+
+        #parse coAuthor string
+        coAuthors = parseCoAuthorsString(authors)
+
+        #find out h-Index of each scholar
+        hIndexValues = hIndex(coAuthors, cur)
+
+        #calculate average h-Index of the paper scholars
+        averagehIndex = sum(hIndexValues)/len(hIndexValues)
+
+        #get paper citation number
+        citationNumber = paper.find_all("td", {"class": "gsc_a_c"})[0].text.encode('ascii', 'ignore').decode('ascii')
+        seq_type = type(citationNumber)
+        citationNumber = seq_type().join(filter(seq_type.isdigit, citationNumber))
+
+        #export data to database
+        try:
+            cur.execute("INSERT INTO hindexversuscitations (paperTitle, avghIndex, numberOfCitations) VALUES ('%s', %d, %d);" % (paperTitle, int(averagehIndex), int(citationNumber)))
+            conn.commit()
+        except ValueError:
+            print("Failed inserting....")
+
+def parseCoAuthorsString(scholarList):
+    return scholarList.split(", ")
+
+#get value from the database
+def hIndex(scholars, cur):
+    for scholar in scholars:
+        scholar = scholar.replace(" ","% ")
+
+        try:
+            cur.execute("SELECT `hIndex` FROM `profile` WHERE `aName` LIKE '" + scholar + "'")
+            conn.commit()
+        except ValueError:
+            print("Failed selecting....")
+
+        data = cur.fetchone()
+
+        if (data == None):
+            hIndexValuesArray.append(0)
+        else:
+            print("hIndex found")
+            hIndextmp = data.get('hIndex')
+            hIndexValuesArray.append(hIndextmp)
+
+    return hIndexValuesArray
+
+if __name__ == "__main__":
+    url = "https://scholar.google.co.uk/citations?user=G0yAJAwAAAAJ&hl=en&oi=ao&cstart=0&pagesize=200"
+    # f_apd = open('author_papers_data.txt', 'w')
+
+    try:
+        print("Connecting to mySQL.....")
+        conn = pymysql.connect(host='localhost', db='googlescholardb', user='root', password='', cursorclass=pymysql.cursors.DictCursor)
+        print("Connection established!")
+    except:
+        print("Connection Failed!")
+
+    cur = conn.cursor()
+
+    scrapePaperData(url, cur)
+    # f_apd.close()
+    conn.close()

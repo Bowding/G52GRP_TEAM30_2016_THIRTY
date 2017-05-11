@@ -91,7 +91,7 @@ if __name__ == "__main__":
 	
 	try:
 		print("Connecting to mySQL.....")
-		conn = pymysql.connect(host='localhost', db='googlescholardb', user='root', password='CHEERs0251', cursorclass=pymysql.cursors.DictCursor)
+		conn = pymysql.connect(host='localhost', db='googlescholardb', user='root', password='', cursorclass=pymysql.cursors.DictCursor)
 		print("Connection established!")
 	except:
 		print("Connection Failed!")
