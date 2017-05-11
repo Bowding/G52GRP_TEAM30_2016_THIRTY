@@ -540,7 +540,7 @@ def createBarChart(conn, cur, target_user_id):
 
     #If there has result
     if result == 0:
-        return
+        bar_info = {'barSetString': ""}
     else:
         #[0]ID [1]name [2]NumPaper 
         barSet = []
@@ -593,7 +593,7 @@ def createBarChart(conn, cur, target_user_id):
             barSetString += 'hlink: "https://scholar.google.co.uk/citations?user=' + bar[0] + '&"},'
 
         bar_info = {'barSetString': barSetString}
-        return bar_info
+    return bar_info
 
 def create_coauthor_network(conn, cur, target_user_id, option):
     cur.execute("SELECT * FROM `connections` WHERE `sourceScholarID` = '" + target_user_id +"'")
@@ -797,7 +797,6 @@ def visualize(conn, cur, target_user_id):
  
 def template_info(conn, cur, target_user_id):
 
-
     try:
         cur.execute("SELECT * FROM `profile` WHERE `authorID` = '%s'" % target_user_id)
         conn.commit()
@@ -816,7 +815,26 @@ def template_info(conn, cur, target_user_id):
         citationNum = data[3]
         avatarURL = "https://scholar.google.co.uk" + data[6]
 
-        coauthorNum = 10
+        #get coauthorNum
+        try:
+            cur.execute("SELECT * FROM `connections` WHERE `sourceScholarID` = '%s'" % target_user_id)
+            conn.commit()
+        except ValueError:
+            print("Failed selecting....")
+
+        targetsLinks = [] 
+        for row in cur: 
+            repeat = 0 
+            for targetLink in targetsLinks: 
+                if targetLink == row[1]: 
+                    repeat = 1 
+
+            if repeat == 0: 
+                targetsLinks.append(row[1])
+
+        coauthorNum = len(targetsLinks)
+
+        #coauthorNum = 10
     
         info = {'authorName': authorName, 'numPaper': numPaper, 'hIndex': hIndex, 'citationNum': citationNum, 'coauthorNum': coauthorNum, 'avatarURL': avatarURL}
         #print(info)
@@ -887,7 +905,7 @@ def formhandler():
 #    info = template_info(conn, cur, target_user_id)
 
 #    vis_result = None
-    vis_result = visualize(conn, cur, target_user_id)
+#    vis_result = visualize(conn, cur, target_user_id)
 
 #    if(info != None):   #cache hit
 #        print("caching author profile successful!") 
@@ -895,18 +913,19 @@ def formhandler():
 #    else: 
 #        print("caching author profile failed!") 
 #        threads.append(t1)
+    bar_info = createBarChart(conn, cur, target_user_id)
 
-    if(vis_result != None): #cache hit 
+    if(bar_info != None): #cache hit 
         print("caching graph successful!")
         info = template_info(conn, cur, target_user_id)
-        bar_info = createBarChart(conn, cur, target_user_id)
+        #bar_info = createBarChart(conn, cur, target_user_id)
         #network_info = create_coauthor_network(conn, cur, target_user_id, "institution")
         #network_info = create_coauthor_network(conn, cur, target_user_id, "region")
         #if network_info == None:
         #    print("aaaaaaaaaa")
         #print(profile_info)
         #print(vis_result)
-        info.update(vis_result)
+        #info.update(vis_result)
         info.update(bar_info)
         #info.update(network_info)
 
@@ -932,11 +951,13 @@ def formhandler():
     if((t2 in threads) and (t3 in threads)): 
         insert_to_db(conn, cur, 'author_network.txt') 
         insert_to_db(conn, cur, 'scholar_data.txt') 
-        vis_result = visualize(conn, cur, target_user_id) 
+        #vis_result = visualize(conn, cur, target_user_id) 
         info = template_info(conn, cur, target_user_id)
+
         bar_info = createBarChart(conn, cur, target_user_id)
-        #network_info = create_coauthor_network(conn, cur, target_user_id, "region")
-        info.update(vis_result)
+        #if bar_info == None:
+        #    info.update({'hasCoauthor': False})
+        #else:
         info.update(bar_info)
         #info.update(network_info)
         return info

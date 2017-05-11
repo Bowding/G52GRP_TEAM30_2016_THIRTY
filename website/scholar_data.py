@@ -164,7 +164,7 @@ def getDataFromProfile(current_user_id):
 	hIndexValue = int(hIndex_citation[2].text)
 
 	avatarSrcset = soup.find_all("img", {"id": "gsc_prf_pup"})[0].get('srcset').split(',', 1)
-	avatarURL_S = avatarSrcset[0]
+	avatarURL_S = avatarSrcset[0].split(" ")[0]
 
 	#for every paper listed on profile, get the paper title and author name
 	paperCount = 1;
