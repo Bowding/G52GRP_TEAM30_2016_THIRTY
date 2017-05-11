@@ -248,9 +248,9 @@
 
         var authorID = nodeSet[0].id;
 
-        var colorScale1 = d3.scale.category20();  
+        var colorScale1 = d3.scale.category10();  
         var colorScale2 = d3.scale.category20b();  
-        var colorScale3 = d3.scale.category10();
+        var colorScale3 = d3.scale.category20();
 
         var height = 800;
         var width = window.innerWidth;
@@ -282,15 +282,15 @@
         
         Types.forEach(function(d, i) {
 
-          if( i < 20)
+          if( i < 10)
           {
             typesColor[d] = colorScale1(i);
           }
-          if( i > 19 && i < 40)
+          if( i > 9 && i < 30)
           {
             typesColor[d] = colorScale2(i);
           }
-          if( i > 39 && i < 60)
+          if( i > 29 && i < 50)
           {
             typesColor[d] = colorScale3(i);
           }
