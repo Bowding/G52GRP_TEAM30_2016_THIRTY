@@ -316,9 +316,12 @@ def create_coauthor_network(conn, cur, target_user_id, option):
             linkSetString += '{sourceId: "' + link[0] + '",'
             linkSetString += 'targetId: "' + link[1] + '"},'
 
-        typesTitle = '"Institution"'
+        if option == 'institution':
+                typesTitle = '"Institution"'
+        elif option == 'region':
+                typesTitle = '"Region"'
 
-        network_info = {'nodeSetString': nodeSetString, 'linkSetString': linkSetString}
+        network_info = {'nodeSetString': nodeSetString, 'linkSetString': linkSetString, 'typesTitle': typesTitle}
         return network_info
 
 
@@ -493,7 +496,6 @@ def getGraphData():
         #generate graph 
         network_info = create_coauthor_network(conn, cur, target_user_id, "region")
 
-    network_info.update({'option': graph_option})
  
     return network_info
  

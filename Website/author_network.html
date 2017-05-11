@@ -6,17 +6,6 @@
 
     <script type="text/javascript" src="https://d3js.org/d3.v3.js"></script>
 
-
-
-    <style type="text/css">
-      svg {
-        font: 10px sans-serif;
-        display: block;
-      }
-    </style>
-
-
-
   </head>
   <body>
 
@@ -39,58 +28,62 @@
           .domain([0, maxPaper])
           .range([3, 19]);
 
+        function removeSpecChar(word){
+          type = word.replace(/ /g, "_");
+          type = type.replace("(", "_");
+          type = type.replace(")", "_");
+          type = type.replace("'", "_");
+          type = type.replace("/", "_");
+          return type;
+          }
+
+
         var mouseOverType = function() {
 
           var thisObject = d3.select(this);
           var typeValue = thisObject.attr("type_value");
-          var strippedTypeValue = typeValue.replace(/ /g, "_");
-		  strippedTypeValue = strippedTypeValue.replace("'","_");
+          typeValue = removeSpecChar(typeValue);
+          var numPaperValue = thisObject.attr("numPaper_value");
+          
 
-          var legendBulletSelector = "." + "legendBullet-" + strippedTypeValue;
-          var selectedBullet = d3.selectAll(legendBulletSelector);
+          var selectedBullet = d3.selectAll(".bullet-" + typeValue);
           selectedBullet.style("fill", "#46460B");
          selectedBullet.attr("r", 1.2*6);
 
-          var legendTextSelector = "." + "legendText-" + strippedTypeValue;
-          var selectedLegendText = d3.selectAll(legendTextSelector);
-          selectedLegendText.style("font", "bold 16px Arial");
-          selectedLegendText.style("fill", "#46460B");
+          var selectedBulletText = d3.selectAll(".bulletText-" + typeValue);
+          selectedBulletText.style("font", "bold 16px Arial")
+          selectedBulletText.style("fill", "#46460B");
 
-          var coauthorTextSelector = "." + "coauthorText-" + strippedTypeValue;
-          var selectedcoauthorText = d3.selectAll(coauthorTextSelector);
-          selectedcoauthorText.style("font", "bold 16px Arial");
+          var selectedcoauthorText = d3.selectAll(".coauthorText-" + typeValue);
+          selectedcoauthorText.style("font", "bold 16px Arial")
           selectedcoauthorText.style("fill", "#46460B");
 
-          var coauthorCircleSelector = "." + "coauthorCircle-" + strippedTypeValue;
-          var selectedcoauthorCircle = d3.selectAll(coauthorCircleSelector);
+          var selectedcoauthorCircle = d3.selectAll(".coauthorCircle-" + typeValue);
           selectedcoauthorCircle.style("fill", "#46460B");
           selectedcoauthorCircle.style("stroke", "#46460B");
+          
           //grey all irrelevant names
           nodeSet.forEach(function(d, i){
-            if(d.type != typeValue)
+            var type = d.type.replace(/ /g, "_");
+          type = removeSpecChar(type);
+            if(type != typeValue)
             {
               var linkedText = d3.selectAll("#text"+i);
               linkedText.style("fill", "#CCC");
             }
           });
 
-
-
-          var authorCircleSelector = "." + "authorCircle";
-
-          var selectedauthorCircle = d3.selectAll(authorCircleSelector);
+          var selectedauthorCircle = d3.selectAll(".authorCircle");
           var authorCircleType = selectedauthorCircle.attr("type_value");
           if (typeValue == authorCircleType){
             selectedauthorCircle.style("stroke", "#46460B");
             selectedauthorCircle.style("fill", "White");
           };
-
-          var authorTextSelector = "." + "authorText";
-          var selectedauthorText = d3.selectAll(authorTextSelector);
+          var selectedauthorText = d3.selectAll(".authorText");
           var authorTextType = selectedauthorText.attr("type_value");
           if (typeValue == authorTextType) {
             selectedauthorText.style("fill", "#46460B");
-            selectedauthorText.style("font", "bold 16px Arial");
+            selectedauthorText.style("font", "bold 16px Arial")
           };
 
         };
@@ -99,44 +92,38 @@
 
           var thisObject = d3.select(this);
           var typeValue = thisObject.attr("type_value");
+          typeValue = removeSpecChar(typeValue);
           var colorValue = thisObject.attr("color_value");
-          var strippedTypeValue = typeValue.replace(/ /g, "_");
-		  strippedTypeValue = strippedTypeValue.replace("'","_");
 
-          var legendBulletSelector = "." + "legendBullet-" + strippedTypeValue;
-          var selectedBullet = d3.selectAll(legendBulletSelector);
+          var selectedBullet = d3.selectAll(".bullet-" + typeValue);
           selectedBullet.style("fill", colorValue);
-			selectedBullet.attr("r", 6);
+      selectedBullet.attr("r", 6);
 
-          var legendTextSelector = "." + "legendText-" + strippedTypeValue;
-          var selectedLegendText = d3.selectAll(legendTextSelector);
-          selectedLegendText.style("font", "normal 16px Arial");
-          selectedLegendText.style("fill", colorValue);
+          var selectedBulletText = d3.selectAll(".bulletText-" + typeValue);
+          selectedBulletText.style("font", "normal 16px Arial")
+          selectedBulletText.style("fill", colorValue);
 
           //recover all irrelevant names
           nodeSet.forEach(function(d, i){
               var linkedText = d3.selectAll("#text"+i);
-              linkedText.style("font", "normal 16px Arial");
+              linkedText.style("font", "normal 16px Arial")
               linkedText.style("fill", "Blue");
           });
-          var coauthorCircleSelector = "." + "coauthorCircle-" + strippedTypeValue;
-          var selectedcoauthorCircle = d3.selectAll(coauthorCircleSelector);
+          var selectedcoauthorCircle = d3.selectAll(".coauthorCircle-" + typeValue);
           selectedcoauthorCircle.style("fill", colorValue);
           selectedcoauthorCircle.style("stroke", "white");
 
 
-          var authorCircleSelector = "." + "authorCircle";
-          var selectedauthorCircle = d3.selectAll(authorCircleSelector);
+          var selectedauthorCircle = d3.selectAll(".authorCircle");
           var authorType = selectedauthorCircle.attr("type_value");
           if (typeValue == authorType){
             selectedauthorCircle.style("stroke", colorValue);
             selectedauthorCircle.style("fill", "White");
           };
 
-          var authorTextSelector = "." + "authorText";
-          var selectedauthorText = d3.selectAll(authorTextSelector);
+          var selectedauthorText = d3.selectAll(".authorText");
           selectedauthorText.style("fill", "Blue");
-          selectedauthorText.style("font", "normal 14px Arial");
+          selectedauthorText.style("font", "normal 14px Arial")
 
         };
 
@@ -147,8 +134,7 @@
           var colorValue = thisObject.attr("color_value");
           var idValue = thisObject.attr("id_value");
           var numPaperValue = thisObject.attr("numPaper_value");
-          var strippedTypeValue = typeValue.replace(/ /g, "_");
-		  strippedTypeValue = strippedTypeValue.replace("'","_");
+          typeValue = removeSpecChar(typeValue);
 
 
     d3.select(this).select("text").transition()
@@ -156,15 +142,23 @@
         .style("font", "bold 16px Arial")
         .attr("fill", "Blue");
 
-          var legendBulletSelector = "." + "legendBullet-" + strippedTypeValue;
-          var selectedBullet = d3.selectAll(legendBulletSelector);
-          selectedBullet.style("fill", "#46460B");
-    selectedBullet.attr("r", 1.2*6);
+          var selectedBullet = d3.selectAll(".bullet-" + typeValue);
+          selectedBullet.attr("r", 1.2*6);
 
-          var legendTextSelector = "." + "legendText-" + strippedTypeValue;
-          var selectedLegendText = d3.selectAll(legendTextSelector);
-          selectedLegendText.style("font", "bold 16px Arial")
-          selectedLegendText.style("fill", "#46460B");
+        Types.forEach(function(d,i){
+          type = d;
+          type = removeSpecChar(type);
+          if( type != typeValue)
+          {
+            var unselectBullectText = d3.selectAll(".bulletText-" + type);
+            unselectBullectText.style("fill", "#CCC");
+          }
+
+        });
+
+          var selectedBulletText = d3.selectAll(".bulletText-" + typeValue);
+          selectedBulletText.style("font", "bold 16px Arial")
+
 
           //change edges color and width
           var changed = [];
@@ -172,8 +166,7 @@
         linkSet.forEach(function(d, i) {
           if(d.sourceId == idValue ||  d.targetId == idValue)
           {
-            var linkSelector = "#link" + i;
-            var selectedlink = d3.selectAll(linkSelector);
+            var selectedlink = d3.selectAll("#link" + i);
             selectedlink.style("stroke", colorValue);
             selectedlink.style("stroke-width", "2");
 
@@ -215,44 +208,50 @@
           var colorValue = thisObject.attr("color_value");
           var idValue = thisObject.attr("id_value");
           var numPaperValue = thisObject.attr("numPaper_value");
-          var strippedTypeValue = typeValue.replace(/ /g, "_");
-		  strippedTypeValue = strippedTypeValue.replace("'","_");
+          typeValue = removeSpecChar(typeValue);
 
-		//change text
-        nodeSet.forEach(function(d1, i){
-				var linkedText = d3.selectAll("#text"+i);
-                linkedText.style("fill", "Blue");
-                linkedText.style("font", "normal 16px Arial");
-            });
 
-          var legendBulletSelector = "." + "legendBullet-" + strippedTypeValue;
-          var selectedBullet = d3.selectAll(legendBulletSelector);
-          selectedBullet.style("fill", colorValue);
+
+          var selectedBullet = d3.selectAll(".bullet-" + typeValue);
           selectedBullet.attr("r", 6);
+       
+        Types.forEach(function(d,i){
+          type = d;
+          type = removeSpecChar(type);
+          var unselectBullectText = d3.selectAll(".bulletText-" + type);
+          unselectBullectText.style("font", "normal 16px Arial")
+          unselectBullectText.style("fill", typesColor[d]);
+        });
 
-          var legendTextSelector = "." + "legendText-" + strippedTypeValue;
-          var selectedLegendText = d3.selectAll(legendTextSelector);
-          selectedLegendText.style("font", "normal 16px Arial")
-          selectedLegendText.style("fill", colorValue);
 
         //change edges and text color and width
         linkSet.forEach(function(d, i) {
           if(d.sourceId == idValue ||  d.targetId == idValue)
           {
-            var linkSelector = "#link" + i;
-            var selectedlink = d3.selectAll(linkSelector);
+            var selectedlink = d3.selectAll("#link" + i);
             selectedlink.style("stroke", "#CCC");
             selectedlink.style("stroke-width", ".4");
           }
-         });
+          });
+     //change text
+        nodeSet.forEach(function(d1, i){
+
+      var linkedText = d3.selectAll("#text"+i);
+      linkedText.style("fill", "Blue");
+      linkedText.style("font", "normal 16px Arial")
+
+    });
         }
 
 
 
         var authorID = nodeSet[0].id;
 
-        var colorScale = d3.scale.category20();  
-        var height = 670;
+        var colorScale1 = d3.scale.category20();  
+        var colorScale2 = d3.scale.category20b();  
+        var colorScale3 = d3.scale.category10();
+
+        var height = 800;
         var width = window.innerWidth;
         if(width < 665 ) { width = 665; }
         else if(width > 1350) { width = 1350;}
@@ -281,7 +280,20 @@
         Types = Types.sort();
         
         Types.forEach(function(d, i) {
-          typesColor[d] = colorScale(i);
+
+          if( i < 20)
+          {
+            typesColor[d] = colorScale1(i);
+          }
+          if( i > 19 && i < 40)
+          {
+            typesColor[d] = colorScale2(i);
+          }
+          if( i > 39 && i < 60)
+          {
+            typesColor[d] = colorScale3(i);
+          }
+
         });
 
         var node_id = [];
@@ -298,6 +310,7 @@
         var graph = d3.layout.force()
             .nodes(nodeSet)
             .links(linkSet)
+            .gravity(0.2)
             .charge(-1000)
             .linkStrength(.5)
             .linkDistance(200)
@@ -322,7 +335,10 @@
             .enter().append("g")
             .attr("class", "node")
             .attr("id_value", function(d) {return d.id; })
-            .attr("type_value", function(d, i) { return d.type; })
+            .attr("type_value", function(d, i) { 
+              var type = d.type;
+              type = removeSpecChar(type);
+              return type; })
             .attr("color_value", function(d, i) { return typesColor[d.type]; })
             .attr("numPaper_value", function(d) { return d.numPaper; })
             .on("mouseover", mouseOverNode)
@@ -333,17 +349,19 @@
 
         node.append("circle")
             .attr("r", function(d) { if (d.id==authorID){ return authorSize;} else {return sizeScale(d.numPaper);} }  )
-            .style("fill", function(d) { if (d.id==authorID) { return "white"; } else { return typesColor[d.type]; } }) // Make the nodes hollow looking
-            .attr("type_value", function(d) { return d.type; })
+            .style("fill", function(d) { if (d.id==authorID) { return "white"; } else { return typesColor[d.type]; } }) 
+            .attr("type_value", function(d, i) { 
+              var type = d.type;
+              type = removeSpecChar(type);
+              return type; })
             .attr("color_value", function(d) { return typesColor[d.type]; })
             .attr("stroke", function(d) { if (d.id==authorID) { return typesColor[d.type]; } else { return "White"; } })
             .attr("stroke-width", function(d) { if (d.id==authorID) { return "3"; } else { return "1"; } })
             .attr("class", function(d) {
-              var str = d.type;
-              var strippedString = str.replace(/ /g, "_")
-			  strippedString = strippedString.replace("'","_");
+              var type = d.type;
+              type = removeSpecChar(type);
         if (d.id==authorID) { return "authorCircle"; }
-        else { return "coauthorCircle-" + strippedString; }
+        else { return "coauthorCircle-" + type; }
             })
       .call(graph.drag);
 
@@ -357,22 +375,23 @@
             .style("font", "normal 16px Arial")
             .attr("fill", "Blue")
             .style("fill", function(d) { return typesColor[d]; })
-            .attr("type_value", function(d) { return d.type; })
+            .attr("type_value", function(d, i) { 
+              var type = d.type;
+              type = removeSpecChar(type);
+              return type; })
             .attr("color_value", function(d) { return typesColor[d.type]; })
             .attr("class", function(d) {
-              var str = d.type;
-              var strippedString = str.replace(/ /g, "_");
-			  strippedString = strippedString.replace("'","_");
-
+              var type = d.type;
+              type = removeSpecChar(type);
         if (d.id==authorID) { return "authorText"; }
-        else { return "coauthorText-" + strippedString; }
+        else { return "coauthorText-" + type; }
             })
             .text(function(d) { return d.name; })
             .attr("id", function(d, i) {return "text"+i;});
 
         //Types title
         svgCanvas.append("text").attr("class","typesTitle")
-            .text("Institution")  //needed to be modified
+            .text({{ !typesTitle }})  //needed to be modified
             .attr("x", -1*(width/2 - 10))
             .attr("y", (-height/7*3 -30))
             .style("fill", "Black")
@@ -380,7 +399,7 @@
             .attr("text-anchor","start");
 
         //types circle
-        svgCanvas.selectAll("focalNodeCanvas")
+        svgCanvas.selectAll("bullet")
             .data(Types).enter().append("svg:circle") 
             .attr("cx", -1*(width/2 - 25))
             .attr("cy", function(d, i) { return (i*20-height/7*3 -10); } )
@@ -388,32 +407,37 @@
             .style("fill", function(d) { return typesColor[d]; })
             .attr("r", 6)
             .attr("color_value", function(d) { return typesColor[d]; })
-            .attr("type_value", function(d) { return d; })
+            .attr("type_value", function(d, i) { 
+              var type = d;
+              type = removeSpecChar(type);
+              return type; })
             .attr("class", function(d) {
-                var str = d;
-                var strippedString = str.replace(/ /g, "_")
-				strippedString = strippedString.replace("'","_");
-    return "legendBullet-" + strippedString; })
+                var type = d;
+                type = removeSpecChar(type);
+    return "bullet-" + type; })
             .on('mouseover', mouseOverType)
             .on("mouseout", mouseOutType);
 
-        svgCanvas.selectAll("a.legend_link")
-            .data(Types) // Instruct to bind dataSet to text elements
-          .enter().append("svg:a") // Append legend elements
+
+        svgCanvas.selectAll("bullet_text")
+            .data(Types) 
+          .enter().append("svg:a") 
             .append("text")
               .attr("text-anchor", "center")
               .attr("x", -1*(width/2 - 40))
               .attr("y", function(d, i) { return (i*20-height/7*3 -10); } )
               .attr("dx", 0)
-              .attr("dy", "4px") // Controls padding to place text in alignment with bullets
+              .attr("dy", "4px")
               .text(function(d) { return d;})
               .attr("color_value", function(d) { return typesColor[d]; })
-              .attr("type_value", function(d) { return d; })
+            .attr("type_value", function(d, i) { 
+              var type = d;
+              type = removeSpecChar(type);
+              return type; })
               .attr("class", function(d) {
-                var str = d;
-                var strippedString = str.replace(/ /g, "_")
-				strippedString = strippedString.replace("'","_");
-                return "legendText-" + strippedString; })
+                var type = d;
+                  type = removeSpecChar(type);
+                return "bulletText-" + type; })
               .style("fill", function(d, i) { return typesColor[d]; })
               .style("font", "normal 16px Arial")
               .on('mouseover', mouseOverType)
@@ -422,13 +446,13 @@
 
         function tick() {
           node
-            .attr("transform", function(d) { return "translate(" + (d.x - width/30) + "," + (d.y - height/30) + ")"; });
+            .attr("transform", function(d) { return "translate(" + (d.x) + "," + (d.y) + ")"; });
 
           link
-            .attr("x1", function(d) { return d.source.x - width/30; })
-            .attr("y1", function(d) { return d.source.y - height/30; })
-            .attr("x2", function(d) { return d.target.x - width/30; })
-            .attr("y2", function(d) { return d.target.y - height/30; });
+            .attr("x1", function(d) { return d.source.x; })
+            .attr("y1", function(d) { return d.source.y; })
+            .attr("x2", function(d) { return d.target.x; })
+            .attr("y2", function(d) { return d.target.y; });
         }
 
 

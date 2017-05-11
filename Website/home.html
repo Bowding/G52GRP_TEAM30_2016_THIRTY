@@ -18,8 +18,8 @@
             
             if( numCoAuthors <= 0)
             {
-            $('#genGraphTable').text('Scholar has no co-authors!');
-            $('#barChart').text('Scholar has no co-authors!');
+              $('#genGraphTable').text('Scholar has no co-authors!');
+              $('#barChart').text('Scholar has no co-authors!');
             }
 
         });   
@@ -135,7 +135,7 @@
   <p>Citation number of papers VS average coauthor h-index</p>
   <p>Discover Scholar Network</p>
   <div id= "genGraphTable">
-  	<table><form id = "graphForm" name="graphForm" method="post" action="/hello/graph" target="blank"> 
+  	<table><form id = "graphForm" name="graphForm" method="post" action="/hello/graph" target="_blank"> 
   		<tr> 
   			<th rowspan="2" valign="top">Relationship: </th> 
   			<td><input id="relation1" class="relation" type="radio" name="graphRelation" value="relation1">Classify by institutions</td>
