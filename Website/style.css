@@ -49,3 +49,12 @@ a:visited.nav {
 a:hover.nav {
     color: grey;
 }
+
+.bar:hover {
+  fill: brown;
+}
+
+svg {
+  font: 10px sans-serif;
+  display: block;
+}
