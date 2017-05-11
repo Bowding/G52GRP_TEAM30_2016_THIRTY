@@ -5,7 +5,7 @@ import html
 
 
 #AuthorID going to be search
-search = "8maqKdg"
+search = "8maqKdgAAAAJ"
 
 #connect to mysql
 try:
@@ -98,7 +98,7 @@ if result > 0:
         nodeSetString += 'name: "' + node[1] + '", '
         nodeSetString += 'numPaper: "' + str(node[2]) + '", '
         nodeSetString += 'type: "' + node[3] + '", '
-        nodeSetString += 'hlink: "https://scholar.google.co.uk/citations?user=' + node[0] + 'AAAAJ&"},'
+        nodeSetString += 'hlink: "https://scholar.google.co.uk/citations?user=' + node[0] + '"},'
 
     #contruct string for linkSet
     linkSetString = ""
@@ -108,11 +108,11 @@ if result > 0:
         linkSetString += 'targetId: "' + link[1] + '"},'
 
 
-    print(nodeSet)
+    typesTitle = '"Region"'
 
     @route('/hello/123')
     def index():
-        return template("force_region.html", nodeSetString = nodeSetString, linkSetString = linkSetString)
+        return template("force_d3js.html", nodeSetString = nodeSetString, linkSetString = linkSetString, typesTitle = typesTitle)
     run(host='localhost', port=8080)
 
     cur.close()

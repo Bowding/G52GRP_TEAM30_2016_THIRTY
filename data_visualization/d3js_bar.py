@@ -4,7 +4,7 @@ import html
 
 
 #AuthorID going to be search
-search = "rUHfmpQ"
+search = "8maqKdgAAAAJ"
 
 #connect to mysql
 try:
@@ -46,7 +46,7 @@ if result > 0:
     for bar in barSet:
         cur.execute("SELECT * FROM `profile` WHERE `authorID` = '" + bar[0] +"'")
         for row in cur:
-            if row[4] == bar[0]:
+            if row[5] == bar[0]:
                 #change name into short form
                 parse = row[0].split(" ")
                 name = ""
@@ -76,7 +76,7 @@ if result > 0:
         barSetString += 'hlink: "https://scholar.google.co.uk/citations?user=' + bar[0] + 'AAAAJ&"},'
 
 
-
+    print(barSetString)
 
     @route('/hello/123')
     def index():
