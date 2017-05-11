@@ -6,31 +6,26 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> 
     <script> 
         $(document).ready(function() {  
-            $("#select_all").change(function(){  //"select all" change  
-            $(".coauBox").prop('checked', $(this).prop("checked")); //change all ".checkbox" checked status 
-            }); 
- 
-            //".checkbox" change  
-            $('.coauBox').change(function(){  
-                //uncheck "select all", if one of the listed checkbox item is unchecked 
-                if(false == $(this).prop("checked")){ //if this item is unchecked 
-                    $("#select_all").prop('checked', false); //change "select all" checked status to false 
-                } 
-                //check "select all" if all checkbox items are checked 
-                if ($('.coauBox:checked').length == $('.coauBox').length ){ 
-                    $("#select_all").prop('checked', true); 
+
+             var numCoAuthors = {{ coauthorNum }};
+
+              $('#graphForm').submit(function(){ 
+               if ($('#relation1').prop('checked') != true && $('#relation2').prop('checked') != true){ 
+                   alert( "At least one graph should be selected!" ); 
+                   return false; 
                 } 
             }); 
-             
-            $('.relation').change(function(){ 
-               if(true == $('#relation1').prop('checked')){ 
-                   $('#auBox').prop('disabled', true); 
-               }  
-                if(true == $('#relation2').prop('checked')){ 
-                   $('#auBox').prop('disabled', false); 
-               }  
-            }); 
+            
+            if( numCoAuthors <= 0)
+            {
+            $('#genGraphTable').text('Scholar has no co-authors!');
+
+            }
+
         });   
+
+
+
     </script> 
 <head>
 <div class="header">
@@ -139,7 +134,7 @@
   </div>
   <p>Citation number of papers VS average coauthor h-index</p>
   <p>Discover Scholar Network</p>
-  <div> 
+  <div id= "genGraphTable">
   	<table><form id = "graphForm" name="graphForm" method="post" action="/hello/graph" target="blank"> 
   		<tr> 
   			<th rowspan="2" valign="top">Relationship: </th> 
