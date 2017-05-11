@@ -81,7 +81,7 @@ def get_target_url(search):
         match_url_area = search_soup.find("h3", {"class": "gs_rt"})
     
         if ((match_url_area == None)==True) or (match_url_area.text.startswith('User profiles for') == False):
-            err_msg = "Error: Scholar '" + search + "' not found.\n\nTry to search using Google Scholar profile URL. e.g. https://scholar.google.co.uk/citations?user=..."
+            err_msg = "Error: Scholar '" + search + "' not found.\n\n"
             print("Scholar not found")
             return err_msg
         else:
@@ -563,7 +563,7 @@ def createBarChart(conn, cur, target_user_id):
         for bar in barSet:
             cur.execute("SELECT * FROM `profile` WHERE `authorID` = '" + bar[0] +"'")
             for row in cur:
-                if row[4] == bar[0]:
+                if row[5] == bar[0]:
                     #change name into short form
                     parse = row[0].split(" ")
                     name = ""
@@ -575,7 +575,7 @@ def createBarChart(conn, cur, target_user_id):
 
                     #put name and numPaper into the list
                     bar[1] = name
-                    bar[2] = row[2]
+                    bar[2] = row[3]
 
         #sort and save only top 8 highest amount of papers published
         barSet = sorted(barSet, key=lambda l:l[2], reverse=True)
@@ -638,11 +638,11 @@ def create_coauthor_network(conn, cur, target_user_id, option):
         for node in nodeSet:
             cur.execute("SELECT * FROM `profile` WHERE `authorID` = '" + node[0] +"'")
             for row in cur:
-                if row[4] == node[0]:
+                if row[5] == node[0]:
                     node[1] = row[0]
                     node[2] = row[1]
                     if option == 'region':
-                        node[3] = row[3]
+                        node[3] = row[4]
 
         if option == 'institution':
             #acess institution
@@ -704,6 +704,8 @@ def create_coauthor_network(conn, cur, target_user_id, option):
         for link in linkSet:
             linkSetString += '{sourceId: "' + link[0] + '",'
             linkSetString += 'targetId: "' + link[1] + '"},'
+
+        typesTitle = '"Institution"'
 
         network_info = {'nodeSetString': nodeSetString, 'linkSetString': linkSetString}
         return network_info
@@ -883,7 +885,7 @@ def formhandler():
     #url checking
     if(not target_url.startswith('https://scholar.google.co.uk/citations?user=')):
         err_msg = target_url
-        return err_msg
+        return template("error.html", err_msg = err_msg)
 
     #if url is valid
     global target_user_id

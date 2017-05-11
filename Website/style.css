@@ -25,23 +25,22 @@ body {
   padding-right: 2em;
 }
 
-.info p {
-  padding-left: 50px;
+#name{
   font-size: 15pt;
-  float: middle;
-  width: 80px;
+  text-align: center;
 }
 
-.info img {
+.info img {  float: middle;
   padding-left: 70px;
   width: 110px;
   height: auto;
+  padding-top: 25px;
 }
 
 .info ul {
 	border-top: 1px solid gray;
     list-style-type: none;
-    padding: 0;
+    padding-left: 20px;
 }
 
 .info li {
@@ -67,6 +66,7 @@ article p{
 
 
 table, th, td {
+    margin: auto;
     border: 1px solid black;
     border-collapse: collapse;
 }

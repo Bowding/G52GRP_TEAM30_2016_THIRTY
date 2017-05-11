@@ -5,13 +5,7 @@
     <title> Scholar Profile: -NAME- </title>   
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> 
     <script> 
-        $(document).ready(function() { 
-            $('#graphForm').submit(function(){ 
-               if ($('.coauBox:checked').length == 0){ 
-                   alert( "At least one Co-author should be selected!" ); 
-                   return false; 
-                } 
-            }); 
+        $(document).ready(function() {  
             $("#select_all").change(function(){  //"select all" change  
             $(".coauBox").prop('checked', $(this).prop("checked")); //change all ".checkbox" checked status 
             }); 
@@ -48,7 +42,7 @@
 
 <div class="info">
  <img id = "logo" src = {{avatarURL}} alt = "Logo" align="middle">
-	<p>{{authorName}}</p>
+	<p id="name">{{authorName}}</p>
   <ul>
     <li>Number of Papers: {{numPaper}}</li>
     <li>Number of Citations: {{citationNum}}</li>
@@ -71,7 +65,7 @@
             .domain([0,7])
             .range(["#056899", "#A7D2E7"])
 
-          var canvas = d3.select("body").append("svg")
+          var canvas = d3.select("#barChart").append("svg")
               .attr("width", width)
               .attr("height", height)
 
@@ -145,23 +139,20 @@
   </div>
   <p>Citation number of papers VS average coauthor h-index</p>
   <p>Discover Scholar Network</p>
-
-
-<br/><br/>
-<div> 
-	<table><form id = "graphForm" name="graphForm" method="post" action="/hello/graph" target="blank"> 
-		<tr> 
-			<th rowspan="2" valign="top">Relationship: </th> 
-			<td><input id="relation1" class="relation" type="radio" name="graphRelation" value="relation1">Classify by institutions</td> 
-		</tr> 
-		<tr> 
-			<td><input id="relation2" class="relation" type="radio" name="graphRelation" value="relation2">Classify by regions</td> 
-		</tr> 
-		<tr><td><input value="Generate" type="submit" class="submit" /></td></tr> 
-</table> 
-         
-        </form> 
-</div> 
+  <div> 
+  	<table><form id = "graphForm" name="graphForm" method="post" action="/hello/graph" target="blank"> 
+  		<tr> 
+  			<th rowspan="2" valign="top">Relationship: </th> 
+  			<td><input id="relation1" class="relation" type="radio" name="graphRelation" value="relation1">Classify by institutions</td>
+        <th rowspan="2" valign="center"><input value="Generate" type="submit" class="submit" /></th>
+  		</tr> 
+  		<tr> 
+  			<td><input id="relation2" class="relation" type="radio" name="graphRelation" value="relation2">Classify by regions</td> 
+  		</tr> 
+  </table> 
+           
+          </form> 
+  </div> 
  
  </article>
  
