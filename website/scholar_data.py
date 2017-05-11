@@ -6,7 +6,6 @@ import sys
 from bs4 import BeautifulSoup
 import threading
 import re
-from author_network import perform_request
 
 #to make the script compatible with python 2.7 
 if sys.version_info[0] < 3:
@@ -71,6 +70,8 @@ def breathFirstSearch(url, current_user_id):
 	for t in threads:
 		t.join()
 
+	print("finish first degree: "+ current_user_id)
+
 
 #second degree - scholars the first degree scholar has collaborated with		
 def secondDegree(url, current_user_id):
@@ -119,6 +120,8 @@ def secondDegree(url, current_user_id):
 		t.start()
 	for t in threads:
 		t.join()
+
+	print("finish second degree: "+ current_user_id)
 					
 def getDataFromProfile(current_user_id):
 	threads = []
@@ -165,7 +168,7 @@ def getDataFromProfile(current_user_id):
 	while(1):
 		for paper in soup.find_all("tr", {"class": "gsc_a_tr"}):
 			
-			paperID = paper.find("td", {"class": "gsc_a_t"}).find("a", {"class": "gsc_a_at"}).get('href').split(":")[1]
+			#paperID = paper.find("td", {"class": "gsc_a_t"}).find("a", {"class": "gsc_a_at"}).get('href').split(":")[1]
 			#getDataOfPaper(current_user_id, paperID)
 
 			paperCount += 1;
@@ -300,6 +303,29 @@ def insertDB_fields(user_id, field):
 		lock.release()
 	except ValueError:
 		print("Failed inserting....")
+
+def perform_request(url):
+
+	filename = "requestsCache/" + url.split("citations?")[1].replace(":","---")+ ".html"
+
+	try:
+		soup = BeautifulSoup(open(filename, encoding = 'utf-8'), "html.parser")
+	except FileNotFoundError:
+		r = requests.get(url)
+
+		captchaContent = "Our systems have detected unusual traffic from your computer network."
+		if captchaContent in r.text:
+			print("could not connect to Google...")
+			print(url)
+			os._exit(1)
+		else:
+			f_r = open(filename, 'w', encoding = 'utf-8')
+			f_r.write(r.text)
+			f_r.close()
+
+			soup = BeautifulSoup(r.content, "html.parser")
+
+	return soup
 
 			
 if __name__ == "__main__":

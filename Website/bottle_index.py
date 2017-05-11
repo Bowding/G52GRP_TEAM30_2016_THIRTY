@@ -23,7 +23,7 @@ if sys.version_info[0] < 3:
 	reload(sys)
 	sys.setdefaultencoding('utf8')     
 
-global conn, cur 
+global conn, cur
 #connect to db
 def connect_to_db():
     try:
@@ -529,7 +529,184 @@ def CoAuGraph(filename, targets):
     g.format = "svg" 
     g.render("img/"+filename) 
  
- 
+def createBarChart(conn, cur, target_user_id):
+
+    cur.execute("SELECT * FROM `connections` WHERE `sourceScholarID` = '" + target_user_id +"'")
+
+    #Check if there is any result
+    result = 0
+    for row in cur:
+        result += 1
+
+    #If there has result
+    if result == 0:
+        return
+    else:
+        #[0]ID [1]name [2]NumPaper 
+        barSet = []
+
+        #construct sources scholar to targetscholar first
+        cur.execute("SELECT * FROM `connections` WHERE `sourceScholarID` = '" + target_user_id +"'")
+        for row in cur:
+            
+            #check if there is repeated ID
+            repeat = 0
+
+            for bar in barSet:
+                if bar[0] == row[1]:
+                    repeat = 1
+
+            if repeat == 0:
+                barSet.append([row[1],"" ,"" ])
+
+        #store authors' info
+        for bar in barSet:
+            cur.execute("SELECT * FROM `profile` WHERE `authorID` = '" + bar[0] +"'")
+            for row in cur:
+                if row[4] == bar[0]:
+                    #change name into short form
+                    parse = row[0].split(" ")
+                    name = ""
+                    for x in range(0, len(parse)):
+                        if x == 0:
+                            name += parse[x][0]
+                        elif x == (len(parse) - 1):
+                            name += " " + parse[x] 
+
+                    #put name and numPaper into the list
+                    bar[1] = name
+                    bar[2] = row[2]
+
+        #sort and save only top 8 highest amount of papers published
+        barSet = sorted(barSet, key=lambda l:l[2], reverse=True)
+        barSet = barSet[:8]
+        barSet = sorted(barSet, key=lambda l:l[2])
+
+
+        #contruct string for nodeSet
+        barSetString = ""
+
+        for bar in barSet:
+            barSetString += '{id: "' + bar[0]+'", '
+            barSetString += 'name: "' + bar[1] + '", '
+            barSetString += 'barLength: "' + str(bar[2]) + '", '
+            barSetString += 'hlink: "https://scholar.google.co.uk/citations?user=' + bar[0] + '&"},'
+
+        bar_info = {'barSetString': barSetString}
+        return bar_info
+
+def create_coauthor_network(conn, cur, target_user_id, option):
+    cur.execute("SELECT * FROM `connections` WHERE `sourceScholarID` = '" + target_user_id +"'")
+
+    #Check if there is any result
+    result = 0
+    for row in cur:
+        result += 1
+
+    if result == 0:
+        print("noooooooooo")
+        return
+    #If there has result
+    else:
+        #[0]ID [1]name [2]NumPaper [3]region/institution
+        nodeSet = []
+        #[0]sourceID [1]targetID
+        linkSet = []
+
+        targets = []
+
+        #put sourceauthor in nodeSet first
+        nodeSet.append([target_user_id,"","" ,"" ])
+
+        #construct sources scholar to targetscholar first
+        cur.execute("SELECT * FROM `connections` WHERE `sourceScholarID` = '" + target_user_id +"'")
+        for row in cur:
+            linkSet.append((row[0], row[1]))
+
+            #check if there is repeated ID
+            repeat = 0
+
+            for node in nodeSet:
+                if node[0] == row[1]:
+                    repeat = 1
+
+            if repeat == 0:
+                nodeSet.append([row[1],"" ,"" ,"" ])
+                targets.append(row[1])
+
+        #store authors' info
+        for node in nodeSet:
+            cur.execute("SELECT * FROM `profile` WHERE `authorID` = '" + node[0] +"'")
+            for row in cur:
+                if row[4] == node[0]:
+                    node[1] = row[0]
+                    node[2] = row[1]
+                    if option == 'region':
+                        node[3] = row[3]
+
+        if option == 'institution':
+            #acess institution
+            for node in nodeSet:
+                cur.execute("SELECT * FROM `institutions` WHERE `scholarID` = '" + node[0] +"'")
+
+                #parse the institution name and save 
+                for row in cur:
+                    parse = row[1].split(", ")
+                    for parsed in parse:
+                        if "University" in parsed:
+                            #print(parsed.replace(":", "'"))
+                            node[3] = parsed.replace(":", "'")
+                            break
+                        else:
+                            node[3] = "Unknown"
+
+
+        #access relationship between target scholar
+        for target in targets:
+            query = "SELECT * FROM `connections` WHERE `sourceScholarID` = '" + target +"' AND ("
+            idx = 0
+            for target2 in targets:
+                if idx == 0:
+                    query += "targetScholarID = '" + target2 +"'"
+                else:
+                    query += " OR targetScholarID = '" + target2 +"'"
+                idx += 1
+            query += ")"
+            cur.execute(query)
+
+            for row in cur:
+                linkSet.append((row[0], row[1]))
+
+        #DEL repeated linkset
+        idx1 = 0
+        for link1 in linkSet:
+            idx2 = 0
+            for link2 in linkSet:
+                if link1[0] == link2[0] and link1[1] == link2[1] and idx1 != idx2:
+                    del linkSet[idx2]
+                idx2 += 1
+            idx1 += 1
+
+
+        #contruct string for nodeSet
+        nodeSetString = ""
+
+        for node in nodeSet:
+            nodeSetString += '{id: "' + node[0]+'", '
+            nodeSetString += 'name: "' + node[1] + '", '
+            nodeSetString += 'numPaper: "' + str(node[2]) + '", '
+            nodeSetString += 'type: "' + node[3] + '", '
+            nodeSetString += 'hlink: "https://scholar.google.co.uk/citations?user=' + node[0] + '&"},'
+
+        #contruct string for linkSet
+        linkSetString = ""
+
+        for link in linkSet:
+            linkSetString += '{sourceId: "' + link[0] + '",'
+            linkSetString += 'targetId: "' + link[1] + '"},'
+
+        network_info = {'nodeSetString': nodeSetString, 'linkSetString': linkSetString}
+        return network_info
 
 def visualize(conn, cur, target_user_id): 
     
@@ -539,7 +716,6 @@ def visualize(conn, cur, target_user_id):
 #    f.close()
 #    return string
     
-    htmlFileName = "dataviz" 
     global targets, viz_search, authorName 
  
     #Name going to be search 
@@ -686,6 +862,7 @@ def formhandler():
         return err_msg
 
     #if url is valid
+    global target_user_id
     target_user_id = target_url.split("user=")[1].split("&")[0]
 
     #get_scholar_data(target_user_id)
@@ -716,9 +893,17 @@ def formhandler():
     if(vis_result != None): #cache hit 
         print("caching graph successful!")
         info = template_info(conn, cur, target_user_id)
+        bar_info = createBarChart(conn, cur, target_user_id)
+        #network_info = create_coauthor_network(conn, cur, target_user_id, "institution")
+        #network_info = create_coauthor_network(conn, cur, target_user_id, "region")
+        #if network_info == None:
+        #    print("aaaaaaaaaa")
         #print(profile_info)
         #print(vis_result)
         info.update(vis_result)
+        info.update(bar_info)
+        #info.update(network_info)
+
         #print(info)
         
 
@@ -743,7 +928,11 @@ def formhandler():
         insert_to_db(conn, cur, 'scholar_data.txt') 
         vis_result = visualize(conn, cur, target_user_id) 
         info = template_info(conn, cur, target_user_id)
+        bar_info = createBarChart(conn, cur, target_user_id)
+        #network_info = create_coauthor_network(conn, cur, target_user_id, "region")
         info.update(vis_result)
+        info.update(bar_info)
+        #info.update(network_info)
         return info
 
     print('Scraping Job Done')
@@ -779,7 +968,9 @@ def formhandler():
     #else:
     #    return template("nodes_basic.html", links = string)
 
-@bottle.post('/hello/graph') 
+
+@bottle.post('/hello/graph')
+@bottle.view('author_network.html')
 def getGraphData(): 
     option = bottle.request.forms.get("graphRelation") 
     authorOption = bottle.request.forms.get("authorBox") 
@@ -795,19 +986,23 @@ def getGraphData():
         authorOption = 0 
  
          
-    if option == "relation1": 
-        filename = "coauthor_re" + str(randint(0,10000)) 
-             
+    if option == "relation1": #classify by institutions
+        #filename = "coauthor_re" + str(randint(0,10000)) 
+        graph_option = "institution"
+
         #generate graph 
-        CoAuGraph(filename, selectedSchlors) 
+        #CoAuGraph(filename, selectedSchlors)
+        network_info = create_coauthor_network(conn, cur, target_user_id, "institution")
              
-    if option == "relation2": 
-        filename = "field_coauthor" + str(randint(0,10000)) 
- 
+    if option == "relation2": #classify by regions 
+        #filename = "field_coauthor" + str(randint(0,10000)) 
+        graph_option = "region"
+        
         #generate graph 
-        FieldAuthorGraph(filename, authorName, targets, authorOption) 
+        #FieldAuthorGraph(filename, authorName, targets, authorOption)
+        network_info = create_coauthor_network(conn, cur, target_user_id, "region")
  
-    return template("img/" + filename + ".svg") 
+    return network_info
  
  
 bottle.run(host='localhost', port=8080)
