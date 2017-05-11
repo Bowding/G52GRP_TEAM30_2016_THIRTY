@@ -33,7 +33,10 @@
           var thisObject = d3.select(this);
           var typeValue = thisObject.attr("type_value");
           typeValue = typeValue.replace(/ /g, "_");
+          typeValue = typeValue.replace("(", "_")
+          typeValue = typeValue.replace(")", "_")
           var numPaperValue = thisObject.attr("numPaper_value");
+          
 
           var selectedBullet = d3.selectAll(".bullet-" + typeValue);
           selectedBullet.style("fill", "#46460B");
@@ -50,9 +53,13 @@
           var selectedcoauthorCircle = d3.selectAll(".coauthorCircle-" + typeValue);
           selectedcoauthorCircle.style("fill", "#46460B");
           selectedcoauthorCircle.style("stroke", "#46460B");
+          
           //grey all irrelevant names
           nodeSet.forEach(function(d, i){
-            if(d.type != typeValue)
+            var type = d.type.replace(/ /g, "_");
+          type = type.replace("(", "_")
+          type = type.replace(")", "_")
+            if(type != typeValue)
             {
               var linkedText = d3.selectAll("#text"+i);
               linkedText.style("fill", "#CCC");
@@ -79,6 +86,8 @@
           var thisObject = d3.select(this);
           var typeValue = thisObject.attr("type_value");
           typeValue = typeValue.replace(/ /g, "_");
+          typeValue = typeValue.replace("(", "_")
+          typeValue = typeValue.replace(")", "_")
           var colorValue = thisObject.attr("color_value");
 
           var selectedBullet = d3.selectAll(".bullet-" + typeValue);
@@ -121,6 +130,8 @@
           var idValue = thisObject.attr("id_value");
           var numPaperValue = thisObject.attr("numPaper_value");
           typeValue = typeValue.replace(/ /g, "_");
+          typeValue = typeValue.replace("(", "_")
+          typeValue = typeValue.replace(")", "_")
 
 
     d3.select(this).select("text").transition()
@@ -185,6 +196,8 @@
           var idValue = thisObject.attr("id_value");
           var numPaperValue = thisObject.attr("numPaper_value");
           typeValue = typeValue.replace(/ /g, "_");
+          typeValue = typeValue.replace("(", "_")
+          typeValue = typeValue.replace(")", "_")
 
 
 
@@ -219,8 +232,8 @@
 
         var authorID = nodeSet[0].id;
 
-        var colorScale = d3.scale.category10();  
-        var height = 670;
+        var colorScale = d3.scale.category20();  
+        var height = 800;
         var width = window.innerWidth;
         if(width < 665 ) { width = 665; }
         else if(width > 1350) { width = 1350;}
@@ -266,6 +279,7 @@
         var graph = d3.layout.force()
             .nodes(nodeSet)
             .links(linkSet)
+            .gravity(0.2)
             .charge(-1000)
             .linkStrength(.5)
             .linkDistance(200)
@@ -290,7 +304,12 @@
             .enter().append("g")
             .attr("class", "node")
             .attr("id_value", function(d) {return d.id; })
-            .attr("type_value", function(d, i) { return d.type; })
+            .attr("type_value", function(d, i) { 
+              var type = d.type;
+              type = type.replace(/ /g, "_")
+              type = type.replace("(", "_")
+              type = type.replace(")", "_")
+              return type; })
             .attr("color_value", function(d, i) { return typesColor[d.type]; })
             .attr("numPaper_value", function(d) { return d.numPaper; })
             .on("mouseover", mouseOverNode)
@@ -301,14 +320,21 @@
 
         node.append("circle")
             .attr("r", function(d) { if (d.id==authorID){ return authorSize;} else {return sizeScale(d.numPaper);} }  )
-            .style("fill", function(d) { if (d.id==authorID) { return "white"; } else { return typesColor[d.type]; } }) // Make the nodes hollow looking
-            .attr("type_value", function(d) { return d.type; })
+            .style("fill", function(d) { if (d.id==authorID) { return "white"; } else { return typesColor[d.type]; } }) 
+            .attr("type_value", function(d, i) { 
+              var type = d.type;
+              type = type.replace(/ /g, "_")
+              type = type.replace("(", "_")
+              type = type.replace(")", "_")
+              return type; })
             .attr("color_value", function(d) { return typesColor[d.type]; })
             .attr("stroke", function(d) { if (d.id==authorID) { return typesColor[d.type]; } else { return "White"; } })
             .attr("stroke-width", function(d) { if (d.id==authorID) { return "3"; } else { return "1"; } })
             .attr("class", function(d) {
               var str = d.type;
-              var type = str.replace(/ /g, "_")
+                var type = str.replace(/ /g, "_");
+                type = type.replace("(", "_");
+                type = type.replace(")", "_");
         if (d.id==authorID) { return "authorCircle"; }
         else { return "coauthorCircle-" + type; }
             })
@@ -324,11 +350,18 @@
             .style("font", "normal 16px Arial")
             .attr("fill", "Blue")
             .style("fill", function(d) { return typesColor[d]; })
-            .attr("type_value", function(d) { return d.type; })
+            .attr("type_value", function(d, i) { 
+              var type = d.type;
+              type = type.replace(/ /g, "_")
+              type = type.replace("(", "_")
+              type = type.replace(")", "_")
+              return type; })
             .attr("color_value", function(d) { return typesColor[d.type]; })
             .attr("class", function(d) {
               var str = d.type;
-              var type = str.replace(/ /g, "_");
+                var type = str.replace(/ /g, "_");
+                type = type.replace("(", "_");
+                type = type.replace(")", "_");
         if (d.id==authorID) { return "authorText"; }
         else { return "coauthorText-" + type; }
             })
@@ -337,7 +370,7 @@
 
         //Types title
         svgCanvas.append("text").attr("class","typesTitle")
-            .text("Region")  //needed to be modified
+            .text({{ !typesTitle }})  //needed to be modified
             .attr("x", -1*(width/2 - 10))
             .attr("y", (-height/7*3 -30))
             .style("fill", "Black")
@@ -353,10 +386,17 @@
             .style("fill", function(d) { return typesColor[d]; })
             .attr("r", 6)
             .attr("color_value", function(d) { return typesColor[d]; })
-            .attr("type_value", function(d) { return d; })
+            .attr("type_value", function(d, i) { 
+              var type = d;
+              type = type.replace(/ /g, "_");
+              type = type.replace("(", "_");
+              type = type.replace(")", "_");
+              return type; })
             .attr("class", function(d) {
                 var str = d;
-                var type = str.replace(/ /g, "_")
+                var type = str.replace(/ /g, "_");
+                type = type.replace("(", "_");
+                type = type.replace(")", "_");
     return "bullet-" + type; })
             .on('mouseover', mouseOverType)
             .on("mouseout", mouseOutType);
@@ -373,10 +413,17 @@
               .attr("dy", "4px")
               .text(function(d) { return d;})
               .attr("color_value", function(d) { return typesColor[d]; })
-              .attr("type_value", function(d) { return d; })
+            .attr("type_value", function(d, i) { 
+              var type = d;
+              type = type.replace(/ /g, "_");
+              type = type.replace("(", "_");
+              type = type.replace(")", "_");
+              return type; })
               .attr("class", function(d) {
                 var str = d;
-                var type = str.replace(/ /g, "_")
+                var type = str.replace(/ /g, "_");
+                type = type.replace("(", "_");
+                type = type.replace(")", "_");
                 return "bulletText-" + type; })
               .style("fill", function(d, i) { return typesColor[d]; })
               .style("font", "normal 16px Arial")
@@ -386,13 +433,13 @@
 
         function tick() {
           node
-            .attr("transform", function(d) { return "translate(" + (d.x - width/30) + "," + (d.y - height/30) + ")"; });
+            .attr("transform", function(d) { return "translate(" + (d.x) + "," + (d.y) + ")"; });
 
           link
-            .attr("x1", function(d) { return d.source.x - width/30; })
-            .attr("y1", function(d) { return d.source.y - height/30; })
-            .attr("x2", function(d) { return d.target.x - width/30; })
-            .attr("y2", function(d) { return d.target.y - height/30; });
+            .attr("x1", function(d) { return d.source.x; })
+            .attr("y1", function(d) { return d.source.y; })
+            .attr("x2", function(d) { return d.target.x; })
+            .attr("y2", function(d) { return d.target.y; });
         }
 
 
