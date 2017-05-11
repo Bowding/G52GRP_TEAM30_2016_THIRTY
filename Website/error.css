@@ -17,7 +17,6 @@ body {
 }
 
 .info {
-  border-top: 1px solid gray;
   float: left;
   width: 250px;
   margin-left: 25px;
@@ -39,7 +38,6 @@ body {
 }
 
 .info ul {
-	border-top: 1px solid gray;
     list-style-type: none;
     padding: 0;
 }
@@ -50,9 +48,9 @@ body {
 }
 
 article {
-	max-width: 600px;
+	width: 500px;
 	border-top: 1px solid gray;
-    margin-left: 375px;
+    margin-left: 10px;
     padding-left: 2em;
     padding-right: 2em;
     overflow: hidden;
@@ -61,10 +59,7 @@ article {
 article p{
 	font-size: 15pt;
 	color: gray;
-	border-bottom: 1px solid gray;
 }
-
-
 
 table, th, td {
     border: 1px solid black;
@@ -82,15 +77,5 @@ color: black;
 td{
 color: black;
 }
-
-.bar:hover {
-  fill: brown;
-}
-
-svg {
-  font: 10px sans-serif;
-  display: block;
-}
-
 
 

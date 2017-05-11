@@ -796,6 +796,8 @@ def visualize(conn, cur, target_user_id):
         return vis_info 
  
 def template_info(conn, cur, target_user_id):
+
+
     try:
         cur.execute("SELECT * FROM `profile` WHERE `authorID` = '%s'" % target_user_id)
         conn.commit()
@@ -811,8 +813,12 @@ def template_info(conn, cur, target_user_id):
         #print("#######" + authorName)
         numPaper = data[1]
         hIndex = data[2]
+        citationNum = data[3]
+        avatarURL = "https://scholar.google.co.uk" + data[6]
+
+        coauthorNum = 10
     
-        info = {'authorName': authorName, 'numPaper': numPaper, 'hIndex': hIndex}
+        info = {'authorName': authorName, 'numPaper': numPaper, 'hIndex': hIndex, 'citationNum': citationNum, 'coauthorNum': coauthorNum, 'avatarURL': avatarURL}
         #print(info)
         return info
 

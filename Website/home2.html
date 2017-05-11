@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>  
+<head>
+    <meta charset="UTF-8">
+    <link rel = "stylesheet"  type = "text/css" href = "style2.css?<?php echo time();?>">
+    <title> Scholar Profile: -NAME- </title>   
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> 
+    <script> 
+        $(document).ready(function() { 
+            $('#graphForm').submit(function(){ 
+               if ($('.coauBox:checked').length == 0){ 
+                   alert( "At least one Co-author should be selected!" ); 
+                   return false; 
+                } 
+            }); 
+            $("#select_all").change(function(){  //"select all" change  
+            $(".coauBox").prop('checked', $(this).prop("checked")); //change all ".checkbox" checked status 
+            }); 
+ 
+            //".checkbox" change  
+            $('.coauBox').change(function(){  
+                //uncheck "select all", if one of the listed checkbox item is unchecked 
+                if(false == $(this).prop("checked")){ //if this item is unchecked 
+                    $("#select_all").prop('checked', false); //change "select all" checked status to false 
+                } 
+                //check "select all" if all checkbox items are checked 
+                if ($('.coauBox:checked').length == $('.coauBox').length ){ 
+                    $("#select_all").prop('checked', true); 
+                } 
+            }); 
+             
+            $('.relation').change(function(){ 
+               if(true == $('#relation1').prop('checked')){ 
+                   $('#auBox').prop('disabled', true); 
+               }  
+                if(true == $('#relation2').prop('checked')){ 
+                   $('#auBox').prop('disabled', false); 
+               }  
+            }); 
+        });   
+    </script>
+
+</head>
+<body>
+<p><a href="https://www.w3schools.com">
+<img id = "logo" src = "logo.png" alt = "Logo" width = "105" height = "75"></a></p>
+<h1> SCHOLAR NAME : {{authorName}}</h1>
+<h2><u> Scholar Information</u></h2>
+<ul>
+    <li>Number of Papers: {{numPaper}}</li>
+    <li>Number of Citations</li>
+    <li>h-Index: {{hIndex}}</li>
+</ul>
+<br/><br/>
+<div> 
+  <table><form id = "graphForm" name="graphForm" method="post" action="/hello/graph" target="blank"> 
+      <tr> 
+        <th rowspan="3" valign="top">Relationship: </th> 
+        <td><input id="relation1" class="relation" type="radio" name="graphRelation" value="relation1">Classify by institutions</td> 
+      </tr> 
+        <tr> 
+            <td><input id="relation2" class="relation" type="radio" name="graphRelation" value="relation2">Classify by regions</td> 
+        </tr> 
+    </table> 
+        <table> 
+            <tr> 
+                <th>Author: </th> 
+                <td>{{ !authorHTML }}</td> 
+            </tr>       
+        </table> 
+        <table> 
+            <tr> 
+                <th rowspan="{{ !target_counter }}" valign="top">Co-author: </th> 
+                <td rowspan="{{ !target_counter }}" valign="top"><input type="checkbox" id="select_all"/> Selecct All</td> 
+                <td>{{ !coauthorHTML }}</td> 
+            </tr> 
+            <tr><td><input value="Generate" type="submit" class="submit" /></td></tr> 
+        </table> 
+         
+        </form> 
+</div> 
+<div id = "barChart">
+    <script type="text/javascript" src="https://d3js.org/d3.v3.js"></script>
+    <script>
+        var data = [{{ !barSetString }}];
+
+        var width = 600;
+        var height = 300;
+        var padding = 40;
+        var colorScale = d3.scale.linear()
+          .domain([0,7])
+          .range(["#056899", "#A7D2E7"])
+
+        var canvas = d3.select("body").append("svg")
+            .attr("width", width)
+            .attr("height", height)
+
+        //calculate max hIndex
+        var maxBarLength = 0;
+
+        data.forEach(function(d){
+          if(maxBarLength < Number(d.barLength)){ maxBarLength = Number(d.barLength);}
+        });
+
+        var barScale = d3.scale.linear()
+            .domain([0, maxBarLength])
+            .range([0, height - padding]);
+
+
+        canvas.append("rect")
+          .attr("width", width)
+          .attr("height", 1)
+          .attr("y",height - 20  )
+
+        var bars = canvas.selectAll(".bar")
+          .data(data)
+          .enter()
+            .append("rect")
+            .attr("class", "bar")
+            .attr("height", 0)
+            .attr("width", 20)
+            .attr("fill", function(d,i) {return colorScale(7-i);})
+            .attr("x", function(d, i) { return (i * 75 + 25 - width)})
+            .attr("y", -height + 20)
+            .attr("id", function(d,i){ return "bar"+i;})
+            .attr("transform", function(d) { return "translate(" + "0" + ", " + (height - 20 - barScale(d.barLength))+ ")"})
+            .attr("transform", "rotate(180)")
+            .attr("class", "bar")
+
+        canvas.selectAll(".barLength")
+          .data(data).enter()
+          .append("text")
+            .text(0)
+            .attr("class", "barLength")
+            .style("font", "normal 13px Arial")
+            .attr("text-anchor", "middle")
+            .attr("x", function(d, i) { return width - (i * 75 + 35)})
+            .attr("y", function(d) { return height - 20 });
+
+        canvas.selectAll(".name")
+          .data(data).enter()
+          .append("a")
+              .attr("xlink:href", function(d) {return d.hlink; })
+          .append("text")
+            .attr("fill", "Blue")
+            .text(function(d){return d.name})
+            .attr("text-anchor", "middle")
+            .style("font", "normal 12px Arial")
+            .attr("x", function(d, i) { return width - (i * 75 + 35)})
+            .attr("y", height - 5)
+
+          var selectedBar = d3.selectAll(".bar");
+          selectedBar.transition().ease("quad-out")
+            .duration(2000)
+              .attr("height", function(d) { return barScale(d.barLength);});
+
+          canvas.selectAll(".barLength").transition().ease("quad-out").duration(2000)
+            .attr("y", function(d) { return height - padding + 15 - barScale(d.barLength);})
+            .tween("text", function(d) {
+              return function(t) {
+                d3.select(this).text( Math.floor(d.barLength*t));
+              };
+            });
+    </script>
+</div>
+
+</body>
+</html>
