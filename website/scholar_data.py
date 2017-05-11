@@ -159,9 +159,13 @@ def getDataFromProfile(current_user_id):
 
 		#insertDB_fields(current_user_id, fieldName)
 	
-	hIndex = soup.find_all("td", {"class": "gsc_rsb_std"})
-	hIndexValue = int(hIndex[2].text)
-	
+	hIndex_citation = soup.find_all("td", {"class": "gsc_rsb_std"})
+	citationNum = int(hIndex_citation[0].text)
+	hIndexValue = int(hIndex_citation[2].text)
+
+	avatarSrcset = soup.find_all("img", {"id": "gsc_prf_pup"})[0].get('srcset').split(',', 1)
+	avatarURL_S = avatarSrcset[0]
+
 	#for every paper listed on profile, get the paper title and author name
 	paperCount = 1;
 	cstart = 0
@@ -201,7 +205,7 @@ def getDataFromProfile(current_user_id):
 		#soup = BeautifulSoup(r.content, "html.parser")
 		soup = perform_request(url)
 			
-	insertDB_profileData(currentName, paperCount, hIndexValue, nation, current_user_id)
+	insertDB_profileData(currentName, paperCount, hIndexValue, citationNum, nation, current_user_id, avatarURL_S)
 	#print(currentName + "+++ %d" % paperCount)	
 
 def getDataOfPaper(current_user_id, paperID):
@@ -247,12 +251,12 @@ def getDataOfPaper(current_user_id, paperID):
 	insertDB_paperData(paperName, authorNames, publicationDate, citationData, description, paperID)
 
 #insert paper and and paper co-authors into db			
-def insertDB_profileData(name, numberOfPapers, hIndex, nation, user_id):	
+def insertDB_profileData(name, numberOfPapers, hIndex, citationNum, nation, user_id, avatarURL_S):	
 	name = name.replace("'","\\\'")
 	
 	try:
 		lock.acquire()
-		f_sd.write("INSERT into profile (aName, NumPaper, hIndex, nation, authorID) VALUES ('%s','%s','%d','%s','%s');" % (name, numberOfPapers, hIndex, nation, user_id))
+		f_sd.write("INSERT into profile (aName, NumPaper, hIndex, citationNum, nation, authorID, avatarURL_S) VALUES ('%s','%s','%d','%d','%s','%s','%s');" % (name, numberOfPapers, hIndex, citationNum, nation, user_id, avatarURL_S))
 		lock.release()
 	except ValueError:
 		print("Failed inserting....")	

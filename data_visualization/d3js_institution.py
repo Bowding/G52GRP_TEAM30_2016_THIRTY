@@ -5,7 +5,7 @@ import html
 
 
 #AuthorID going to be search
-search = "8maqKdg"
+search = "8maqKdgAAAAJ"
 
 #connect to mysql
 try:
@@ -56,7 +56,7 @@ if result > 0:
     for node in nodeSet:
         cur.execute("SELECT * FROM `profile` WHERE `authorID` = '" + node[0] +"'")
         for row in cur:
-            if row[4] == node[0]:
+            if row[5] == node[0]:
                 node[1] = row[0]
                 node[2] = row[1]
 
@@ -69,7 +69,6 @@ if result > 0:
             parse = row[1].split(", ")
             for parsed in parse:
                 if "University" in parsed:
-                    print(parsed.replace(":", "'"))
                     node[3] = parsed.replace(":", "'")
                     break
                 else:
@@ -111,7 +110,7 @@ if result > 0:
         nodeSetString += 'name: "' + node[1] + '", '
         nodeSetString += 'numPaper: "' + str(node[2]) + '", '
         nodeSetString += 'type: "' + node[3] + '", '
-        nodeSetString += 'hlink: "https://scholar.google.co.uk/citations?user=' + node[0] + 'AAAAJ&"},'
+        nodeSetString += 'hlink: "https://scholar.google.co.uk/citations?user=' + node[0] + '"},'
 
     #contruct string for linkSet
     linkSetString = ""
@@ -120,10 +119,12 @@ if result > 0:
         linkSetString += '{sourceId: "' + link[0] + '",'
         linkSetString += 'targetId: "' + link[1] + '"},'
 
+    typesTitle = '"Institution"'
+
 
     @route('/hello/123')
     def index():
-        return template("force_institution.html", nodeSetString = nodeSetString, linkSetString = linkSetString)
+        return template("force_d3js.html", nodeSetString = nodeSetString, linkSetString = linkSetString, typesTitle = typesTitle)
     run(host='localhost', port=8080)
 
     cur.close()

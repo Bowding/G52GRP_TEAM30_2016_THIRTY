@@ -1,0 +1,60 @@
+body {
+   font-family: "Arial", Times, Sans-serif;
+   background-color: white;
+}
+
+h1{
+  padding: 8px;
+color: white;
+background-color: grey;
+}
+
+ul.nav {
+    margin:0 0 10px 0;
+}
+
+li.nav {
+    margin: 0 0 1px 0;
+    padding: 3px;
+}
+
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 5px;
+}
+
+th{
+background-color: darkblue;
+color: white;
+}
+
+td{
+background-color: lightblue;
+color: black;
+}
+
+a:link.nav {
+    color: white;
+	text-decoration: none;
+}
+
+a:visited.nav {
+    color: white;
+	text-decoration: none;
+}
+
+a:hover.nav {
+    color: grey;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+svg {
+  font: 10px sans-serif;
+  display: block;
+}
