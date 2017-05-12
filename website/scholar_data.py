@@ -315,7 +315,11 @@ def perform_request(url):
 
 	#try cache
 	try:
-		soup = BeautifulSoup(open(filename, encoding = 'utf-8'), "html.parser")
+                #to make the script compatible with python 2.7 
+                if sys.version_info[0] < 3:
+                        soup = BeautifulSoup(codecs.open(filename, encoding = 'utf-8'), "html.parser"
+                else:                
+                        soup = BeautifulSoup(open(filename, encoding = 'utf-8'), "html.parser")
 
 	#cache miss, request to google
 	except FileNotFoundError:
@@ -329,7 +333,12 @@ def perform_request(url):
 			print(url)
 			os._exit(1)
 		else:
-			f_r = open(filename, 'w', encoding = 'utf-8')
+                        #to make the script compatible with python 2.7 
+                        if sys.version_info[0] < 3:
+                                f_r = codecs.open(filename, 'w', encoding = 'utf-8')
+                        else: 
+                                f_r = open(filename, 'w', encoding = 'utf-8')
+			
 			f_r.write(r.text)
 			f_r.close()
 
