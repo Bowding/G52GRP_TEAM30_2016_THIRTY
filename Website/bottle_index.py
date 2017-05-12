@@ -117,6 +117,7 @@ def insert_to_db(conn, cur, filename):
     
     #execute instructions
     try:
+        print("inserting: " + filename)
         cur.execute(sql_instructions)
         conn.commit()
     except ValueError:
@@ -138,7 +139,8 @@ def get_scholar_data(target_user_id):
 
 #execute hIndex_citation_correlation.py to get the hIndex and citations for a given scholar
 def get_citation_correlation(target_user_id):
-    url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "&oi=ao&cstart=%d&pagesize=100"
+    url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "&oi=ao&cstart=0&pagesize=100"
+    url = url.replace("&", "---")
     os.system("python hIndex_citation_correlation.py %s" % (url))
 
 # create a scatter graph of hIndex vs paper citations
@@ -450,9 +452,9 @@ def formhandler():
 
     #produce threads for get_author_network and get_scholar_data function
     threads = []  
-    t2 = threading.Thread(target = get_author_network, args = (target_user_id, )) 
+    #t2 = threading.Thread(target = get_citation_correlation, args = (target_user_id, ))
     t3 = threading.Thread(target = get_scholar_data, args = (target_user_id, )) 
-    t4 = threading.Thread(target = get_citation_correlation, args = (target_user_id, ))
+    t4 = threading.Thread(target = get_author_network, args = (target_user_id, ))
 
     #try get the dictionary to be used to produce bar chart
     bar_info = createBarChart(conn, cur, target_user_id)
@@ -460,29 +462,40 @@ def formhandler():
     #try get the dictionary to be used to produce scatter graph
     scatter_info = createScatterChart(conn, cur, target_user_id)
 
+    print(scatter_info)
     #if successed, i.e. demanded data is already in db
     #cache hit
-    if ((bar_info != {'barSetString': ""}) and (scatter_info != {'scholarSetString': ""})):
-        print("caching graph successful!")
+    if ((bar_info != {'barSetString': ""})):
+        print("caching bar graph successful!")
 
         #combine two info dictionary into one
         info = template_info(conn, cur, target_user_id)
 
-        # get the directory containing info to create scatter graph
-        scatter_info = createScatterChart(conn, cur, target_user_id)
-
         info.update(bar_info)
-        info.update(scatter_info)
+
+        #scatter cache hit
+        print(scatter_info)
+        if ((scatter_info != {'scatterSetString': ""})):
+                print("caching scatter graph successful!")
+                info.update(scatter_info)
+
+        #scatter cache failed
+        else:
+                print("caching scatter graph failed!")
+                get_citation_correlation(target_user_id)
+                insert_to_db(conn, cur, 'scatter_data.txt')
+                scatter_info = createScatterChart(conn, cur, target_user_id)
+                info.update(scatter_info)
 
     #if cache failed, do scraping
-    else:
-        print("caching graph failed!")
+    else:  
+        print("caching bar failed!")
 
         #add scraping threads to thread array
-        threads.append(t2)
+        #threads.append(t2)
         threads.append(t3)
         threads.append(t4)
-
+ 
 
     #actuate all threads in the array
     for t in threads:
@@ -491,13 +504,13 @@ def formhandler():
     for t in threads:
         t.join()
 
+
     #check whether previous cache failed or not
-    if((t2 in threads) and (t3 in threads)): 
+    if((t3 in threads) and (t4 in threads)): 
 
         #insert data into db
         insert_to_db(conn, cur, 'author_network.txt') 
-        insert_to_db(conn, cur, 'scholar_data.txt') 
-        insert_to_db(conn, cur, 'scatter_data.txt')
+        insert_to_db(conn, cur, 'scholar_data.txt')
 
         #get the dictionary containing profile info
         info = template_info(conn, cur, target_user_id)
@@ -506,6 +519,8 @@ def formhandler():
         bar_info = createBarChart(conn, cur, target_user_id)
 
         #get the directory containing info to create scatter graph
+        get_citation_correlation(target_user_id)
+        insert_to_db(conn, cur, 'scatter_data.txt')
         scatter_info = createScatterChart(conn, cur, target_user_id)
 
         #combine three dictionaries together
