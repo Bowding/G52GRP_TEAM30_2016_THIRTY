@@ -24,41 +24,54 @@
           if(Number(d.numPaper) > maxPaper) { maxPaper = Number(d.numPaper);}
             });
 
+        //create a scale for the size of the nodes
         var sizeScale = d3.scale.linear()
           .domain([0, maxPaper])
           .range([3, 19]);
 
+          //remove all unwanted characters
+        function removeSpecChar(word){
+          type = word.replace(/ /g, "_");
+          type = type.replace("(", "_");
+          type = type.replace(")", "_");
+          type = type.replace("'", "_");
+          type = type.replace("/", "_");
+          return type;
+          }
+
+
+          //cursor move over types
         var mouseOverType = function() {
 
           var thisObject = d3.select(this);
           var typeValue = thisObject.attr("type_value");
-          typeValue = typeValue.replace(/ /g, "_");
-          typeValue = typeValue.replace("(", "_")
-          typeValue = typeValue.replace(")", "_")
+          typeValue = removeSpecChar(typeValue);
           var numPaperValue = thisObject.attr("numPaper_value");
           
-
+          //change bullets
           var selectedBullet = d3.selectAll(".bullet-" + typeValue);
           selectedBullet.style("fill", "#46460B");
          selectedBullet.attr("r", 1.2*6);
 
+         //change bullet text
           var selectedBulletText = d3.selectAll(".bulletText-" + typeValue);
           selectedBulletText.style("font", "bold 16px Arial")
           selectedBulletText.style("fill", "#46460B");
 
+          //change coauthor name
           var selectedcoauthorText = d3.selectAll(".coauthorText-" + typeValue);
           selectedcoauthorText.style("font", "bold 16px Arial")
           selectedcoauthorText.style("fill", "#46460B");
 
+          //change coauthor nodes
           var selectedcoauthorCircle = d3.selectAll(".coauthorCircle-" + typeValue);
           selectedcoauthorCircle.style("fill", "#46460B");
           selectedcoauthorCircle.style("stroke", "#46460B");
           
           //grey all irrelevant names
           nodeSet.forEach(function(d, i){
-            var type = d.type.replace(/ /g, "_");
-          type = type.replace("(", "_")
-          type = type.replace(")", "_")
+            var type = d.type;
+          type = removeSpecChar(type);
             if(type != typeValue)
             {
               var linkedText = d3.selectAll("#text"+i);
@@ -66,6 +79,7 @@
             }
           });
 
+          //change author circle
           var selectedauthorCircle = d3.selectAll(".authorCircle");
           var authorCircleType = selectedauthorCircle.attr("type_value");
           if (typeValue == authorCircleType){
@@ -81,19 +95,20 @@
 
         };
 
+        //cursor move out of types
         var mouseOutType = function() {
 
           var thisObject = d3.select(this);
           var typeValue = thisObject.attr("type_value");
-          typeValue = typeValue.replace(/ /g, "_");
-          typeValue = typeValue.replace("(", "_")
-          typeValue = typeValue.replace(")", "_")
+          typeValue = removeSpecChar(typeValue);
           var colorValue = thisObject.attr("color_value");
 
+          //change bullet
           var selectedBullet = d3.selectAll(".bullet-" + typeValue);
           selectedBullet.style("fill", colorValue);
       selectedBullet.attr("r", 6);
 
+      //change bullet text
           var selectedBulletText = d3.selectAll(".bulletText-" + typeValue);
           selectedBulletText.style("font", "normal 16px Arial")
           selectedBulletText.style("fill", colorValue);
@@ -104,11 +119,12 @@
               linkedText.style("font", "normal 16px Arial")
               linkedText.style("fill", "Blue");
           });
+          //change coauthor circle
           var selectedcoauthorCircle = d3.selectAll(".coauthorCircle-" + typeValue);
           selectedcoauthorCircle.style("fill", colorValue);
           selectedcoauthorCircle.style("stroke", "white");
 
-
+          //change author circle
           var selectedauthorCircle = d3.selectAll(".authorCircle");
           var authorType = selectedauthorCircle.attr("type_value");
           if (typeValue == authorType){
@@ -116,12 +132,14 @@
             selectedauthorCircle.style("fill", "White");
           };
 
+          //change author text
           var selectedauthorText = d3.selectAll(".authorText");
           selectedauthorText.style("fill", "Blue");
           selectedauthorText.style("font", "normal 14px Arial")
 
         };
 
+      //cursor move over nodes
         var mouseOverNode = function() {
 
           var thisObject = d3.select(this);
@@ -129,9 +147,7 @@
           var colorValue = thisObject.attr("color_value");
           var idValue = thisObject.attr("id_value");
           var numPaperValue = thisObject.attr("numPaper_value");
-          typeValue = typeValue.replace(/ /g, "_");
-          typeValue = typeValue.replace("(", "_")
-          typeValue = typeValue.replace(")", "_")
+          typeValue = removeSpecChar(typeValue);
 
 
     d3.select(this).select("text").transition()
@@ -139,26 +155,31 @@
         .style("font", "bold 16px Arial")
         .attr("fill", "Blue");
 
+        //change related bullet
           var selectedBullet = d3.selectAll(".bullet-" + typeValue);
-          selectedBullet.style("fill", "#46460B");
-    selectedBullet.attr("r", 1.2*6);
+          selectedBullet.attr("r", 1.2*6);
 
+        //change bullet text
         Types.forEach(function(d,i){
           type = d;
-          type = type.replace(/ /g, "_");
-          type = type.replace("(", "_")
-          type = type.replace(")", "_")
-          var unselectBullectText = d3.selectAll(".bulletText-" + type);
-          unselectBullectText.style("fill", "#CCC");
+          type = removeSpecChar(type);
+          if( type != typeValue)
+          {
+            var unselectBullectText = d3.selectAll(".bulletText-" + type);
+            unselectBullectText.style("fill", "#CCC");
+          }
+
         });
 
+        //change related bullet text
           var selectedBulletText = d3.selectAll(".bulletText-" + typeValue);
           selectedBulletText.style("font", "bold 16px Arial")
-          selectedBulletText.style("fill", "#46460B");
+
 
           //change edges color and width
           var changed = [];
 
+          //change edges
         linkSet.forEach(function(d, i) {
           if(d.sourceId == idValue ||  d.targetId == idValue)
           {
@@ -197,6 +218,7 @@
 
         }
 
+        //cursor move out of nodes
         var mouseOutNode = function() {
 
           var thisObject = d3.select(this);
@@ -204,21 +226,17 @@
           var colorValue = thisObject.attr("color_value");
           var idValue = thisObject.attr("id_value");
           var numPaperValue = thisObject.attr("numPaper_value");
-          typeValue = typeValue.replace(/ /g, "_");
-          typeValue = typeValue.replace("(", "_")
-          typeValue = typeValue.replace(")", "_")
+          typeValue = removeSpecChar(typeValue);
 
 
-
+          //change bullet
           var selectedBullet = d3.selectAll(".bullet-" + typeValue);
-          selectedBullet.style("fill", colorValue);
           selectedBullet.attr("r", 6);
        
+       //change bullet text
         Types.forEach(function(d,i){
           type = d;
-          type = type.replace(/ /g, "_");
-          type = type.replace("(", "_")
-          type = type.replace(")", "_")
+          type = removeSpecChar(type);
           var unselectBullectText = d3.selectAll(".bulletText-" + type);
           unselectBullectText.style("font", "normal 16px Arial")
           unselectBullectText.style("fill", typesColor[d]);
@@ -248,9 +266,9 @@
 
         var authorID = nodeSet[0].id;
 
-        var colorScale1 = d3.scale.category10();  
+        var colorScale1 = d3.scale.category20();  
         var colorScale2 = d3.scale.category20b();  
-        var colorScale3 = d3.scale.category20();
+        var colorScale3 = d3.scale.category10();
 
         var height = 800;
         var width = window.innerWidth;
@@ -259,6 +277,7 @@
         var authorSize = 70;
         var typesColor = [];
 
+        //append svg to the body
         var svgCanvas = d3.select("body")
           .append("svg:svg")
             .attr("width", width)
@@ -280,17 +299,18 @@
         }
         Types = Types.sort();
         
+        //assign color to each individual types
         Types.forEach(function(d, i) {
 
-          if( i < 10)
+          if( i < 20)
           {
             typesColor[d] = colorScale1(i);
           }
-          if( i > 9 && i < 30)
+          if( i > 19 && i < 40)
           {
             typesColor[d] = colorScale2(i);
           }
-          if( i > 29 && i < 50)
+          if( i > 39 && i < 60)
           {
             typesColor[d] = colorScale3(i);
           }
@@ -299,15 +319,18 @@
 
         var node_id = [];
 
+        //create a list that store nodeSet object, access by its ID
         nodeSet.forEach(function(d, i) {
           node_id[d.id] = d;
         });
       
+        //put nodeSet object to linkSet
         linkSet.forEach(function(d, i) {
           d.source = node_id[d.sourceId];
           d.target = node_id[d.targetId];
           });
 
+        //graph properties can be changed in it
         var graph = d3.layout.force()
             .nodes(nodeSet)
             .links(linkSet)
@@ -318,6 +341,7 @@
             .on("tick", tick)
             .start();
         
+        //edges properties are set here
         var link = svgCanvas.selectAll(".gLink")
             .data(graph.links())
             .enter().append("g")
@@ -331,6 +355,7 @@
               .attr("x2", function(d) { return d.target.x; })
               .attr("y2", function(d) { return d.target.y; });
 
+        //nodes properties
         var node = svgCanvas.selectAll(".node")
             .data(graph.nodes())
             .enter().append("g")
@@ -338,9 +363,7 @@
             .attr("id_value", function(d) {return d.id; })
             .attr("type_value", function(d, i) { 
               var type = d.type;
-              type = type.replace(/ /g, "_")
-              type = type.replace("(", "_")
-              type = type.replace(")", "_")
+              type = removeSpecChar(type);
               return type; })
             .attr("color_value", function(d, i) { return typesColor[d.type]; })
             .attr("numPaper_value", function(d) { return d.numPaper; })
@@ -348,25 +371,22 @@
             .on("mouseout", mouseOutNode)
             .call(graph.drag)
             .append("a")
-             .attr("xlink:href", function(d) {return d.hlink; });
+             .attr("xlink:href", function(d) {return d.hlink; }); //store the hyperlink into nodes
 
+        //nodes' circle properties
         node.append("circle")
             .attr("r", function(d) { if (d.id==authorID){ return authorSize;} else {return sizeScale(d.numPaper);} }  )
             .style("fill", function(d) { if (d.id==authorID) { return "white"; } else { return typesColor[d.type]; } }) 
             .attr("type_value", function(d, i) { 
               var type = d.type;
-              type = type.replace(/ /g, "_")
-              type = type.replace("(", "_")
-              type = type.replace(")", "_")
+              type = removeSpecChar(type);
               return type; })
             .attr("color_value", function(d) { return typesColor[d.type]; })
             .attr("stroke", function(d) { if (d.id==authorID) { return typesColor[d.type]; } else { return "White"; } })
             .attr("stroke-width", function(d) { if (d.id==authorID) { return "3"; } else { return "1"; } })
             .attr("class", function(d) {
-              var str = d.type;
-                var type = str.replace(/ /g, "_");
-                type = type.replace("(", "_");
-                type = type.replace(")", "_");
+              var type = d.type;
+              type = removeSpecChar(type);
         if (d.id==authorID) { return "authorCircle"; }
         else { return "coauthorCircle-" + type; }
             })
@@ -384,25 +404,21 @@
             .style("fill", function(d) { return typesColor[d]; })
             .attr("type_value", function(d, i) { 
               var type = d.type;
-              type = type.replace(/ /g, "_")
-              type = type.replace("(", "_")
-              type = type.replace(")", "_")
+              type = removeSpecChar(type);
               return type; })
             .attr("color_value", function(d) { return typesColor[d.type]; })
             .attr("class", function(d) {
-              var str = d.type;
-                var type = str.replace(/ /g, "_");
-                type = type.replace("(", "_");
-                type = type.replace(")", "_");
+              var type = d.type;
+              type = removeSpecChar(type);
         if (d.id==authorID) { return "authorText"; }
         else { return "coauthorText-" + type; }
             })
             .text(function(d) { return d.name; })
-            .attr("id", function(d, i) {return "text"+i;});
+            .attr("id", function(d, i) {return "text"+i;}); //assign id to each of the text
 
         //Types title
         svgCanvas.append("text").attr("class","typesTitle")
-            .text({{!typesTitle}})  //needed to be modified
+            .text({{ !typesTitle }})  //needed to be modified by python
             .attr("x", -1*(width/2 - 10))
             .attr("y", (-height/7*3 -30))
             .style("fill", "Black")
@@ -420,20 +436,16 @@
             .attr("color_value", function(d) { return typesColor[d]; })
             .attr("type_value", function(d, i) { 
               var type = d;
-              type = type.replace(/ /g, "_");
-              type = type.replace("(", "_");
-              type = type.replace(")", "_");
+              type = removeSpecChar(type);
               return type; })
             .attr("class", function(d) {
-                var str = d;
-                var type = str.replace(/ /g, "_");
-                type = type.replace("(", "_");
-                type = type.replace(")", "_");
+                var type = d;
+                type = removeSpecChar(type);
     return "bullet-" + type; })
             .on('mouseover', mouseOverType)
             .on("mouseout", mouseOutType);
 
-
+            //append types name to the bullets
         svgCanvas.selectAll("bullet_text")
             .data(Types) 
           .enter().append("svg:a") 
@@ -447,15 +459,11 @@
               .attr("color_value", function(d) { return typesColor[d]; })
             .attr("type_value", function(d, i) { 
               var type = d;
-              type = type.replace(/ /g, "_");
-              type = type.replace("(", "_");
-              type = type.replace(")", "_");
+              type = removeSpecChar(type);
               return type; })
               .attr("class", function(d) {
-                var str = d;
-                var type = str.replace(/ /g, "_");
-                type = type.replace("(", "_");
-                type = type.replace(")", "_");
+                var type = d;
+                  type = removeSpecChar(type);
                 return "bulletText-" + type; })
               .style("fill", function(d, i) { return typesColor[d]; })
               .style("font", "normal 16px Arial")

@@ -9,6 +9,7 @@
 
              var numCoAuthors = {{ coauthorNum }};
 
+             //prevent no graph is selected
               $('#graphForm').submit(function(){ 
                if ($('#relation1').prop('checked') != true && $('#relation2').prop('checked') != true){ 
                    alert( "At least one graph should be selected!" ); 
@@ -16,6 +17,7 @@
                 } 
             }); 
             
+            // when there are no coauthors, hide all graphs
             if( numCoAuthors <= 0)
             {
               $('#genGraphTable').text('Scholar has no co-authors!');
@@ -58,11 +60,12 @@
           var padding = 40;
           var colorScale = d3.scale.linear()
             .domain([0,7])
-            .range(["#056899", "#A7D2E7"])
+            .range(["#056899", "#A7D2E7"]);
 
+          //append svg object
           var canvas = d3.select("#barChart").append("svg")
               .attr("width", width)
-              .attr("height", height)
+              .attr("height", height);
 
           //calculate max hIndex
           var maxBarLength = 0;
@@ -71,22 +74,24 @@
             if(maxBarLength < Number(d.barLength)){ maxBarLength = Number(d.barLength);}
           });
 
+          //create a scale for the length of bar
           var barScale = d3.scale.linear()
               .domain([0, maxBarLength])
               .range([0, height - padding]);
 
-
+          //create a line at the bottom of bars
           canvas.append("rect")
             .attr("width", width)
             .attr("height", 1)
             .attr("y",height - 20  )
 
+          //create bars for every objects
           var bars = canvas.selectAll(".bar")
             .data(data)
             .enter()
               .append("rect")
               .attr("class", "bar")
-              .attr("height", 0)
+              .attr("height", 0) // initialize from 0
               .attr("width", 20)
               .attr("fill", function(d,i) {return colorScale(7-i);})
               .attr("x", function(d, i) { return (i * 75 + 25 - width)})
@@ -94,42 +99,50 @@
               .attr("id", function(d,i){ return "bar"+i;})
               .attr("transform", function(d) { return "translate(" + "0" + ", " + (height - 20 - barScale(d.barLength))+ ")"})
               .attr("transform", "rotate(180)")
-              .attr("class", "bar")
+              .attr("class", "bar");
 
+          //the number above each bars
           canvas.selectAll(".barLength")
             .data(data).enter()
             .append("text")
-              .text(0)
+              .text(0) //initialize from 0
               .attr("class", "barLength")
               .style("font", "normal 13px Arial")
               .attr("text-anchor", "middle")
               .attr("x", function(d, i) { return width - (i * 75 + 35)})
               .attr("y", function(d) { return height - 20 });
 
+          //name of coauthors
           canvas.selectAll(".name")
             .data(data).enter()
             .append("a")
-                .attr("xlink:href", function(d) {return d.hlink; })
-            .append("text")
-              .attr("fill", "Blue")
-              .text(function(d){return d.name})
-              .attr("text-anchor", "middle")
-              .style("font", "normal 12px Arial")
-              .attr("x", function(d, i) { return width - (i * 75 + 35)})
-              .attr("y", height - 5)
+              .attr("xlink:href", function(d) {return d.hlink; }) //append hyperlink to each names
+              .append("text")
+                .attr("fill", "Blue")
+                .text(function(d){return d.name})
+                .attr("text-anchor", "middle")
+                .style("font", "normal 12px Arial")
+                .attr("x", function(d, i) { return width - (i * 75 + 35)})
+                .attr("y", height - 5)
 
-            var selectedBar = d3.selectAll(".bar");
-            selectedBar.transition().ease("quad-out")
-              .duration(2000)
+            //increase the length of bar after graph is generate
+            d3.selectAll(".bar")
+              .transition()
+                .ease("quad-out")
+                .duration(2000)
                 .attr("height", function(d) { return barScale(d.barLength);});
 
-            canvas.selectAll(".barLength").transition().ease("quad-out").duration(2000)
-              .attr("y", function(d) { return height - padding + 15 - barScale(d.barLength);})
-              .tween("text", function(d) {
-                return function(t) {
-                  d3.select(this).text( Math.floor(d.barLength*t));
-                };
-              });
+            //increase the number above bars as the length of bars increase
+            canvas.selectAll(".barLength")
+              .transition()
+                .ease("quad-out")
+                .duration(2000)
+                .attr("y", function(d) { return height - padding + 15 - barScale(d.barLength);})
+                .tween("text", function(d) {
+                  return function(t) {
+                    d3.select(this).text( Math.floor(d.barLength*t));
+                  };
+                });
       </script>
   </div>
   <p>Citation number of papers VS average coauthor h-index</p>
