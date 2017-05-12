@@ -463,7 +463,7 @@ def formhandler():
         info = template_info(conn, cur, target_user_id)
 
         # get the directory containing info to create scatter graph
-        scatter_info = createScatterChart(target_user_id)
+        scatter_info = createScatterChart(conn, cur, target_user_id)
 
         info.update(bar_info)
         info.update(scatter_info)
@@ -498,7 +498,7 @@ def formhandler():
         bar_info = createBarChart(conn, cur, target_user_id)
 
         #get the directory containing info to create scatter graph
-        scatter_info = createScatterChart(target_user_id)
+        scatter_info = createScatterChart(conn, cur, target_user_id)
 
         #combine three dictionaries together
         info.update(bar_info)
