@@ -68,17 +68,23 @@ def scrapePaperData(url):
 
         #get paper citation number
         citationNumber = paper.find_all("td", {"class": "gsc_a_c"})[0].text.encode('ascii', 'ignore').decode('ascii')
+        
+        if citationNumber == "":
+            break
+        
         seq_type = type(citationNumber)
         citationNumber = seq_type().join(filter(seq_type.isdigit, citationNumber))
 
+        
         paperName = paperTitle.replace("'", "\\\'")
         authorID = user_id.replace("'", "\\\'")
 
         #export data to database
         try:
+            
             lock.acquire()
             f_sd.write('INSERT INTO hindexversuscitations (paperTitle, authorID, avghIndex, numberOfCitations) VALUES ("%s", "%s", %d, %d);' % (paperTitle, user_id, int(averagehIndex), int(citationNumber)))
-            print("RUNNNNNN!")
+            
             lock.release()
         except ValueError:
             print("Failed inserting....")
@@ -99,7 +105,7 @@ def hIndex(scholars, cur, conn):
 
         #try:
         cur.execute("SELECT `hIndex` FROM `profile` WHERE `aName` LIKE '" + scholar + "'")
-        print("crash")
+        
         conn.commit()
         #except:
             #print("Failed selecting....")
@@ -111,7 +117,7 @@ def hIndex(scholars, cur, conn):
             hIndextmp = data.get('hIndex')
             hIndexValuesArray.append(hIndextmp)
 
-        print(hIndexValuesArray)
+    print(hIndexValuesArray)
 
     return hIndexValuesArray
 

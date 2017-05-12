@@ -131,10 +131,10 @@ def perform_request(url):
 
 	#try cache
 	try:
-		#to make the script compatible with python 2.7 
+                #to make the script compatible with python 2.7
                 if sys.version_info[0] < 3:
-                        soup = BeautifulSoup(codecs.open(filename, encoding = 'utf-8'), "html.parser"
-                else:                
+                        soup = BeautifulSoup(codecs.open(filename, encoding = 'utf-8'), "html.parser")
+                else:
                         soup = BeautifulSoup(open(filename, encoding = 'utf-8'), "html.parser")
 
 	#cache miss, request to google
@@ -152,13 +152,13 @@ def perform_request(url):
 			#to make the script compatible with python 2.7 
                         if sys.version_info[0] < 3:
                                 f_r = codecs.open(filename, 'w', encoding = 'utf-8')
-                        else: 
+                        else:
                                 f_r = open(filename, 'w', encoding = 'utf-8')
-                                             
-			f_r.write(r.text)
-			f_r.close()
 
-			soup = BeautifulSoup(r.content, "html.parser")
+                        f_r.write(r.text)
+                        f_r.close()
+
+                        soup = BeautifulSoup(r.content, "html.parser")
 
 	return soup
 							
