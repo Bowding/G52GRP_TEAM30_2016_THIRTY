@@ -136,6 +136,34 @@ def get_scholar_data(target_user_id):
     #url = target_url.split("=")[1].split("&")[0]
     os.system("python scholar_data.py %s" % (target_user_id))
 
+#execute hIndex_citation_correlation.py to get the hIndex and citations for a given scholar
+def get_citation_correlation(target_user_id):
+    url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "&oi=ao&cstart=%d&pagesize=100"
+    os.system("python hIndex_citation_correlation.py %s" % (url))
+
+# create a scatter graph of hIndex vs paper citations
+def createScatterChart(conn, cur, target_user_id):
+
+    #get data from db
+    rows = cur.execute("SELECT * FROM `hindexversuscitations` WHERE `authorID` = '" + target_user_id + "'")
+
+    #if paper in row is the same as the previous row, go on to the next row
+
+    rows = cur.fetchall()
+    duplicate = ""
+    scatterSetString = ""
+
+    for row in rows:
+        if duplicate != row.get("paperTitle"):
+
+            scatterSetString += '{hIndex: "' + str(row.get("avghIndex")) + '", '
+            scatterSetString += 'numCite: "' + str(row.get("numberOfCitations")) + '", '
+            scatterSetString += 'paperTitle: "' + str(row.get("paperTitle")) + '"},'
+
+            duplicate = str(row.get("paperTitle"))
+
+    scatter_info = {'scatterSetString': scatterSetString}
+    return scatter_info
 
 #create a bar chart of 8 most cited coauthor
 def createBarChart(conn, cur, target_user_id):
@@ -433,7 +461,12 @@ def formhandler():
 
         #combine two info dictionary into one
         info = template_info(conn, cur, target_user_id)
+
+        # get the directory containing info to create scatter graph
+        scatter_info = createScatterChart(target_user_id)
+
         info.update(bar_info)
+        info.update(scatter_info)
 
     #if cache failed, do scraping
     else:
@@ -456,6 +489,7 @@ def formhandler():
         #insert data into db
         insert_to_db(conn, cur, 'author_network.txt') 
         insert_to_db(conn, cur, 'scholar_data.txt') 
+        insert_to_db(conn, cur, 'scatter_data.txt')
 
         #get the dictionary containing profile info
         info = template_info(conn, cur, target_user_id)
@@ -463,8 +497,12 @@ def formhandler():
         #get the dictionary containing info to create bar chart
         bar_info = createBarChart(conn, cur, target_user_id)
 
-        #combine two dictionary together
+        #get the directory containing info to create scatter graph
+        scatter_info = createScatterChart(target_user_id)
+
+        #combine three dictionaries together
         info.update(bar_info)
+        info.update(scatter_info)
 
     print('Scraping Job Done')
 
