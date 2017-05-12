@@ -42,32 +42,123 @@ def get_target_url(search):
     URLcase0 = search.startswith('https://scholar.google.co.uk/citations?user=')
     URLcase1 = search.startswith('https://scholar.google.com/citations?user=')
     URLcase2 = search.startswith('://scholar.google.com/citations?user=')
-    URLcase3 = search.startswith('//scholar.google.com/citations?user=')
-    URLcase4 = search.startswith('/scholar.google.com/citations?user=')
+    URLcase3 = search.startswith('://scholar.google.com/citations?user=')
+    URLcase4 = search.startswith(':/scholar.google.com/citations?user=')
     URLcase5 = search.startswith('scholar.google.com/citations?user=')
+    URLcase6 = search.startswith('https://scholar.google.ae/citations?user=')
+    URLcase7 = search.startswith('https://scholar.google.at/citations?user=')
+    URLcase8 = search.startswith('https://scholar.google.be/citations?user=')
+    URLcase9 = search.startswith('https://scholar.google.bg/citations?user=')
+    URLcase10 = search.startswith('https://scholar.google.ca/citations?user=')
+    URLcase11 = search.startswith('https://scholar.google.ch/citations?user=')
+    URLcase12 = search.startswith('https://scholar.google.cl/citations?user=')
+    URLcase13 = search.startswith('https://scholar.google.cn/citations?user=')
+    URLcase14 = search.startswith('https://scholar.google.cz/citations?user=')
+    URLcase15 = search.startswith('https://scholar.google.de/citations?user=')
+    URLcase16 = search.startswith('https://scholar.google.dk/citations?user=')
+    URLcase17 = search.startswith('https://scholar.google.es/citations?user=')
+    URLcase18 = search.startswith('https://scholar.google.fi/citations?user=')
+    URLcase19 = search.startswith('https://scholar.google.fr/citations?user=')
+    URLcase20 = search.startswith('https://scholar.google.gr/citations?user=')
+    URLcase21 = search.startswith('https://scholar.google.hk/citations?user=')
+    URLcase22 = search.startswith('https://scholar.google.hn/citations?user=')
+    URLcase23 = search.startswith('https://scholar.google.hr/citations?user=')
+    URLcase24 = search.startswith('https://scholar.google.hu/citations?user=')
+    URLcase25 = search.startswith('https://scholar.google.is/citations?user=')
+    URLcase26 = search.startswith('https://scholar.google.it/citations?user=')
+    URLcase27 = search.startswith('https://scholar.google.li/citations?user=')
+    URLcase28 = search.startswith('https://scholar.google.lt/citations?user=')
+    URLcase29 = search.startswith('https://scholar.google.lu/citations?user=')
+    URLcase30 = search.startswith('https://scholar.google.lv/citations?user=')
+    URLcase31 = search.startswith('https://scholar.google.nl/citations?user=')
+    URLcase32 = search.startswith('https://scholar.google.no/citations?user=')
+    URLcase33 = search.startswith('https://scholar.google.pk/citations?user=')
+    URLcase34 = search.startswith('https://scholar.google.pl/citations?user=')
+    URLcase35 = search.startswith('https://scholar.google.pt/citations?user=')
+    URLcase36 = search.startswith('https://scholar.google.ro/citations?user=')
+    URLcase37 = search.startswith('https://scholar.google.ru/citations?user=')
+    URLcase38 = search.startswith('https://scholar.google.se/citations?user=')
+    URLcase39 = search.startswith('https://scholar.google.si/citations?user=')
+    URLcase40 = search.startswith('https://scholar.google.sk/citations?user=')
+    URLcase41 = search.startswith('https://scholar.google.co.in/citations?user=')
+    URLcase42 = search.startswith('https://scholar.google.co.id/citations?user=')
+    URLcase43 = search.startswith('https://scholar.google.co.il/citations?user=')
+    URLcase44 = search.startswith('https://scholar.google.co.za/citations?user=')
+    URLcase45 = search.startswith('https://scholar.google.co.cr/citations?user=')
+    URLcase46 = search.startswith('https://scholar.google.co.nz/citations?user=')
+    URLcase47 = search.startswith('https://scholar.google.co.jp/citations?user=')
+    URLcase48 = search.startswith('https://scholar.google.co.kr/citations?user=')
 
     errURLcase0 = search.startswith('www.')
     errURLcase1 = search.startswith('http')
     errURLcase2 = search.endswith(".co.uk")
     errURLcase3 = search.endswith(".com")
+    errURLcase4 = search.endswith(".ae")
+    errURLcase5 = search.endswith(".at")
+    errURLcase6 = search.endswith(".be")
+    errURLcase7 = search.endswith(".bg")
+    errURLcase8 = search.endswith(".ca")
+    errURLcase9 = search.endswith(".ch")
+    errURLcase10 = search.endswith(".cl")
+    errURLcase11 = search.endswith(".cn")
+    errURLcase12 = search.endswith(".cz")
+    errURLcase13 = search.endswith(".de")
+    errURLcase14 = search.endswith(".dk")
+    errURLcase15 = search.endswith(".es")
+    errURLcase16 = search.endswith(".fi")
+    errURLcase17 = search.endswith(".fr")
+    errURLcase18 = search.endswith(".gr")
+    errURLcase19 = search.endswith(".hk")
+    errURLcase20 = search.endswith(".hn")
+    errURLcase21 = search.endswith(".hr")
+    errURLcase22 = search.endswith(".hu")
+    errURLcase23 = search.endswith(".is")
+    errURLcase24 = search.endswith(".it")
+    errURLcase25 = search.endswith(".li")
+    errURLcase26 = search.endswith(".lt")
+    errURLcase27 = search.endswith(".lu")
+    errURLcase28 = search.endswith(".lv")
+    errURLcase29 = search.endswith(".nl")
+    errURLcase30 = search.endswith(".no")
+    errURLcase31 = search.endswith(".pk")
+    errURLcase32 = search.endswith(".pl")
+    errURLcase33 = search.endswith(".pt")
+    errURLcase34 = search.endswith(".ro")
+    errURLcase35 = search.endswith(".ru")
+    errURLcase36 = search.endswith(".se")
+    errURLcase37 = search.endswith(".si")
+    errURLcase38 = search.endswith(".sk")
+    errURLcase39 = search.endswith(".co.in")
+    errURLcase40 = search.endswith(".co.id")
+    errURLcase41 = search.endswith(".co.il")
+    errURLcase42 = search.endswith(".co.za")
+    errURLcase43 = search.endswith(".co.cr")
+    errURLcase44 = search.endswith(".co.nz")
+    errURLcase45 = search.endswith(".co.jp")
+    errURLcase46 = search.endswith(".co.kr")
 
-    #If the user enters a link to a scholars page, it will return the link straightaway
-    if(URLcase0 or URLcase1 or URLcase2 or URLcase3 or URLcase4 or URLcase5): 
+    if(URLcase0 or URLcase1 or URLcase2 or URLcase3 or URLcase4 or URLcase5 or URLcase6 or URLcase7 or URLcase8 or URLcase9 or URLcase10 or URLcase11 or URLcase12 
+      or URLcase13 or URLcase14 or URLcase15 or URLcase16 or URLcase17 or URLcase18 or URLcase19 or URLcase20 or URLcase21 or URLcase22 or URLcase23 or URLcase24
+      or URLcase25 or URLcase26 or URLcase27 or URLcase28 or URLcase29 or URLcase30 or URLcase31 or URLcase32 or URLcase33 or URLcase34 or URLcase35 or URLcase36 
+      or URLcase37 or URLcase38 or URLcase39 or URLcase40 or URLcase41 or URLcase42 or URLcase43 or URLcase44 or URLcase45 or URLcase46 or URLcase47 or URLcase48): #If the user enters a link to a scholars page, it will return the link straightaway
         check_url = requests.get(search)
         check_url_soup = BeautifulSoup(check_url.content, "html.parser")
         check = check_url_soup.find_all("div", {"class": "gs_med"})
-
+        #print(check)
         if ((not check) == False) and ("Please click here if you are not redirected within a few seconds." in check[0].text):
             err_msg = "Error: Invalid URL. Please enter valid Google Scholar profile URL. e.g. https://scholar.google.co.uk/citations?user=..."
             print(err_msg)
             return err_msg
         else: 
             print("URL Accepted!")
-            return "https://scholar.google.co.uk/citations?user=" + search.split("user=")[1].split("&")[0]
-
-    #If the input is an invalid URL
-    elif(errURLcase0 or errURLcase1 or errURLcase2 or errURLcase3): 
-        err_msg = "Error: Invalid URL. Please enter valid Google Scholar profile URL. e.g. https://scholar.google.co.uk/citations?user=..."
+            return "https://scholar.google.co.uk/citations?user=" + search.split("user=")[1].split("AAAAJ")[0]
+        
+    elif(errURLcase0 or errURLcase1 or errURLcase2 or errURLcase3 or errURLcase4 or errURLcase5 or errURLcase6 or errURLcase7 or errURLcase8 or errURLcase9 or errURLcase10
+         or errURLcase11 or errURLcase12 or errURLcase13 or errURLcase14 or errURLcase15 or errURLcase16 or errURLcase17 or errURLcase18 or errURLcase19 or errURLcase20
+         or errURLcase21 or errURLcase22 or errURLcase23 or errURLcase24 or errURLcase25 or errURLcase26 or errURLcase27 or errURLcase28 or errURLcase29 or errURLcase30
+         or errURLcase31 or errURLcase32 or errURLcase33 or errURLcase34 or errURLcase35 or errURLcase36 or errURLcase37 or errURLcase38 or errURLcase39 or errURLcase40
+         or errURLcase41 or errURLcase42 or errURLcase43 or errURLcase44 or errURLcase45 or errURLcase46): #If the input is an invalid URL
+         err_msg = "Error: Invalid URL. Please enter valid Google Scholar profile URL. e.g. https://scholar.google.co.uk/citations?user=..."
         print(err_msg)
         return err_msg
 
