@@ -1,5 +1,26 @@
 <!DOCTYPE html>
 <html>  
+  <style>
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.dot {
+  stroke: #000;
+}
+
+.tooltip {
+  position: absolute;
+  width: 200px;
+  height: 28px;
+  pointer-events: none;
+}
+
+</style>
     <meta charset="UTF-8">
     <link rel = "stylesheet"  type = "text/css" href = "style.css?<?php echo time();?>">
     <title> Scholar Profile: -NAME- </title>   
@@ -8,6 +29,7 @@
         $(document).ready(function() {  
 
              var numCoAuthors = {{ coauthorNum }};
+             var numPaper = {{ numPaper }};
 
              //prevent no graph is selected
               $('#graphForm').submit(function(){ 
@@ -22,6 +44,11 @@
             {
               $('#genGraphTable').text('Scholar has no co-authors!');
               $('#barChart').text('Scholar has no co-authors!');
+            }
+            //no papers and hide scatter graph
+            if( numPaper <= 0)
+            {
+              $('#scatter').text('Scholar has no papers!')
             }
 
         });   
@@ -146,6 +173,104 @@
       </script>
   </div>
   <p>Citation number of papers VS average coauthor h-index</p>
+  <div id ="scatter">
+    <script>
+
+var data = [{{ !scatterSetString }}];
+
+var tooltip = d3.select("#scatter").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
+var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var maxH = 0;
+var maxCite = 0;
+data.forEach(function(d){
+  if(Number(d.hIndex) > maxH) { maxH = Number(d.hIndex)};
+  if(Number(d.numCite) > maxCite) { maxCite = Number(d.numCite)};
+});
+
+//scale for H-index
+var rangeH = d3.scale.linear()
+    .domain([0, maxH])
+    .range([height, 0]);
+
+//scale for rangeCite
+var rangeCite = d3.scale.linear()
+    .domain([0, maxCite])
+    .range([0, width]);
+
+//scale for color
+var color = d3.scale.category10();
+
+var xAxis = d3.svg.axis()
+    .scale(rangeCite)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(rangeH)
+    .orient("left");
+
+//append the scatter graph svg
+var svg = d3.select("#scatter").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+    .append("text")
+      .attr("class", "label")
+      .attr("x", width)
+      .attr("y", -6)
+      .style("text-anchor", "end")
+      .text("Number of Citation");
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("class", "label")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("H-Index")
+
+//dot for every paper
+  svg.selectAll(".dot")
+      .data(data)
+    .enter().append("circle")
+      .attr("class", "dot")
+      .attr("r", 3.5)
+      .attr("cx", function(d) { return (rangeCite(d.numCite)); })
+      .attr("cy", function(d) { return (rangeH(d.hIndex)); })
+      .style("fill", color(1) )
+      .on("mouseover", function(d) {
+          tooltip.transition()
+               .duration(200)
+               .style("opacity", .9);
+          tooltip.html(d.paperTitle + "<br/> (" + d.numCite 
+          + ", " + d.hIndex + ")")
+               .style("left", (d3.event.pageX + 5) + "px")
+               .style("top", (d3.event.pageY - 28) + "px");
+
+      })
+      .on("mouseout", function(d) {
+          tooltip.transition()
+               .duration(500)
+               .style("opacity", 0);
+      });
+</script>
+
+  </div>
   <p>Discover Scholar Network</p>
   <div id= "genGraphTable">
   	<table><form id = "graphForm" name="graphForm" method="post" action="/hello/graph" target="_blank"> 

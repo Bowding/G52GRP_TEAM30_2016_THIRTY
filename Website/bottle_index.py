@@ -152,15 +152,13 @@ def createScatterChart(conn, cur, target_user_id):
     rows = cur.fetchall()
     duplicate = ""
     scatterSetString = ""
-
+    print(rows)
     for row in rows:
-        if duplicate != row.get("paperTitle"):
 
-            scatterSetString += '{hIndex: "' + str(row.get("avghIndex")) + '", '
-            scatterSetString += 'numCite: "' + str(row.get("numberOfCitations")) + '", '
-            scatterSetString += 'paperTitle: "' + str(row.get("paperTitle")) + '"},'
+            scatterSetString += '{hIndex: "' + str(row[2]) + '", '
+            scatterSetString += 'numCite: "' + str(row[3]) + '", '
+            scatterSetString += 'paperTitle: "' + str(row[0]) + '"},'
 
-            duplicate = str(row.get("paperTitle"))
 
     scatter_info = {'scatterSetString': scatterSetString}
     return scatter_info
@@ -344,9 +342,13 @@ def create_coauthor_network(conn, cur, target_user_id, option):
             linkSetString += '{sourceId: "' + link[0] + '",'
             linkSetString += 'targetId: "' + link[1] + '"},'
 
-        typesTitle = '"Institution"'
+        #change the correct title of types
+        if option == 'institution':
+                typesTitle = '"Institution"'
+        elif option == 'region':
+                typesTitle = '"Region"'
 
-        network_info = {'nodeSetString': nodeSetString, 'linkSetString': linkSetString}
+        network_info = {'nodeSetString': nodeSetString, 'linkSetString': linkSetString, 'typesTitle': typesTitle}
         return network_info
 
 
@@ -531,7 +533,7 @@ def getGraphData():
         #generate graph 
         network_info = create_coauthor_network(conn, cur, target_user_id, "region")
 
-    network_info.update({'option': graph_option})
+
  
     return network_info
  
