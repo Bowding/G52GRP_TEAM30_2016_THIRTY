@@ -1,173 +1,413 @@
 #-*-coding:utf-8-*-
+import codecs
 import bottle
 import bottle_pymysql
+import pymysql
 import html
-#import pymysql
 import requests
 import os
 import sys
 import subprocess
-import get_data
 from bottle import template, static_file
 from bs4 import BeautifulSoup
-reload(sys)
-sys.setdefaultencoding('utf8')
+from time import sleep
+import threading
+import random
+from graphviz import Digraph 
+from graphviz import Graph 
+import webbrowser 
+from random import randint 
 
-print("hfufurh")
+#to make the script compatible with python 2.7 
+if sys.version_info[0] < 3:
+	reload(sys)
+	sys.setdefaultencoding('utf8')     
+
+global conn, cur
 
 #connect to db
 def connect_to_db():
     try:
         print("Connecting to mySQL.....")
-        plugin = bottle_pymysql.Plugin(dbuser = 'root', dbpass = '', dbname = 'googlescholardb')
-        #conn = pymysql.connect(host='localhost', db='googlescholardb', user='root', password='', cursorclass=pymysql.cursors.DictCursor)
-        bottle.install(plugin)
+        conn = pymysql.connect(user="root", passwd="", host="127.0.0.1", port=3306, database="googlescholardb", charset='utf8')
         print("Connection established!")
+        return conn
     except:
         print("Connection Failed!")
 
 
+#generate valid url from the search keyword user entered
 def get_target_url(search):
-    #generate searching url
-    keyword = search.replace(" ", "+")
-    search_url = "https://scholar.google.co.uk/scholar?q=" + keyword
+    #URL CHECK
+    URLcase0 = search.startswith('https://scholar.google.co.uk/citations?user=')
+    URLcase1 = search.startswith('https://scholar.google.com/citations?user=')
+    URLcase2 = search.startswith('://scholar.google.com/citations?user=')
+    URLcase3 = search.startswith('//scholar.google.com/citations?user=')
+    URLcase4 = search.startswith('/scholar.google.com/citations?user=')
+    URLcase5 = search.startswith('scholar.google.com/citations?user=')
 
-    #generate url of matching authors page
-    search_r = requests.get(search_url)
-    search_soup = BeautifulSoup(search_r.content, "html.parser")
+    errURLcase0 = search.startswith('www.')
+    errURLcase1 = search.startswith('http')
+    errURLcase2 = search.endswith(".co.uk")
+    errURLcase3 = search.endswith(".com")
 
-    match_url_area = search_soup.find("h3", {"class": "gs_rt"})
-    match_url = "https://scholar.google.co.uk" + match_url_area.find("a").get("href")
+    #If the user enters a link to a scholars page, it will return the link straightaway
+    if(URLcase0 or URLcase1 or URLcase2 or URLcase3 or URLcase4 or URLcase5): 
+        check_url = requests.get(search)
+        check_url_soup = BeautifulSoup(check_url.content, "html.parser")
+        check = check_url_soup.find_all("div", {"class": "gs_med"})
 
-    #generate url of target author page
-    match_r = requests.get(match_url)
-    match_soup = BeautifulSoup(match_r.content, "html.parser")
+        if ((not check) == False) and ("Please click here if you are not redirected within a few seconds." in check[0].text):
+            err_msg = "Error: Invalid URL. Please enter valid Google Scholar profile URL. e.g. https://scholar.google.co.uk/citations?user=..."
+            print(err_msg)
+            return err_msg
+        else: 
+            print("URL Accepted!")
+            return "https://scholar.google.co.uk/citations?user=" + search.split("user=")[1].split("&")[0]
 
-    target_url_area = match_soup.find("h3", {"class": "gsc_1usr_name"})
-    target_url = "https://scholar.google.co.uk" + target_url_area.find("a").get("href")
+    #If the input is an invalid URL
+    elif(errURLcase0 or errURLcase1 or errURLcase2 or errURLcase3): 
+        err_msg = "Error: Invalid URL. Please enter valid Google Scholar profile URL. e.g. https://scholar.google.co.uk/citations?user=..."
+        print(err_msg)
+        return err_msg
 
-    return target_url
+	#If the input is not a URL
+    else:   
+	#This part of the function pieces together a link for a scholars page on Google Scholar using the user search query
 
+        #generate searching url
+        keyword = search.replace(" ", "+")
+        search_url = "https://scholar.google.co.uk/scholar?q=" + keyword
 
-def get_profile_and_paper(search, pymydb):
+        #generate url of matching authors page
+        search_r = requests.get(search_url)
+        search_soup = BeautifulSoup(search_r.content, "html.parser")
+
+        match_url_area = search_soup.find("h3", {"class": "gs_rt"})
     
-    target_url = get_target_url(search)
+        #check whether there is scholar matches the keyword
+        if ((match_url_area == None)==True) or (match_url_area.text.startswith('User profiles for') == False):
+            err_msg = "Error: Scholar '" + search + "' not found.\n\n"
+            print("Scholar not found")
+            return err_msg
+        else:
+            match_url = "https://scholar.google.co.uk" + match_url_area.find("a").get("href")
 
-    url = target_url.replace("oe=ASCII","oi=ao&cstart=0&pagesize=100")
+            #generate url of target author page
+            match_r = requests.get(match_url)
+            match_soup = BeautifulSoup(match_r.content, "html.parser")
 
-    #access to target author page - first page
-    r = requests.get(url)
-    soup = BeautifulSoup(r.content, "html.parser")
+            target_url_area = match_soup.find("h3", {"class": "gsc_1usr_name"})
+            target_url = "https://scholar.google.co.uk" + target_url_area.find("a").get("href")
 
-    #get profile
-    name_data = soup.find_all("div", {"id": "gsc_prf_in"})[0]
-    hIndex = soup.find_all("td", {"class": "gsc_rsb_std"})
+            return target_url
 
-    print("Author Name: " + name_data.text)
-    print("h-index (all time): " + hIndex[2].text)
-    print("h-index (Since 2011): " + hIndex[3].text + "\n")
+    
+#def insert_to_db(pymydb, filename):
+def insert_to_db(conn, cur, filename):
 
-    x = 1
-    cstart = 0
-    while(1):
-        article = soup.find_all("tr", {"class": "gsc_a_tr"})
-        for item in article:
-            paperName = item.find_all("a", {"class": "gsc_a_at"})[0].text.encode('ascii', 'ignore').decode('ascii')
-            print("Paper: " + str(x) + " " + paperName)
-            year = item.find_all("td", {"class": "gsc_a_y"})[0].text.encode('ascii', 'ignore').decode('ascii')
-            print("Year: " + year)
+    #to make the script compatible with python 2.7
+    if sys.version_info[0] < 3:
+        f_read = codecs.open(filename, 'r', encoding = 'utf-8')
+    else: 
+        f_read = open(filename, 'r', encoding = 'utf-8')
 
-            citationNumber = item.find_all("td", {"class": "gsc_a_c"})[0].text.encode('ascii', 'ignore').decode('ascii')
-            seq_type = type(citationNumber)
-            citationNumber = seq_type().join(filter(seq_type.isdigit, citationNumber))
-            
-            if citationNumber != "" and year != "":
-                print("Cited by: " + citationNumber)
-                print("INSERT into papers (paperName, author, yearPublished, numberOfCitations) VALUES ('%s','%s', %d, %d)\n" % (paperName, name_data.text, int(year), int(citationNumber)))
-                try:
-                    pymydb.execute("INSERT into papers (paperName, author, yearPublished, numberOfCitations) VALUES ('%s','%s', %d, %d)" % (paperName.replace("'","\\\'"), name_data.text, int(year), int(citationNumber)))
-                    #conn.commit()
-                except ValueError:
-                    print("Failed inserting....")   
-            elif citationNumber == "" and year != "":
-                print("Cited by: 0")
-                print("INSERT into papers (paperName, author, yearPublished) VALUES ('%s','%s', %d)\n" % (paperName, name_data.text, int(year)))
-                try:
-                    pymydb.execute("INSERT into papers (paperName, author, yearPublished) VALUES ('%s','%s', %d)" % (paperName.replace("'","\\\'"), name_data.text, int(year)))
-                    #conn.commit()
-                except ValueError:
-                    print("Failed inserting....")
-            elif year == "" and citationNumber != "":
-                print("No publish year")
-                print("INSERT into papers (paperName, author, numberOfCitations) VALUES ('%s','%s', %d)\n" % (paperName, name_data.text, int(citationNumber)))
-                try:
-                    pymydb.execute("INSERT into papers (paperName, author, numberOfCitations) VALUES ('%s','%s', %d)" % (paperName.replace("'","\\\'"), name_data.text, int(citationNumber)))
-                    #conn.commit()
-                except ValueError:
-                    print("Failed inserting....")
-            else:
-                print("No publish year and citation number")
-                print("INSERT into papers (paperName, author) VALUES ('%s','%s')\n" % (paperName, name_data.text))
-                try:
-                    pymydb.execute("INSERT into papers (paperName, author) VALUES ('%s','%s')" % (paperName.replace("'","\\\'"), name_data.text))
-                    #conn.commit()
-                except ValueError:
-                    print("Failed inserting....")
-                    
-            x += 1
-
-        #get this page paper number
-        this_page_NumPaper_range = soup.find("span", {"id": "gsc_a_nn"}).text
-		#s = "–".encode("utf-8")
-		#print("======="+this_page_NumPaper_range.split("–")[0])
-
-        this_page_NumPaper = int(this_page_NumPaper_range.split('–')[1])
-        cstart +=100
-
-        if(this_page_NumPaper < cstart):
-            x -= 1
-            break
-        
-        #get next page url
-        url = target_url.replace("oe=ASCII","oi=ao&cstart=%d&pagesize=100" % (cstart))
-        #access to next page
-        r = requests.get(url)
-        soup = BeautifulSoup(r.content, "html.parser")
-
-    print("\nINSERT INTO profile (aName, NumPaper, hIndex) VALUES ('%s', %d, %d)\n" % (name_data.text, int(x), int(hIndex[2].text)))
+    #read sql instruction from given file
+    sql_instructions = f_read.readline()
+    
+    #execute instructions
     try:
-        pymydb.execute("INSERT INTO profile (aName, NumPaper, hIndex) VALUES ('%s', %d, %d)" % (name_data.text, int(x), int(hIndex[2].text)))
-        #conn.commit()
-    except:
-        print("Failed inserting....")
+        print("inserting: " + filename)
+        cur.execute(sql_instructions)
+        conn.commit()
+    except ValueError:
+        print("Failed inserting...." + filename)
 
-    return name_data.text
-
-
-def get_author_network(search):
-    target_url = get_target_url(search)
-    url = target_url.split("=")[1].split("&")[0]
-    os.system("python author_network.py %s" % (url))
-
-def visualize(authorName):
-    os.system("python get_data.py %s" % (authorName))
-    #string = get_data.get_string()
-    #print("+++++++" + string) 
-    #s2_out = subprocess.check_output([sys.executable, "get_data.py", str(10)])
-    f = open('myhtml.txt', 'r')
-    string = f.readline()  # python will convert \n to os.linesep
-    f.close()
-     
-    #print("++++++++" + str(s2_out))
-    return string
+    f_read.close()
 
 
-#display website
+#execute author_network.py to scrape the coauthor network of the target author
+def get_author_network(target_user_id):
+    os.system("python author_network.py %s" % (target_user_id))
+
+
+#execute scholar_data.py to scrape related info of the target author
+def get_scholar_data(target_user_id):
+    #target_url = get_target_url(search)
+    #url = target_url.split("=")[1].split("&")[0]
+    os.system("python scholar_data.py %s" % (target_user_id))
+
+#execute hIndex_citation_correlation.py to get the hIndex and citations for a given scholar
+def get_citation_correlation(target_user_id):
+    url = "https://scholar.google.co.uk/citations?user=" + target_user_id + "&oi=ao&cstart=0&pagesize=100"
+    url = url.replace("&", "---")
+    os.system("python hIndex_citation_correlation.py %s" % (url))
+
+# create a scatter graph of hIndex vs paper citations
+def createScatterChart(conn, cur, target_user_id):
+
+    #get data from db
+    rows = cur.execute("SELECT * FROM `hindexversuscitations` WHERE `authorID` = '" + target_user_id + "'")
+
+    #if paper in row is the same as the previous row, go on to the next row
+
+    rows = cur.fetchall()
+    duplicate = ""
+    scatterSetString = ""
+    print(rows)
+    for row in rows:
+
+            scatterSetString += '{hIndex: "' + str(row[2]) + '", '
+            scatterSetString += 'numCite: "' + str(row[3]) + '", '
+            scatterSetString += 'paperTitle: "' + str(row[0]) + '"},'
+
+
+    scatter_info = {'scatterSetString': scatterSetString}
+    return scatter_info
+
+#create a bar chart of 8 most cited coauthor
+def createBarChart(conn, cur, target_user_id):
+
+    cur.execute("SELECT * FROM `connections` WHERE `sourceScholarID` = '" + target_user_id +"'")
+
+    #Check if there is any result
+    result = 0
+    for row in cur:
+        result += 1
+
+    #If there has result
+    if result == 0:
+        bar_info = {'barSetString': ""}
+    else:
+        #[0]ID [1]name [2]NumPaper 
+        barSet = []
+
+        #construct sources scholar to targetscholar first
+        cur.execute("SELECT * FROM `connections` WHERE `sourceScholarID` = '" + target_user_id +"'")
+        for row in cur:
+            
+            #check if there is repeated ID
+            repeat = 0
+
+            for bar in barSet:
+                if bar[0] == row[1]:
+                    repeat = 1
+
+            if repeat == 0:
+                barSet.append([row[1],"" ,"" ])
+
+        #store authors' info
+        for bar in barSet:
+            cur.execute("SELECT * FROM `profile` WHERE `authorID` = '" + bar[0] +"'")
+            for row in cur:
+                if row[5] == bar[0]:
+                    #change name into short form
+                    parse = row[0].split(" ")
+                    name = ""
+                    for x in range(0, len(parse)):
+                        if x == 0:
+                            name += parse[x][0]
+                        elif x == (len(parse) - 1):
+                            name += " " + parse[x] 
+
+                    #put name and numPaper into the list
+                    bar[1] = name
+                    bar[2] = row[3]
+
+        #sort and save only top 8 highest amount of papers published
+        barSet = sorted(barSet, key=lambda l:l[2], reverse=True)
+        barSet = barSet[:8]
+        barSet = sorted(barSet, key=lambda l:l[2])
+
+
+        #contruct string for nodeSet
+        barSetString = ""
+
+        for bar in barSet:
+            barSetString += '{id: "' + bar[0]+'", '
+            barSetString += 'name: "' + bar[1] + '", '
+            barSetString += 'barLength: "' + str(bar[2]) + '", '
+            barSetString += 'hlink: "https://scholar.google.co.uk/citations?user=' + bar[0] + '&"},'
+
+        bar_info = {'barSetString': barSetString}
+    return bar_info
+
+
+#create a author network graph in view of different classificaton criterion
+def create_coauthor_network(conn, cur, target_user_id, option):
+    cur.execute("SELECT * FROM `connections` WHERE `sourceScholarID` = '" + target_user_id +"'")
+
+    #Check if there is any result
+    result = 0
+    for row in cur:
+        result += 1
+
+    if result == 0:
+        print("noooooooooo")
+        return
+    #If there has result
+    else:
+
+        #[0]ID [1]name [2]NumPaper [3]region/institution
+        nodeSet = []
+        #[0]sourceID [1]targetID
+        linkSet = []
+
+        targets = []
+
+        #put sourceauthor in nodeSet first
+        nodeSet.append([target_user_id,"","" ,"" ])
+
+        #construct sources scholar to targetscholar first
+        cur.execute("SELECT * FROM `connections` WHERE `sourceScholarID` = '" + target_user_id +"'")
+        for row in cur:
+            linkSet.append((row[0], row[1]))
+
+            #check if there is repeated ID
+            repeat = 0
+
+            for node in nodeSet:
+                if node[0] == row[1]:
+                    repeat = 1
+
+            if repeat == 0:
+                nodeSet.append([row[1],"" ,"" ,"" ])
+                targets.append(row[1])
+
+        #store authors' info
+        for node in nodeSet:
+            cur.execute("SELECT * FROM `profile` WHERE `authorID` = '" + node[0] +"'")
+            for row in cur:
+                if row[5] == node[0]:
+                    node[1] = row[0]
+                    node[2] = row[1]
+                    if option == 'region':
+                        node[3] = row[4]
+
+        if option == 'institution':
+            #acess institution
+            for node in nodeSet:
+                cur.execute("SELECT * FROM `institutions` WHERE `scholarID` = '" + node[0] +"'")
+
+                #parse the institution name and save 
+                for row in cur:
+                    parse = row[1].split(", ")
+                    for parsed in parse:
+                        if "University" in parsed:
+                            node[3] = parsed.replace(":", "'")
+                            break
+                        else:
+                            node[3] = "Unknown"
+
+
+        #access relationship between target scholar
+        for target in targets:
+            query = "SELECT * FROM `connections` WHERE `sourceScholarID` = '" + target +"' AND ("
+            idx = 0
+            for target2 in targets:
+                if idx == 0:
+                    query += "targetScholarID = '" + target2 +"'"
+                else:
+                    query += " OR targetScholarID = '" + target2 +"'"
+                idx += 1
+            query += ")"
+            cur.execute(query)
+
+            for row in cur:
+                linkSet.append((row[0], row[1]))
+
+        #DEL repeated linkset
+        idx1 = 0
+        for link1 in linkSet:
+            idx2 = 0
+            for link2 in linkSet:
+                if link1[0] == link2[0] and link1[1] == link2[1] and idx1 != idx2:
+                    del linkSet[idx2]
+                idx2 += 1
+            idx1 += 1
+
+
+        #contruct string for nodeSet
+        nodeSetString = ""
+
+        for node in nodeSet:
+            nodeSetString += '{id: "' + node[0]+'", '
+            nodeSetString += 'name: "' + node[1] + '", '
+            nodeSetString += 'numPaper: "' + str(node[2]) + '", '
+            nodeSetString += 'type: "' + node[3] + '", '
+            nodeSetString += 'hlink: "https://scholar.google.co.uk/citations?user=' + node[0] + '&"},'
+
+        #contruct string for linkSet
+        linkSetString = ""
+
+        for link in linkSet:
+            linkSetString += '{sourceId: "' + link[0] + '",'
+            linkSetString += 'targetId: "' + link[1] + '"},'
+
+        #change the correct title of types
+        if option == 'institution':
+                typesTitle = '"Institution"'
+        elif option == 'region':
+                typesTitle = '"Region"'
+
+        network_info = {'nodeSetString': nodeSetString, 'linkSetString': linkSetString, 'typesTitle': typesTitle}
+        return network_info
+
+
+#get data from db and and fromat them into a dictionary 
+def template_info(conn, cur, target_user_id):
+
+    #execute sql instruction
+    try:
+        cur.execute("SELECT * FROM `profile` WHERE `authorID` = '%s'" % target_user_id)
+        conn.commit()
+    except ValueError:
+        print("Failed selecting....")
+
+    #select data
+    data = cur.fetchone()
+
+    #check whether there is profile data for target author
+    if(data == None):
+        return
+    else:
+        authorName = data[0]
+        numPaper = data[1]
+        hIndex = data[2]
+        citationNum = data[3]
+        avatarURL = "https://scholar.google.co.uk" + data[6]
+
+        #get coauthorNum
+        try:
+            cur.execute("SELECT * FROM `connections` WHERE `sourceScholarID` = '%s'" % target_user_id)
+            conn.commit()
+        except ValueError:
+            print("Failed selecting....")
+
+        targetsLinks = [] 
+        for row in cur: 
+            repeat = 0 
+            for targetLink in targetsLinks: 
+                if targetLink == row[1]: 
+                    repeat = 1 
+
+            if repeat == 0: 
+                targetsLinks.append(row[1])
+
+        coauthorNum = len(targetsLinks)
+    
+        info = {'authorName': authorName, 'numPaper': numPaper, 'hIndex': hIndex, 'citationNum': citationNum, 'coauthorNum': coauthorNum, 'avatarURL': avatarURL}
+
+        return info
+
+
+#display the index of the website
 @bottle.route('/')
 def login():
     return template("index.html")
 
-#link static files
+
+#link all useful static files
 @bottle.route('/<filename>.css')
 def stylesheets(filename):
     return static_file('{}.css'.format(filename), root='./')
@@ -180,23 +420,147 @@ def stylesheets(filename):
 def stylesheets(filename):
     return static_file('{}.ico'.format(filename), root='./')
 
-connect_to_db()
 
-#handle user input
+#try to connect to db
+conn = connect_to_db() 
+cur = conn.cursor()
+
+
+#set the default encoding of the db to utf-8
+cur.execute('SET NAMES utf8;')
+cur.execute('SET CHARACTER SET utf8;')
+cur.execute('SET character_set_connection=utf8;')
+
+
+#main
 @bottle.route('/test', method="POST")
-def formhandler(pymydb):
-    """Handle the form submission"""
-    #get search keyword
+@bottle.view('home.html')
+def formhandler():
+
+    #get the input from search bar, and try to gernerate valid url from it
     search = bottle.request.forms.get('search')
+    target_url = get_target_url(search)
 
-    authorName = get_profile_and_paper(search, pymydb).replace(" ", "+")
+    #if unable to get url, directing to error page with appropriate error massage
+    if(not target_url.startswith('https://scholar.google.co.uk/citations?user=')):
+        err_msg = target_url
+        return template("error.html", err_msg = err_msg)
 
-    get_author_network(search)
+    #if get a valid url, get the user ID of target scholar
+    global target_user_id
+    target_user_id = target_url.split("user=")[1].split("&")[0]
 
-    string = visualize(authorName)
-    if(string == "No Results Found On DB!!"):
-        return string
-    else:
-        return template("nodes_basic.html", links = string)
+    #produce threads for get_author_network and get_scholar_data function
+    threads = []  
+    #t2 = threading.Thread(target = get_citation_correlation, args = (target_user_id, ))
+    t3 = threading.Thread(target = get_scholar_data, args = (target_user_id, )) 
+    t4 = threading.Thread(target = get_author_network, args = (target_user_id, ))
 
+    #try get the dictionary to be used to produce bar chart
+    bar_info = createBarChart(conn, cur, target_user_id)
+
+    #try get the dictionary to be used to produce scatter graph
+    scatter_info = createScatterChart(conn, cur, target_user_id)
+
+    print(scatter_info)
+    #if successed, i.e. demanded data is already in db
+    #cache hit
+    if ((bar_info != {'barSetString': ""})):
+        print("caching bar graph successful!")
+
+        #combine two info dictionary into one
+        info = template_info(conn, cur, target_user_id)
+
+        info.update(bar_info)
+
+        #scatter cache hit
+        print(scatter_info)
+        if ((scatter_info != {'scatterSetString': ""})):
+                print("caching scatter graph successful!")
+                info.update(scatter_info)
+
+        #scatter cache failed
+        else:
+                print("caching scatter graph failed!")
+                get_citation_correlation(target_user_id)
+                insert_to_db(conn, cur, 'scatter_data.txt')
+                scatter_info = createScatterChart(conn, cur, target_user_id)
+                info.update(scatter_info)
+
+    #if cache failed, do scraping
+    else:  
+        print("caching bar failed!")
+
+        #add scraping threads to thread array
+        #threads.append(t2)
+        threads.append(t3)
+        threads.append(t4)
+ 
+
+    #actuate all threads in the array
+    for t in threads:
+        t.setDaemon(True)
+        t.start()
+    for t in threads:
+        t.join()
+
+
+    #check whether previous cache failed or not
+    if((t3 in threads) and (t4 in threads)): 
+
+        #insert data into db
+        insert_to_db(conn, cur, 'author_network.txt') 
+        insert_to_db(conn, cur, 'scholar_data.txt')
+
+        #get the dictionary containing profile info
+        info = template_info(conn, cur, target_user_id)
+
+        #get the dictionary containing info to create bar chart
+        bar_info = createBarChart(conn, cur, target_user_id)
+
+        #get the directory containing info to create scatter graph
+        get_citation_correlation(target_user_id)
+        insert_to_db(conn, cur, 'scatter_data.txt')
+        scatter_info = createScatterChart(conn, cur, target_user_id)
+
+        #combine three dictionaries together
+        info.update(bar_info)
+        info.update(scatter_info)
+
+    print('Scraping Job Done')
+
+    return info
+
+
+#create the coauthor network in terms of the classification criterion user have chosen
+@bottle.post('/hello/graph')
+@bottle.view('author_network.html')
+def getGraphData(): 
+
+    #get user's option for classification criterion
+    option = bottle.request.forms.get("graphRelation") 
+
+    #classify by institutions
+    if option == "relation1": 
+        graph_option = "institution"
+
+        #generate graph 
+        network_info = create_coauthor_network(conn, cur, target_user_id, "institution")
+    
+    #classify by regions
+    if option == "relation2":  
+        graph_option = "region"
+        
+        #generate graph 
+        network_info = create_coauthor_network(conn, cur, target_user_id, "region")
+
+
+ 
+    return network_info
+ 
+ 
 bottle.run(host='localhost', port=8080)
+
+#terminate connection with db
+cur.close() 
+conn.close()

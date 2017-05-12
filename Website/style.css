@@ -1,0 +1,96 @@
+body {
+   font-family: "Century Gothic", Times, Sans-serif;
+   background-color: white;
+}
+
+.header img {
+  padding-left: 15px;
+  padding-right: 15px;
+  float: left;
+  width: 70px;
+  height: auto;
+}
+
+.header h1 {
+  padding-top: 8px;
+  font-weight:normal;
+}
+
+.info {
+  border-top: 1px solid gray;
+  float: left;
+  width: 250px;
+  margin-left: 25px;
+  padding-left: 2em;
+  padding-right: 2em;
+}
+
+#name{
+  font-size: 15pt;
+  text-align: center;
+}
+
+.info img {  float: middle;
+  padding-left: 70px;
+  width: 110px;
+  height: auto;
+  padding-top: 25px;
+}
+
+.info ul {
+	border-top: 1px solid gray;
+    list-style-type: none;
+    padding-left: 20px;
+}
+
+.info li {
+	color: gray;
+    margin: 10px 0;
+}
+
+article {
+	max-width: 600px;
+	border-top: 1px solid gray;
+    margin-left: 375px;
+    padding-left: 2em;
+    padding-right: 2em;
+    overflow: hidden;
+}
+
+article p{
+	font-size: 15pt;
+	color: gray;
+	border-bottom: 1px solid gray;
+}
+
+
+
+table, th, td {
+    margin: auto;
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 5px;
+}
+
+th{
+background-color: #dfdfdf;
+color: black;
+}
+
+td{
+color: black;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+svg {
+  font: 10px sans-serif;
+  display: block;
+}
+
+
+

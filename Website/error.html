@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+	<meta charset="UTF-8">
+    <link rel = "stylesheet"  type = "text/css" href = "error.css?<?php echo time();?>">
+    <title> Scholar Profile: -NAME- </title>
+<head>
+<div class="header">
+  <img id = "logo" src = "logo.png" alt = "Logo" >
+  <h1> Search Error</h1>
+</div>
+</head>  
+<body>
+<article>
+  <p>{{err_msg}}</p>
+  <p>Suggestions</p>
+
+<ul class = "nav">
+    <li class = "nav">Ensure that Scholar exists on Google Scholar</li>
+    <li class = "nav">Enter the URL of the Google Scholar page you want to analyse. Try to search using Google Scholar profile URL. e.g. https://scholar.google.co.uk/citations?user=...</li>
+    <li class = "nav">Check the validity of your search query</li>
+    <ul>
+        <li class = "nav">Make sure search query is correctly spelled</li>
+        <li class = "nav">Make sure URL is a valid Google Scholar page</li>
+    </ul>
+</ul>
+ </article>
+<br/><br/>
+
+<h4><a href="/"> <- Back </a></h4>
+
+</body>
+</html>

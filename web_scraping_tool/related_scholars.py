@@ -16,9 +16,15 @@ def breathFirstSearch(url):
 	r = requests.get(url)
 	soup = BeautifulSoup(r.content, "html.parser")
 
-	#first degree - scholars the input scholar has collaborated with
-	for link in soup.find_all("a", {"class": "gsc_rsb_aa"}):
-		link = "https://scholar.google.co.uk" + link.get('href')
+	url = soup.find_all("a", {"class": "gsc_rsb_lc"})[0]
+	link = "https://scholar.google.co.uk" + url.get('href')	
+	
+	r = requests.get(link)
+	soup = BeautifulSoup(r.content, "html.parser")
+	
+	for scholar in soup.findAll("div", {"class": "gsc_1usr_text"}):
+		scholarLink = scholar.find('a', href=True)
+		link = "https://scholar.google.co.uk" + scholarLink['href']
 		relatedScholars.append(link)
 		getInformation(link, 1)
 		
@@ -68,8 +74,10 @@ def getInformation(url, degree):
 	soup = BeautifulSoup(r.content, "html.parser")
 	name_data = soup.find_all("div", {"id": "gsc_prf_in"})[0]
 	
-	currentName = name_data.text.encode('ascii', 'ignore').decode('ascii')
+	#soup = BeautifulSoup(response.read().decode('utf-8', 'ignore'))
 
+	currentName = name_data.text.encode('ascii', 'ignore').decode('ascii')
+	
 	if degree == 0:
 		print("Author Name - Input Scholar Name: " + currentName)
 		global inputScholar 

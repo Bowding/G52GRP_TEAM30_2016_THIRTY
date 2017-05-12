@@ -1,0 +1,81 @@
+body {
+   font-family: "Century Gothic", Times, Sans-serif;
+   background-color: white;
+}
+
+.header img {
+  padding-left: 15px;
+  padding-right: 15px;
+  float: left;
+  width: 70px;
+  height: auto;
+}
+
+.header h1 {
+  padding-top: 8px;
+  font-weight:normal;
+}
+
+.info {
+  float: left;
+  width: 250px;
+  margin-left: 25px;
+  padding-left: 2em;
+  padding-right: 2em;
+}
+
+.info p {
+  padding-left: 50px;
+  font-size: 15pt;
+  float: middle;
+  width: 80px;
+}
+
+.info img {
+  padding-left: 70px;
+  width: 110px;
+  height: auto;
+}
+
+.info ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.info li {
+	color: gray;
+    margin: 10px 0;
+}
+
+article {
+	width: 500px;
+	border-top: 1px solid gray;
+    margin-left: 10px;
+    padding-left: 2em;
+    padding-right: 2em;
+    overflow: hidden;
+}
+
+article p{
+	font-size: 15pt;
+	color: gray;
+}
+
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 5px;
+}
+
+th{
+background-color: #dfdfdf;
+color: black;
+}
+
+td{
+color: black;
+}
+
+

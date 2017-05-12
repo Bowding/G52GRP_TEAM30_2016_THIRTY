@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>  
+  <style>
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.dot {
+  stroke: #000;
+}
+
+.tooltip {
+  position: absolute;
+  width: 200px;
+  height: 28px;
+  pointer-events: none;
+}
+
+</style>
+    <meta charset="UTF-8">
+    <link rel = "stylesheet"  type = "text/css" href = "style.css?<?php echo time();?>">
+    <title> Scholar Profile: -NAME- </title>   
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> 
+    <script> 
+        $(document).ready(function() {  
+
+             var numCoAuthors = {{ coauthorNum }};
+             var numPaper = {{ numPaper }};
+
+             //prevent no graph is selected
+              $('#graphForm').submit(function(){ 
+               if ($('#relation1').prop('checked') != true && $('#relation2').prop('checked') != true){ 
+                   alert( "At least one graph should be selected!" ); 
+                   return false; 
+                } 
+            }); 
+            
+            // when there are no coauthors, hide all graphs
+            if( numCoAuthors <= 0)
+            {
+              $('#genGraphTable').text('Scholar has no co-authors!');
+              $('#barChart').text('Scholar has no co-authors!');
+            }
+            //no papers and hide scatter graph
+            if( numPaper <= 0)
+            {
+              $('#scatter').text('Scholar has no papers!')
+            }
+
+        });   
+
+
+
+    </script> 
+<head>
+<div class="header">
+  <img id = "logo" src = "logo.png" alt = "Logo" >
+  <h1> Scholar Information</h1>
+</div>
+</head>
+<body>
+
+<div class="info">
+ <img id = "logo" src = {{avatarURL}} alt = "Logo" align="middle">
+	<p id="name">{{authorName}}</p>
+  <ul>
+    <li>Number of Papers: {{numPaper}}</li>
+    <li>Number of Citations: {{citationNum}}</li>
+    <li>h-Index: {{hIndex}}</li>
+	<li>Number of co-authors: {{coauthorNum}}</li>
+</ul>
+</div>
+
+<article>
+  <p>Most cited coauthors in the network</p>
+  <div id = "barChart">
+      <script type="text/javascript" src="https://d3js.org/d3.v3.js"></script>
+      <script>
+          var data = [{{ !barSetString }}];
+
+          var width = 600;
+          var height = 300;
+          var padding = 40;
+          var colorScale = d3.scale.linear()
+            .domain([0,7])
+            .range(["#056899", "#A7D2E7"]);
+
+          //append svg object
+          var canvas = d3.select("#barChart").append("svg")
+              .attr("width", width)
+              .attr("height", height);
+
+          //calculate max hIndex
+          var maxBarLength = 0;
+
+          data.forEach(function(d){
+            if(maxBarLength < Number(d.barLength)){ maxBarLength = Number(d.barLength);}
+          });
+
+          //create a scale for the length of bar
+          var barScale = d3.scale.linear()
+              .domain([0, maxBarLength])
+              .range([0, height - padding]);
+
+          //create a line at the bottom of bars
+          canvas.append("rect")
+            .attr("width", width)
+            .attr("height", 1)
+            .attr("y",height - 20  )
+
+          //create bars for every objects
+          var bars = canvas.selectAll(".bar")
+            .data(data)
+            .enter()
+              .append("rect")
+              .attr("class", "bar")
+              .attr("height", 0) // initialize from 0
+              .attr("width", 20)
+              .attr("fill", function(d,i) {return colorScale(7-i);})
+              .attr("x", function(d, i) { return (i * 75 + 25 - width)})
+              .attr("y", -height + 20)
+              .attr("id", function(d,i){ return "bar"+i;})
+              .attr("transform", function(d) { return "translate(" + "0" + ", " + (height - 20 - barScale(d.barLength))+ ")"})
+              .attr("transform", "rotate(180)")
+              .attr("class", "bar");
+
+          //the number above each bars
+          canvas.selectAll(".barLength")
+            .data(data).enter()
+            .append("text")
+              .text(0) //initialize from 0
+              .attr("class", "barLength")
+              .style("font", "normal 13px Arial")
+              .attr("text-anchor", "middle")
+              .attr("x", function(d, i) { return width - (i * 75 + 35)})
+              .attr("y", function(d) { return height - 20 });
+
+          //name of coauthors
+          canvas.selectAll(".name")
+            .data(data).enter()
+            .append("a")
+              .attr("xlink:href", function(d) {return d.hlink; }) //append hyperlink to each names
+              .append("text")
+                .attr("fill", "Blue")
+                .text(function(d){return d.name})
+                .attr("text-anchor", "middle")
+                .style("font", "normal 12px Arial")
+                .attr("x", function(d, i) { return width - (i * 75 + 35)})
+                .attr("y", height - 5)
+
+            //increase the length of bar after graph is generate
+            d3.selectAll(".bar")
+              .transition()
+                .ease("quad-out")
+                .duration(2000)
+                .attr("height", function(d) { return barScale(d.barLength);});
+
+            //increase the number above bars as the length of bars increase
+            canvas.selectAll(".barLength")
+              .transition()
+                .ease("quad-out")
+                .duration(2000)
+                .attr("y", function(d) { return height - padding + 15 - barScale(d.barLength);})
+                .tween("text", function(d) {
+                  return function(t) {
+                    d3.select(this).text( Math.floor(d.barLength*t));
+                  };
+                });
+      </script>
+  </div>
+  <p>Citation number of papers VS average coauthor h-index</p>
+  <div id ="scatter">
+    <script>
+
+var data = [{{ !scatterSetString }}];
+
+var tooltip = d3.select("#scatter").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
+var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = 600 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var maxH = 0;
+var maxCite = 0;
+data.forEach(function(d){
+  if(Number(d.hIndex) > maxH) { maxH = Number(d.hIndex)};
+  if(Number(d.numCite) > maxCite) { maxCite = Number(d.numCite)};
+});
+
+//scale for H-index
+var rangeH = d3.scale.linear()
+    .domain([0, maxH])
+    .range([height, 0]);
+
+//scale for rangeCite
+var rangeCite = d3.scale.linear()
+    .domain([0, maxCite])
+    .range([0, width]);
+
+//scale for color
+var color = d3.scale.category10();
+
+var xAxis = d3.svg.axis()
+    .scale(rangeCite)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(rangeH)
+    .orient("left");
+
+//append the scatter graph svg
+var svg = d3.select("#scatter").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+  
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+    .append("text")
+      .attr("class", "label")
+      .attr("x", width)
+      .attr("y", -6)
+      .style("text-anchor", "end")
+      .text("Number of Citation");
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("class", "label")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("H-Index")
+
+//dot for every paper
+  svg.selectAll(".dot")
+      .data(data)
+    .enter().append("circle")
+      .attr("class", "dot")
+      .attr("r", 3.5)
+      .attr("cx", function(d) { return (rangeCite(d.numCite)); })
+      .attr("cy", function(d) { return (rangeH(d.hIndex)); })
+      .style("fill", color(1) )
+      .on("mouseover", function(d) {
+          tooltip.transition()
+               .duration(200)
+               .style("opacity", .9);
+          tooltip.html(d.paperTitle + "<br/> (" + d.numCite 
+          + ", " + d.hIndex + ")")
+               .style("left", (d3.event.pageX + 5) + "px")
+               .style("top", (d3.event.pageY - 28) + "px");
+
+      })
+      .on("mouseout", function(d) {
+          tooltip.transition()
+               .duration(500)
+               .style("opacity", 0);
+      });
+</script>
+
+  </div>
+  <p>Discover Scholar Network</p>
+  <div id= "genGraphTable">
+  	<table><form id = "graphForm" name="graphForm" method="post" action="/hello/graph" target="_blank"> 
+  		<tr> 
+  			<th rowspan="2" valign="top">Relationship: </th> 
+  			<td><input id="relation1" class="relation" type="radio" name="graphRelation" value="relation1">Classify by institutions</td>
+        <th rowspan="2" valign="center"><input value="Generate" type="submit" class="submit" /></th>
+  		</tr> 
+  		<tr> 
+  			<td><input id="relation2" class="relation" type="radio" name="graphRelation" value="relation2">Classify by regions</td> 
+  		</tr> 
+  </table> 
+           
+          </form> 
+  </div> 
+ 
+ </article>
+ 
+</body>
+</html>

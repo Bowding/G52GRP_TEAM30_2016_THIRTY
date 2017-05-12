@@ -10,52 +10,85 @@ input[type = text]{
 </style>
 </head>
 <body>
-<div class = "logo">
-<img id = "logo" src = "logo.png" alt = "Logo" width = "350" height = "250">
+<div id = "loading">
+	<div class="sk-fading-circle">
+		<div class="sk-circle1 sk-circle"></div>
+		<div class="sk-circle2 sk-circle"></div>
+		<div class="sk-circle3 sk-circle"></div>
+		<div class="sk-circle4 sk-circle"></div>
+		<div class="sk-circle5 sk-circle"></div>
+		<div class="sk-circle6 sk-circle"></div>
+		<div class="sk-circle7 sk-circle"></div>
+		<div class="sk-circle8 sk-circle"></div>
+		<div class="sk-circle9 sk-circle"></div>
+		<div class="sk-circle10 sk-circle"></div>
+		<div class="sk-circle11 sk-circle"></div>
+		<div class="sk-circle12 sk-circle"></div>
+	</div>
+	<div class = "text">
+		<p>Loading, this may take a few minutes.</p>
+	</div>
 </div>
-<div class = "anchor">
-	<table>
-		<tr>
-			<th>
-				<div class="dropdown">
-					<button onclick="myFunction()" class="dropbtn">Dropdown</button>
-					<div id="myDropdown" class="dropdown-content">
-						<a href="#home">Home</a>
-						<a href="#about">About</a>
-						<a href="#contact">Contact</a>
+<div id = "content">
+	<div class = "logo">
+		<img id = "logo" src = "logo.png" alt = "Logo" width = "350" height = "250">
+	</div>
+	<div class = "anchor">
+		<table>
+			<tr>
+				<th>
+					<div class="dropdown">
+						<button onclick="myFunction()" class="dropbtn">Dropdown</button>
+						<div id="myDropdown" class="dropdown-content">
+							<a href="#home">Home</a>
+							<a href="#about">About</a>
+							<a href="#contact">Contact</a>
+						</div>
 					</div>
-				</div>
-			</th>
-			<th>
-				<form name = "form" action = "/test" method = "POST">
-						<input type = "text" name = "search" placeholder = "Search..">
-						<input name = "searchbutton" type = "submit"/>
-				</form>
-			</th>
-		</tr>
-	</table>
+				</th>
+				<th>
+					<form name = "form" action = "/test" method = "POST">
+							<input type = "text" name = "search" placeholder = "Search..">
+							<input value="Search" name = "searchbutton" type = "submit" onclick = "loading()"/>
+					</form>
+				</th>
+			</tr>
+		</table>
+	</div>
 </div>
 <script>
-/* When the user clicks on the button, 
-toggle between hiding and showing the dropdown content */
-function myFunction() {
-    document.getElementById("myDropdown").classList.toggle("show");
-}
+	/* When the user clicks on the button, 
+	toggle between hiding and showing the dropdown content */
+	function myFunction() {
+	    document.getElementById("myDropdown").classList.toggle("show");
+	}
 
-// Close the dropdown if the user clicks outside of it
-window.onclick = function(event) {
-  if (!event.target.matches('.dropbtn')) {
+	// Close the dropdown if the user clicks outside of it
+	window.onclick = function(event) {
+	  if (!event.target.matches('.dropbtn')) {
 
-    var dropdowns = document.getElementsByClassName("dropdown-content");
-    var i;
-    for (i = 0; i < dropdowns.length; i++) {
-      var openDropdown = dropdowns[i];
-      if (openDropdown.classList.contains('show')) {
-        openDropdown.classList.remove('show');
-      }
-    }
-  }
-}
+	    var dropdowns = document.getElementsByClassName("dropdown-content");
+	    var i;
+	    for (i = 0; i < dropdowns.length; i++) {
+	      var openDropdown = dropdowns[i];
+	      if (openDropdown.classList.contains('show')) {
+	        openDropdown.classList.remove('show');
+	      }
+	    }
+	  }
+	}
+
+	function preloader(){
+		document.getElementById("loading").style.display = "none";
+		document.getElementById("content").style.display = "block";
+	}//loader
+	window.onload = preloader;
+
+	function loading(){
+		document.getElementById("loading").style.display = "block";
+		document.getElementById("content").style.display = "none";
+	}//loader
+
 </script>
 </body>
 </html>
