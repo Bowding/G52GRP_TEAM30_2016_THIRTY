@@ -251,10 +251,10 @@ def create_coauthor_network(conn, cur, target_user_id, option):
             cur.execute("SELECT * FROM `profile` WHERE `authorID` = '" + node[0] +"'")
             for row in cur:
                 if row[5] == node[0]:
-                    node[1] = row[0]
-                    node[2] = row[1]
+                    node[1] = row[0] #name
+                    node[2] = row[1] #numPaper
                     if option == 'region':
-                        node[3] = row[4]
+                        node[3] = row[4] #region
 
         if option == 'institution':
             #acess institution
@@ -269,7 +269,7 @@ def create_coauthor_network(conn, cur, target_user_id, option):
                             node[3] = parsed.replace(":", "'")
                             break
                         else:
-                            node[3] = "Unknown"
+                            node[3] = "Unknown" #if it cannot find university in string, then its institution is unknown
 
 
         #access relationship between target scholar
@@ -316,6 +316,7 @@ def create_coauthor_network(conn, cur, target_user_id, option):
             linkSetString += '{sourceId: "' + link[0] + '",'
             linkSetString += 'targetId: "' + link[1] + '"},'
 
+        #change the correct title of types
         if option == 'institution':
                 typesTitle = '"Institution"'
         elif option == 'region':
