@@ -452,13 +452,17 @@ def formhandler():
     threads = []  
     t2 = threading.Thread(target = get_author_network, args = (target_user_id, )) 
     t3 = threading.Thread(target = get_scholar_data, args = (target_user_id, )) 
+    t4 = threading.Thread(target = get_citation_correlation, args = (target_user_id, ))
 
     #try get the dictionary to be used to produce bar chart
     bar_info = createBarChart(conn, cur, target_user_id)
 
+    #try get the dictionary to be used to produce scatter graph
+    scatter_info = createScatterChart(conn, cur, target_user_id)
+
     #if successed, i.e. demanded data is already in db
     #cache hit
-    if(bar_info != {'barSetString': ""}):  
+    if ((bar_info != {'barSetString': ""}) and (scatter_info != {'scholarSetString': ""})):
         print("caching graph successful!")
 
         #combine two info dictionary into one
@@ -477,6 +481,8 @@ def formhandler():
         #add scraping threads to thread array
         threads.append(t2)
         threads.append(t3)
+        threads.append(t4)
+
 
     #actuate all threads in the array
     for t in threads:
